@@ -1,0 +1,12 @@
+%APPDATA%\UpTool2
+- Apps
+  - __APPNAME
+    - info.xml
+      - Version
+    - package.zip
+      - Install.bat
+      - Remove.bat
+      - Data
+        - __APPFILES
+    - app
+      - __APPFILES

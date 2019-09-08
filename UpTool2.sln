@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpTool2", "UpTool2\UpTool2.csproj", "{C0C1E002-9E13-4E8F-A035-DBDC5128E00E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9841227C-3F1B-4C32-8123-3DB2CF4E15EE}"
+	ProjectSection(SolutionItems) = preProject
+		FolderLayout.txt = FolderLayout.txt
+		Test.xml = Test.xml
+		TestApp.zip = TestApp.zip
+		ToDo.txt = ToDo.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C0C1E002-9E13-4E8F-A035-DBDC5128E00E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0C1E002-9E13-4E8F-A035-DBDC5128E00E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0C1E002-9E13-4E8F-A035-DBDC5128E00E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0C1E002-9E13-4E8F-A035-DBDC5128E00E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {008127DC-F473-4709-A763-75F5FCED93AB}
+	EndGlobalSection
+EndGlobal
