@@ -35,8 +35,10 @@ namespace UpTool2
             using (var mutex = new Mutex(false, mutexId, out createdNew, securitySettings))
             {
                 var hasHandle = false;
+#if !DEBUG
                 try
                 {
+#endif
                     try
                     {
                         hasHandle = mutex.WaitOne(5000, false);
@@ -54,7 +56,7 @@ namespace UpTool2
                     string xml = dir + @"\info.xml";
                     if (!File.Exists(xml))
                         new XElement("meta", new XElement("Version", 0)).Save(xml);
-                    XElement meta = XDocument.Load("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml").Element("meta");
+                    XElement meta = XDocument.Load("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Meta.xml").Element("meta");
                     int version = int.Parse(meta.Element("Version").Value);
                     if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)
                     {
@@ -71,6 +73,7 @@ namespace UpTool2
                     }
                     else
                         Application.Run(new MainForm());
+#if !DEBUG
                 }
                 catch (Exception e1)
                 {
@@ -81,6 +84,7 @@ namespace UpTool2
                     if (hasHandle)
                         mutex.ReleaseMutex();
                 }
+#endif
             }
         }
     }
