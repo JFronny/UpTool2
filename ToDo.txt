@@ -1,1 +1,4 @@
 Automatic Updates for UpTool
+ProgressBar for Downloads
+Icons
+Splash screen

@@ -176,7 +176,8 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer);
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.ShowIcon = false;
+            this.Text = "UpTool 2";
             this.infoPanel.ResumeLayout(false);
             this.infoPanel.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);
