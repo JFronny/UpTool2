@@ -49,6 +49,7 @@
             // 
             // sidebarPanel
             // 
+            this.sidebarPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sidebarPanel.Location = new System.Drawing.Point(0, 34);
             this.sidebarPanel.Name = "sidebarPanel";
@@ -70,6 +71,7 @@
             // 
             // action_remove
             // 
+            this.action_remove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_remove.Enabled = false;
             this.action_remove.Location = new System.Drawing.Point(281, 12);
             this.action_remove.Name = "action_remove";
@@ -81,6 +83,7 @@
             // 
             // action_update
             // 
+            this.action_update.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_update.Enabled = false;
             this.action_update.Location = new System.Drawing.Point(362, 12);
             this.action_update.Name = "action_update";
@@ -92,6 +95,7 @@
             // 
             // action_install
             // 
+            this.action_install.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_install.Enabled = false;
             this.action_install.Location = new System.Drawing.Point(443, 12);
             this.action_install.Name = "action_install";

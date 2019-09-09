@@ -52,7 +52,7 @@ namespace UpTool2
                 {
                     //extract info
                     XDocument repo = XDocument.Load(Settings.Default.Repos[i]);
-                    foreach (XElement el in repo.Root.Elements())
+                    foreach (XElement el in repo.Element("repo").Elements("app"))
                     {
                         string name = el.Element("Name").Value;
                         string description = el.Element("Description").Value;

@@ -25,9 +25,10 @@ namespace UpTool2.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>file:///B:/SRC/VisualStudio/UpTool2/Test.xml</string>\r\n</ArrayOfString>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection Repos {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["Repos"]));
