@@ -40,11 +40,14 @@ namespace UpTool2
         void reloadElements()
         {
             //remove
+            toolTip.RemoveAll();
             action_install.Enabled = false;
             action_remove.Enabled = false;
             action_update.Enabled = false;
             infoPanel_Title.Text = "";
             infoPanel_Description.Text = "";
+            infoPanel_Title.Invalidate();
+            infoPanel_Description.Invalidate();
             int F = sidebarPanel.Controls.Count;
             for (int i = 0; i < F; i++)
             {
@@ -52,6 +55,11 @@ namespace UpTool2
             }
             apps.Clear();
             //add
+            toolTip.SetToolTip(controls_settings, "Settings");
+            toolTip.SetToolTip(controls_reload, "Refresh repositories");
+            toolTip.SetToolTip(action_install, "Install");
+            toolTip.SetToolTip(action_remove, "Remove");
+            toolTip.SetToolTip(action_update, "Update");
             WebClient client = new WebClient();
             for (int i = 0; i < Settings.Default.Repos.Count; i++)
             {
@@ -89,10 +97,11 @@ namespace UpTool2
                         };
                         sidebarIcon.Paint += (object sender, PaintEventArgs e) => {
                             e.Graphics.DrawImage(icon, 0, 0, sidebarIcon.Width, sidebarIcon.Height);
-                            Font font = new Font(FontFamily.GenericSansSerif, 10);
-                            SizeF tmp = e.Graphics.MeasureString(name, font);
-                            e.Graphics.DrawString(name, font, new SolidBrush(Color.Black), (sidebarIcon.Width - tmp.Width) / 2, sidebarIcon.Height - tmp.Height);
+                            //Font font = new Font(FontFamily.GenericSansSerif, 10);
+                            //SizeF tmp = e.Graphics.MeasureString(name, font);
+                            //e.Graphics.DrawString(name, font, new SolidBrush(Color.Black), (sidebarIcon.Width - tmp.Width) / 2, sidebarIcon.Height - tmp.Height);
                         };
+                        toolTip.SetToolTip(sidebarIcon, name);
                         sidebarPanel.Controls.Add(sidebarIcon);
                     }
                 }
@@ -106,7 +115,7 @@ namespace UpTool2
 
         private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForm().Show();
 
-        private void Button1_Click(object sender, EventArgs e) => reloadElements();
+        private void Controls_reload_Click(object sender, EventArgs e) => reloadElements();
 
         private struct App : IEquatable<App>
         {

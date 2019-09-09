@@ -1,2 +1,4 @@
 ProgressBar for Downloads
 Icons
+List of installed and updatable apps
+Run apps from UpTool

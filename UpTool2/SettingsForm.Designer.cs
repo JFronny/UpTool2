@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.repoList = new System.Windows.Forms.ListBox();
             this.minusButton = new System.Windows.Forms.Button();
             this.plusButton = new System.Windows.Forms.Button();
             this.repoBox = new System.Windows.Forms.TextBox();
             this.okButton = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // repoList
@@ -81,6 +83,10 @@
             this.okButton.UseVisualStyleBackColor = true;
             this.okButton.Click += new System.EventHandler(this.OkButton_Click);
             // 
+            // toolTip
+            // 
+            this.toolTip.ShowAlways = true;
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -92,8 +98,13 @@
             this.Controls.Add(this.minusButton);
             this.Controls.Add(this.repoList);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "SettingsForm";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Settings";
+            this.TopMost = true;
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -106,5 +117,6 @@
         private System.Windows.Forms.Button plusButton;
         private System.Windows.Forms.TextBox repoBox;
         private System.Windows.Forms.Button okButton;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

@@ -17,6 +17,11 @@ namespace UpTool2
         public SettingsForm()
         {
             InitializeComponent();
+            toolTip.SetToolTip(repoList, "Select the repository which you want to edit");
+            toolTip.SetToolTip(repoBox, "Link of the selected repository (apply with OK)");
+            toolTip.SetToolTip(okButton, "Set the repositorys link");
+            toolTip.SetToolTip(plusButton, "Add a new repository");
+            toolTip.SetToolTip(minusButton, "Remove the selected repository");
             SaveAndReload();
         }
 
