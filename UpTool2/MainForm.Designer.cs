@@ -39,6 +39,7 @@
             this.optionsPanel = new System.Windows.Forms.Panel();
             this.controls_settings = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.searchBox = new System.Windows.Forms.TextBox();
             this.infoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -53,7 +54,7 @@
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sidebarPanel.Location = new System.Drawing.Point(0, 34);
             this.sidebarPanel.Name = "sidebarPanel";
-            this.sidebarPanel.Size = new System.Drawing.Size(266, 416);
+            this.sidebarPanel.Size = new System.Drawing.Size(268, 416);
             this.sidebarPanel.TabIndex = 0;
             // 
             // infoPanel
@@ -66,18 +67,18 @@
             this.infoPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.infoPanel.Location = new System.Drawing.Point(0, 0);
             this.infoPanel.Name = "infoPanel";
-            this.infoPanel.Size = new System.Drawing.Size(530, 450);
+            this.infoPanel.Size = new System.Drawing.Size(528, 450);
             this.infoPanel.TabIndex = 1;
             // 
             // action_remove
             // 
             this.action_remove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_remove.Enabled = false;
-            this.action_remove.Location = new System.Drawing.Point(281, 12);
+            this.action_remove.Location = new System.Drawing.Point(707, 12);
             this.action_remove.Name = "action_remove";
-            this.action_remove.Size = new System.Drawing.Size(75, 23);
+            this.action_remove.Size = new System.Drawing.Size(23, 23);
             this.action_remove.TabIndex = 4;
-            this.action_remove.Text = "Remove";
+            this.action_remove.Text = "🗑";
             this.action_remove.UseVisualStyleBackColor = true;
             this.action_remove.Click += new System.EventHandler(this.Action_remove_Click);
             // 
@@ -85,11 +86,11 @@
             // 
             this.action_update.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_update.Enabled = false;
-            this.action_update.Location = new System.Drawing.Point(362, 12);
+            this.action_update.Location = new System.Drawing.Point(736, 12);
             this.action_update.Name = "action_update";
-            this.action_update.Size = new System.Drawing.Size(75, 23);
+            this.action_update.Size = new System.Drawing.Size(23, 23);
             this.action_update.TabIndex = 3;
-            this.action_update.Text = "Update";
+            this.action_update.Text = "⭱";
             this.action_update.UseVisualStyleBackColor = true;
             this.action_update.Click += new System.EventHandler(this.Action_update_Click);
             // 
@@ -97,11 +98,11 @@
             // 
             this.action_install.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_install.Enabled = false;
-            this.action_install.Location = new System.Drawing.Point(443, 12);
+            this.action_install.Location = new System.Drawing.Point(765, 12);
             this.action_install.Name = "action_install";
-            this.action_install.Size = new System.Drawing.Size(75, 23);
+            this.action_install.Size = new System.Drawing.Size(23, 23);
             this.action_install.TabIndex = 2;
-            this.action_install.Text = "Install";
+            this.action_install.Text = "⭳";
             this.action_install.UseVisualStyleBackColor = true;
             this.action_install.Click += new System.EventHandler(this.Action_install_Click);
             // 
@@ -136,38 +137,48 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.infoPanel);
             this.splitContainer.Size = new System.Drawing.Size(800, 450);
-            this.splitContainer.SplitterDistance = 266;
+            this.splitContainer.SplitterDistance = 268;
             this.splitContainer.TabIndex = 0;
             // 
             // optionsPanel
             // 
+            this.optionsPanel.Controls.Add(this.searchBox);
             this.optionsPanel.Controls.Add(this.controls_settings);
             this.optionsPanel.Controls.Add(this.button1);
             this.optionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.optionsPanel.Location = new System.Drawing.Point(0, 0);
             this.optionsPanel.Name = "optionsPanel";
-            this.optionsPanel.Size = new System.Drawing.Size(266, 34);
+            this.optionsPanel.Size = new System.Drawing.Size(268, 34);
             this.optionsPanel.TabIndex = 0;
             // 
             // controls_settings
             // 
             this.controls_settings.Location = new System.Drawing.Point(3, 5);
             this.controls_settings.Name = "controls_settings";
-            this.controls_settings.Size = new System.Drawing.Size(75, 23);
+            this.controls_settings.Size = new System.Drawing.Size(23, 23);
             this.controls_settings.TabIndex = 1;
-            this.controls_settings.Text = "Settings";
+            this.controls_settings.Text = "⚙";
             this.controls_settings.UseVisualStyleBackColor = true;
             this.controls_settings.Click += new System.EventHandler(this.Controls_settings_Click);
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(84, 5);
+            this.button1.Location = new System.Drawing.Point(29, 5);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(23, 23);
             this.button1.TabIndex = 0;
-            this.button1.Text = "Reload";
+            this.button1.Text = "↻";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Button1_Click);
+            // 
+            // searchBox
+            // 
+            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchBox.Location = new System.Drawing.Point(58, 7);
+            this.searchBox.Name = "searchBox";
+            this.searchBox.Size = new System.Drawing.Size(207, 20);
+            this.searchBox.TabIndex = 2;
+            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // MainForm
             // 
@@ -175,9 +186,11 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer);
+            this.MinimumSize = new System.Drawing.Size(543, 238);
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.Text = "UpTool 2";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.infoPanel.ResumeLayout(false);
             this.infoPanel.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);
@@ -185,6 +198,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.optionsPanel.ResumeLayout(false);
+            this.optionsPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -202,6 +216,7 @@
         private System.Windows.Forms.Button action_install;
         private System.Windows.Forms.Button action_remove;
         private System.Windows.Forms.Button action_update;
+        private System.Windows.Forms.TextBox searchBox;
     }
 }
 

@@ -30,6 +30,13 @@ namespace UpTool2
             if (!Directory.Exists(dir + @"\Apps"))
                 Directory.CreateDirectory(dir + @"\Apps");
         }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Program.splash.Hide();
+            BringToFront();
+        }
+
         void reloadElements()
         {
             //remove
@@ -66,6 +73,7 @@ namespace UpTool2
                         apps.Add(app);
                         //generate UI elements
                         Panel sidebarIcon = new Panel();
+                        sidebarIcon.Tag = app;
                         sidebarIcon.BackColor = color;
                         sidebarIcon.Size = new Size(70, 70);
                         sidebarIcon.Click += (object sender, EventArgs e) => {
@@ -81,10 +89,9 @@ namespace UpTool2
                         };
                         sidebarIcon.Paint += (object sender, PaintEventArgs e) => {
                             e.Graphics.DrawImage(icon, 0, 0, sidebarIcon.Width, sidebarIcon.Height);
-                            string text = "NGL";
                             Font font = new Font(FontFamily.GenericSansSerif, 10);
-                            SizeF tmp = e.Graphics.MeasureString(text, font);
-                            e.Graphics.DrawString(text, font, new SolidBrush(Color.Black), (sidebarIcon.Width - tmp.Width) / 2, sidebarIcon.Height - tmp.Height);
+                            SizeF tmp = e.Graphics.MeasureString(name, font);
+                            e.Graphics.DrawString(name, font, new SolidBrush(Color.Black), (sidebarIcon.Width - tmp.Width) / 2, sidebarIcon.Height - tmp.Height);
                         };
                         sidebarPanel.Controls.Add(sidebarIcon);
                     }
@@ -210,6 +217,15 @@ namespace UpTool2
                 if (Directory.Exists(app))
                     Directory.Delete(app, true);
                 MessageBox.Show(e1.ToString(), "Install failed");
+            }
+        }
+
+        private void SearchBox_TextChanged(object sender, EventArgs e)
+        {
+            for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+            {
+                Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
+                sidebarIcon.Visible = ((App)sidebarIcon.Tag).name.Contains(searchBox.Text);
             }
         }
     }

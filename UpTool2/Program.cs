@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -10,22 +8,47 @@ using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using System.Drawing;
 
 namespace UpTool2
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+        public static Form splash;
         [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            splash = new Form
+            {
+                StartPosition = FormStartPosition.CenterScreen,
+                FormBorderStyle = FormBorderStyle.None,
+                ControlBox = false,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                ShowIcon = false,
+                ShowInTaskbar = false,
+                Size = new Size(700, 400),
+                ForeColor = Color.Green,
+                TopMost = true
+            };
+            splash.MaximumSize = splash.Size;
+            splash.MinimumSize = splash.Size;
+            Label splashL = new Label
+            {
+                AutoSize = false,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Text = "Loading",
+                Font = new Font(FontFamily.GenericSansSerif, 40)
+            };
+            splash.Controls.Add(splashL);
+            splash.Show();
+            splash.BringToFront();
+            Thread.Sleep(1000);
             string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
             string mutexId = string.Format("Global\\{{{0}}}", appGuid);
             bool createdNew;
@@ -69,6 +92,7 @@ namespace UpTool2
                             throw new Exception("The hash is not equal to the one stored in the repo");
                         sha256.Dispose();
                         new XElement("meta", new XElement("Version", version)).Save(xml);
+                        splash.Hide();
                         Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C echo Running Update & timeout /t 4 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & echo Done Updating, please restart & pause" });
                     }
                     else
