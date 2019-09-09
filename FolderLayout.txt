@@ -10,3 +10,5 @@
         - __APPFILES
     - app
       - __APPFILES
+- info.xml
+  - Version

@@ -77,7 +77,7 @@ namespace UpTool2
                             action_remove.Enabled = Directory.Exists(dir + @"\Apps\" + ID.ToString());
                             action_update.Tag = app;
                             string xml = dir + @"\Apps\" + ID.ToString() + @"\info.xml";
-                            action_update.Enabled = File.Exists(xml) && int.Parse(XDocument.Load(xml).Root.Element("Version").Value) < version;
+                            action_update.Enabled = File.Exists(xml) && int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < version;
                         };
                         sidebarIcon.Paint += (object sender, PaintEventArgs e) => {
                             e.Graphics.DrawImage(icon, 0, 0, sidebarIcon.Width, sidebarIcon.Height);
@@ -192,10 +192,11 @@ namespace UpTool2
                 SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
                 if (BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper() != appI.hash)
                     throw new Exception("The hash is not equal to the one stored in the repo");
+                sha256.Dispose();
                 ZipFile.ExtractToDirectory(app + @"\package.zip", tmp);
                 Directory.Move(tmp + @"\Data", app + @"\app");
                 Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C \"" + tmp + "\\Install.bat\"", WorkingDirectory = app + @"\app" }).WaitForExit();
-                new XElement("app", new XElement("Version", 1)).Save(app + @"\info.xml");
+                new XElement("app", new XElement("Version", appI.version)).Save(app + @"\info.xml");
                 Directory.Delete(tmp, true);
                 if (relE)
                     reloadElements();
