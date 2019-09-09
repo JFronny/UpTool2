@@ -37,9 +37,9 @@
             this.infoPanel_Title = new System.Windows.Forms.Label();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.optionsPanel = new System.Windows.Forms.Panel();
+            this.searchBox = new System.Windows.Forms.TextBox();
             this.controls_settings = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.searchBox = new System.Windows.Forms.TextBox();
             this.infoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -74,7 +74,7 @@
             // 
             this.action_remove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_remove.Enabled = false;
-            this.action_remove.Location = new System.Drawing.Point(707, 12);
+            this.action_remove.Location = new System.Drawing.Point(435, 12);
             this.action_remove.Name = "action_remove";
             this.action_remove.Size = new System.Drawing.Size(23, 23);
             this.action_remove.TabIndex = 4;
@@ -86,7 +86,7 @@
             // 
             this.action_update.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_update.Enabled = false;
-            this.action_update.Location = new System.Drawing.Point(736, 12);
+            this.action_update.Location = new System.Drawing.Point(464, 12);
             this.action_update.Name = "action_update";
             this.action_update.Size = new System.Drawing.Size(23, 23);
             this.action_update.TabIndex = 3;
@@ -98,7 +98,7 @@
             // 
             this.action_install.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_install.Enabled = false;
-            this.action_install.Location = new System.Drawing.Point(765, 12);
+            this.action_install.Location = new System.Drawing.Point(493, 12);
             this.action_install.Name = "action_install";
             this.action_install.Size = new System.Drawing.Size(23, 23);
             this.action_install.TabIndex = 2;
@@ -151,6 +151,15 @@
             this.optionsPanel.Size = new System.Drawing.Size(268, 34);
             this.optionsPanel.TabIndex = 0;
             // 
+            // searchBox
+            // 
+            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchBox.Location = new System.Drawing.Point(58, 7);
+            this.searchBox.Name = "searchBox";
+            this.searchBox.Size = new System.Drawing.Size(207, 20);
+            this.searchBox.TabIndex = 2;
+            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
+            // 
             // controls_settings
             // 
             this.controls_settings.Location = new System.Drawing.Point(3, 5);
@@ -170,15 +179,6 @@
             this.button1.Text = "↻";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Button1_Click);
-            // 
-            // searchBox
-            // 
-            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchBox.Location = new System.Drawing.Point(58, 7);
-            this.searchBox.Name = "searchBox";
-            this.searchBox.Size = new System.Drawing.Size(207, 20);
-            this.searchBox.TabIndex = 2;
-            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // MainForm
             // 
