@@ -50,6 +50,7 @@
             // 
             // sidebarPanel
             // 
+            this.sidebarPanel.AutoScroll = true;
             this.sidebarPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sidebarPanel.Location = new System.Drawing.Point(0, 34);
