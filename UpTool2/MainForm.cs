@@ -9,6 +9,7 @@ using System.IO;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
+using System.Linq;
 
 namespace UpTool2
 {
@@ -85,7 +86,7 @@ namespace UpTool2
                             Image icon = Image.FromStream(client.OpenRead(tmp_imageurl));
                             apps[ID] = new App(name, description, version, file, hash, ID, color, icon, runnable, mainFile);
                         }
-                }
+                    }
 #if !DEBUG
                 }
                 catch (Exception e)
@@ -94,17 +95,16 @@ namespace UpTool2
                 }
 #endif
             }
-            foreach (App app in apps.Values)
+            List<App> tmp_appslist = new List<App>(apps.Values);
+            tmp_appslist.Sort((x, y) => x.name.CompareTo(y.name));
+            foreach ((App app, Panel sidebarIcon) in from App app in tmp_appslist let sidebarIcon = new Panel() select (app, sidebarIcon))
             {
-                //create GUI elements
-                Panel sidebarIcon = new Panel();
                 sidebarIcon.Tag = app;
                 sidebarIcon.BackColor = app.color;
                 sidebarIcon.Size = new Size(70, 70);
                 sidebarIcon.BackgroundImage = app.icon;
                 sidebarIcon.BackgroundImageLayout = ImageLayout.Stretch;
-                sidebarIcon.Click += (object sender, EventArgs e) =>
-                {
+                sidebarIcon.Click += (object sender, EventArgs e) => {
                     infoPanel_Title.Text = app.name;
                     infoPanel_Description.Text = app.description;
                     action_install.Tag = app;
@@ -120,6 +120,7 @@ namespace UpTool2
                 toolTip.SetToolTip(sidebarIcon, app.name);
                 sidebarPanel.Controls.Add(sidebarIcon);
             }
+
             client.Dispose();
             updateSidebarV(null, null);
         }
