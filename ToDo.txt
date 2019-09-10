@@ -1,4 +1,5 @@
 ProgressBar for Downloads
 Icons
-List of installed and updatable apps
 Run apps from UpTool
+More apps: cashew, Laptop Sim (wenn fertig)
+Automate creating packages for apps?

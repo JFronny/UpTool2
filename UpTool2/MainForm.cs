@@ -1,16 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using UpTool2.Properties;
-using System.Xml;
 using System.Xml.Linq;
 using System.IO;
 using System.Diagnostics;
@@ -21,11 +14,13 @@ namespace UpTool2
 {
     public partial class MainForm : Form
     {
-        List<App> apps = new List<App>();
+        Dictionary<Guid, App> apps = new Dictionary<Guid, App>();
+        enum Status { Not_Installed = 1, Updatable = 2, Installed = 4, All = 7 }
         string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\UpTool2";
         public MainForm()
         {
             InitializeComponent();
+            filterBox.DataSource = Enum.GetValues(typeof(Status));
             reloadElements();
             if (!Directory.Exists(dir + @"\Apps"))
                 Directory.CreateDirectory(dir + @"\Apps");
@@ -41,11 +36,7 @@ namespace UpTool2
         {
             //remove
             toolTip.RemoveAll();
-            action_install.Enabled = false;
-            action_remove.Enabled = false;
-            action_update.Enabled = false;
-            infoPanel_Title.Text = "";
-            infoPanel_Description.Text = "";
+            clearSelection();
             infoPanel_Title.Invalidate();
             infoPanel_Description.Invalidate();
             int F = sidebarPanel.Controls.Count;
@@ -57,95 +48,87 @@ namespace UpTool2
             //add
             toolTip.SetToolTip(controls_settings, "Settings");
             toolTip.SetToolTip(controls_reload, "Refresh repositories");
+            toolTip.SetToolTip(filterBox, "Filter");
             toolTip.SetToolTip(action_install, "Install");
             toolTip.SetToolTip(action_remove, "Remove");
             toolTip.SetToolTip(action_update, "Update");
+            toolTip.SetToolTip(action_run, "Run");
             WebClient client = new WebClient();
             for (int i = 0; i < Settings.Default.Repos.Count; i++)
             {
+#if !DEBUG
                 try
                 {
-                    //extract info
+#endif
+                    //get info
                     XDocument repo = XDocument.Load(Settings.Default.Repos[i]);
                     foreach (XElement el in repo.Element("repo").Elements("app"))
                     {
-                        string name = el.Element("Name").Value;
-                        string description = el.Element("Description").Value;
                         int version = int.Parse(el.Element("Version").Value);
-                        string file = el.Element("File").Value;
-                        string hash = el.Element("Hash").Value;
                         Guid ID = Guid.Parse(el.Element("ID").Value);
-                        Color color = ColorTranslator.FromHtml(el.Element("Color").Value);
-                        Image icon = Image.FromStream(client.OpenRead(el.Element("Icon").Value));
-                        App app = new App(name, description, version, file, hash, ID, color, icon);
-                        apps.Add(app);
-                        //generate UI elements
-                        Panel sidebarIcon = new Panel();
-                        sidebarIcon.Tag = app;
-                        sidebarIcon.BackColor = color;
-                        sidebarIcon.Size = new Size(70, 70);
-                        sidebarIcon.Click += (object sender, EventArgs e) => {
-                            infoPanel_Title.Text = name;
-                            infoPanel_Description.Text = description;
-                            action_install.Tag = app;
-                            action_install.Enabled = !Directory.Exists(dir + @"\Apps\" + ID.ToString());
-                            action_remove.Tag = app;
-                            action_remove.Enabled = Directory.Exists(dir + @"\Apps\" + ID.ToString());
-                            action_update.Tag = app;
-                            string xml = dir + @"\Apps\" + ID.ToString() + @"\info.xml";
-                            action_update.Enabled = File.Exists(xml) && int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < version;
-                        };
-                        sidebarIcon.Paint += (object sender, PaintEventArgs e) => {
-                            e.Graphics.DrawImage(icon, 0, 0, sidebarIcon.Width, sidebarIcon.Height);
-                            //Font font = new Font(FontFamily.GenericSansSerif, 10);
-                            //SizeF tmp = e.Graphics.MeasureString(name, font);
-                            //e.Graphics.DrawString(name, font, new SolidBrush(Color.Black), (sidebarIcon.Width - tmp.Width) / 2, sidebarIcon.Height - tmp.Height);
-                        };
-                        toolTip.SetToolTip(sidebarIcon, name);
-                        sidebarPanel.Controls.Add(sidebarIcon);
-                    }
+                        if (!(apps.ContainsKey(ID) && apps[ID].version >= version))
+                        {
+                            string name = el.Element("Name").Value;
+                            string description = el.Element("Description").Value;
+                            string file = el.Element("File").Value;
+                            string hash = el.Element("Hash").Value;
+                            bool runnable = el.Element("MainFile") != null;
+                            string mainFile = "";
+                            if (runnable)
+                                mainFile = el.Element("MainFile").Value;
+                            Color color = ColorTranslator.FromHtml(el.Element("Color").Value);
+                            Image icon = Image.FromStream(client.OpenRead(el.Element("Icon").Value));
+                            apps[ID] = new App(name, description, version, file, hash, ID, color, icon, runnable, mainFile);
+                        }
+                }
+#if !DEBUG
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show(e.ToString(), "Failed to load repo: " + Settings.Default.Repos[i]);
                 }
+#endif
+            }
+            foreach (App app in apps.Values)
+            {
+                //create GUI elements
+                Panel sidebarIcon = new Panel();
+                sidebarIcon.Tag = app;
+                sidebarIcon.BackColor = app.color;
+                sidebarIcon.Size = new Size(70, 70);
+                sidebarIcon.BackgroundImage = app.icon;
+                sidebarIcon.BackgroundImageLayout = ImageLayout.Stretch;
+                sidebarIcon.Click += (object sender, EventArgs e) =>
+                {
+                    infoPanel_Title.Text = app.name;
+                    infoPanel_Description.Text = app.description;
+                    action_install.Tag = app;
+                    action_install.Enabled = !Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
+                    action_remove.Tag = app;
+                    action_remove.Enabled = Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
+                    action_update.Tag = app;
+                    string xml = dir + @"\Apps\" + app.ID.ToString() + @"\info.xml";
+                    action_update.Enabled = File.Exists(xml) && int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < app.version;
+                    action_run.Tag = app;
+                    action_run.Enabled = app.runnable && Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
+                };
+                toolTip.SetToolTip(sidebarIcon, app.name);
+                sidebarPanel.Controls.Add(sidebarIcon);
             }
             client.Dispose();
+            updateSidebarV(null, null);
         }
 
         private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForm().Show();
 
         private void Controls_reload_Click(object sender, EventArgs e) => reloadElements();
 
-        private struct App : IEquatable<App>
+        private void Action_run_Click(object sender, EventArgs e)
         {
-            public string name;
-            public string description;
-            public int version;
-            public string file;
-            public string hash;
-            public Guid ID;
-            public Color color;
-            public Image Icon;
-
-            public App(string name, string description, int version, string file, string hash, Guid iD, Color color, Image icon)
-            {
-                this.name = name ?? throw new ArgumentNullException(nameof(name));
-                this.description = description ?? throw new ArgumentNullException(nameof(description));
-                this.version = version;
-                this.file = file ?? throw new ArgumentNullException(nameof(file));
-                this.hash = hash ?? throw new ArgumentNullException(nameof(hash));
-                ID = iD;
-                this.color = color;
-                Icon = icon ?? throw new ArgumentNullException(nameof(icon));
-            }
-
-            public override bool Equals(object obj) => obj is App app && Equals(app);
-            public bool Equals(App other) => ID.Equals(other.ID);
-            public override int GetHashCode() => 1213502048 + EqualityComparer<Guid>.Default.GetHashCode(ID);
-            public static bool operator ==(App left, App right) => left.Equals(right);
-            public static bool operator !=(App left, App right) => !(left == right);
+            string app = dir + @"\Apps\" + ((App)action_run.Tag).ID.ToString();
+            Process.Start(new ProcessStartInfo { FileName = app + "\\app\\" + ((App)action_run.Tag).mainFile, WorkingDirectory = app + @"\app" });
         }
+
         bool relE = true;
         private void Action_remove_Click(object sender, EventArgs e)
         {
@@ -229,13 +212,77 @@ namespace UpTool2
             }
         }
 
-        private void SearchBox_TextChanged(object sender, EventArgs e)
+        void clearSelection()
         {
+            action_install.Enabled = false;
+            action_remove.Enabled = false;
+            action_update.Enabled = false;
+            action_run.Enabled = false;
+            infoPanel_Title.Text = "";
+            infoPanel_Description.Text = "";
+        }
+
+        private void updateSidebarV(object sender, EventArgs e)
+        {
+            Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
             for (int i = 0; i < sidebarPanel.Controls.Count; i++)
             {
                 Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
-                sidebarIcon.Visible = ((App)sidebarIcon.Tag).name.Contains(searchBox.Text);
+                App app = (App)sidebarIcon.Tag;
+                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)status) == (int)app.status;
             }
+            clearSelection();
+        }
+
+        private struct App : IEquatable<App>
+        {
+            public string name;
+            public string description;
+            public int version;
+            public string file;
+            public string hash;
+            public Guid ID;
+            public Color color;
+            public Image icon;
+            public bool runnable;
+            public string mainFile;
+
+            public App(string name, string description, int version, string file, string hash, Guid iD, Color color, Image icon, bool runnable, string mainFile)
+            {
+                this.name = name ?? throw new ArgumentNullException(nameof(name));
+                this.description = description ?? throw new ArgumentNullException(nameof(description));
+                this.version = version;
+                this.file = file ?? throw new ArgumentNullException(nameof(file));
+                this.hash = hash ?? throw new ArgumentNullException(nameof(hash));
+                ID = iD;
+                this.color = color;
+                this.icon = icon ?? throw new ArgumentNullException(nameof(icon));
+                this.runnable = runnable;
+                this.mainFile = mainFile ?? throw new ArgumentNullException(nameof(mainFile));
+            }
+
+            public Status status
+            {
+                get {
+                    string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\UpTool2";
+                    string xml = dir + @"\Apps\" + ID.ToString() + @"\info.xml";
+                    if (File.Exists(xml))
+                    {
+                        if (int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < version)
+                            return Status.Updatable;
+                        else
+                            return Status.Installed;
+                    }
+                    else
+                        return Status.Not_Installed;
+                }
+            }
+
+            public override bool Equals(object obj) => obj is App app && Equals(app);
+            public bool Equals(App other) => ID.Equals(other.ID);
+            public override int GetHashCode() => 1213502048 + EqualityComparer<Guid>.Default.GetHashCode(ID);
+            public static bool operator ==(App left, App right) => left.Equals(right);
+            public static bool operator !=(App left, App right) => !(left == right);
         }
     }
 }

@@ -38,10 +38,12 @@
             this.infoPanel_Title = new System.Windows.Forms.Label();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.optionsPanel = new System.Windows.Forms.Panel();
+            this.filterBox = new System.Windows.Forms.ComboBox();
             this.searchBox = new System.Windows.Forms.TextBox();
             this.controls_settings = new System.Windows.Forms.Button();
             this.controls_reload = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.action_run = new System.Windows.Forms.Button();
             this.infoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -55,13 +57,14 @@
             this.sidebarPanel.AutoScroll = true;
             this.sidebarPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sidebarPanel.Location = new System.Drawing.Point(0, 34);
+            this.sidebarPanel.Location = new System.Drawing.Point(0, 59);
             this.sidebarPanel.Name = "sidebarPanel";
-            this.sidebarPanel.Size = new System.Drawing.Size(268, 416);
+            this.sidebarPanel.Size = new System.Drawing.Size(268, 391);
             this.sidebarPanel.TabIndex = 0;
             // 
             // infoPanel
             // 
+            this.infoPanel.Controls.Add(this.action_run);
             this.infoPanel.Controls.Add(this.action_remove);
             this.infoPanel.Controls.Add(this.action_update);
             this.infoPanel.Controls.Add(this.action_install);
@@ -148,23 +151,37 @@
             // 
             // optionsPanel
             // 
+            this.optionsPanel.Controls.Add(this.filterBox);
             this.optionsPanel.Controls.Add(this.searchBox);
             this.optionsPanel.Controls.Add(this.controls_settings);
             this.optionsPanel.Controls.Add(this.controls_reload);
             this.optionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.optionsPanel.Location = new System.Drawing.Point(0, 0);
             this.optionsPanel.Name = "optionsPanel";
-            this.optionsPanel.Size = new System.Drawing.Size(268, 34);
+            this.optionsPanel.Size = new System.Drawing.Size(268, 59);
             this.optionsPanel.TabIndex = 0;
+            // 
+            // filterBox
+            // 
+            this.filterBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.filterBox.FormattingEnabled = true;
+            this.filterBox.Location = new System.Drawing.Point(58, 7);
+            this.filterBox.Name = "filterBox";
+            this.filterBox.Size = new System.Drawing.Size(207, 21);
+            this.filterBox.TabIndex = 3;
+            this.filterBox.SelectedIndexChanged += new System.EventHandler(this.updateSidebarV);
             // 
             // searchBox
             // 
-            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchBox.Location = new System.Drawing.Point(58, 7);
+            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchBox.Location = new System.Drawing.Point(3, 33);
             this.searchBox.Name = "searchBox";
-            this.searchBox.Size = new System.Drawing.Size(207, 20);
+            this.searchBox.Size = new System.Drawing.Size(262, 20);
             this.searchBox.TabIndex = 2;
-            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
+            this.searchBox.TextChanged += new System.EventHandler(this.updateSidebarV);
             // 
             // controls_settings
             // 
@@ -192,6 +209,17 @@
             this.toolTip.InitialDelay = 300;
             this.toolTip.ReshowDelay = 100;
             this.toolTip.ShowAlways = true;
+            // 
+            // action_run
+            // 
+            this.action_run.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.action_run.Location = new System.Drawing.Point(421, 5);
+            this.action_run.Name = "action_run";
+            this.action_run.Size = new System.Drawing.Size(23, 23);
+            this.action_run.TabIndex = 5;
+            this.action_run.Text = "↗";
+            this.action_run.UseVisualStyleBackColor = true;
+            this.action_run.Click += new System.EventHandler(this.Action_run_Click);
             // 
             // MainForm
             // 
@@ -231,6 +259,8 @@
         private System.Windows.Forms.Button action_update;
         private System.Windows.Forms.TextBox searchBox;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.ComboBox filterBox;
+        private System.Windows.Forms.Button action_run;
     }
 }
 
