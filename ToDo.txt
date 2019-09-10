@@ -1,4 +1,3 @@
-ProgressBar for Downloads
 Icons
-More apps: cashew, Laptop Sim (when done)
+More apps: Laptop Sim (when done)
 Automate creating packages for apps?

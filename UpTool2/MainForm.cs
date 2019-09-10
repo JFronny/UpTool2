@@ -171,6 +171,7 @@ namespace UpTool2
             {
                 MessageBox.Show(e1.ToString(), "Install failed");
             }
+            reloadElements();
             relE = true;
         }
 
@@ -189,10 +190,12 @@ namespace UpTool2
                 if (Directory.Exists(app))
                     Directory.Delete(app, true);
                 Directory.CreateDirectory(app);
-                using (var client = new WebClient())
-                {
-                    client.DownloadFile(appI.file, app + @"\package.zip");
-                }
+                //using (var client = new WebClient())
+                //{
+                //    client.DownloadFile(appI.file, app + @"\package.zip");
+                //}
+                if (new DownloadDialog(appI.file, app + @"\package.zip").ShowDialog() != DialogResult.OK)
+                    throw new Exception("Download failed");
                 SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
                 if (BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper() != appI.hash)
                     throw new Exception("The hash is not equal to the one stored in the repo");
