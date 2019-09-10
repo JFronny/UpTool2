@@ -1,5 +1,4 @@
 ProgressBar for Downloads
 Icons
-Run apps from UpTool
-More apps: cashew, Laptop Sim (wenn fertig)
+More apps: cashew, Laptop Sim (when done)
 Automate creating packages for apps?

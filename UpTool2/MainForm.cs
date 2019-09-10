@@ -77,7 +77,12 @@ namespace UpTool2
                             if (runnable)
                                 mainFile = el.Element("MainFile").Value;
                             Color color = ColorTranslator.FromHtml(el.Element("Color").Value);
-                            Image icon = Image.FromStream(client.OpenRead(el.Element("Icon").Value));
+                            string tmp_imageurl;
+                            if (el.Element("Icon") == null)
+                                tmp_imageurl = "https://raw.githubusercontent.com/CreepyCrafter24/CC-Clicker/master/C_64.ico";
+                            else
+                                tmp_imageurl = el.Element("Icon").Value;
+                            Image icon = Image.FromStream(client.OpenRead(tmp_imageurl));
                             apps[ID] = new App(name, description, version, file, hash, ID, color, icon, runnable, mainFile);
                         }
                 }
