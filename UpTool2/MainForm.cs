@@ -10,13 +10,14 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Linq;
+using Microsoft.VisualBasic;
 
 namespace UpTool2
 {
     public partial class MainForm : Form
     {
         Dictionary<Guid, App> apps = new Dictionary<Guid, App>();
-        enum Status { Not_Installed = 1, Updatable = 2, Installed = 4, All = 7 }
+        enum Status { Not_Installed = 1, Updatable = 2, Installed = 4, Local = 8, All = 15 }
         string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\UpTool2";
         public MainForm()
         {
@@ -49,6 +50,7 @@ namespace UpTool2
             //add
             toolTip.SetToolTip(controls_settings, "Settings");
             toolTip.SetToolTip(controls_reload, "Refresh repositories");
+            toolTip.SetToolTip(controls_upload, "Install package from disk");
             toolTip.SetToolTip(filterBox, "Filter");
             toolTip.SetToolTip(action_install, "Install");
             toolTip.SetToolTip(action_remove, "Remove");
@@ -78,13 +80,8 @@ namespace UpTool2
                             if (runnable)
                                 mainFile = el.Element("MainFile").Value;
                             Color color = ColorTranslator.FromHtml(el.Element("Color").Value);
-                            string tmp_imageurl;
-                            if (el.Element("Icon") == null)
-                                tmp_imageurl = "https://raw.githubusercontent.com/CreepyCrafter24/CC-Clicker/master/C_64.ico";
-                            else
-                                tmp_imageurl = el.Element("Icon").Value;
-                            Image icon = Image.FromStream(client.OpenRead(tmp_imageurl));
-                            apps[ID] = new App(name, description, version, file, hash, ID, color, icon, runnable, mainFile);
+                            Image icon = el.Element("Icon") == null ? Resources.C_64.ToBitmap() : Image.FromStream(client.OpenRead(el.Element("Icon").Value));
+                            apps[ID] = new App(name, description, version, file, false, hash, ID, color, icon, runnable, mainFile);
                         }
                     }
 #if !DEBUG
@@ -94,6 +91,16 @@ namespace UpTool2
                     MessageBox.Show(e.ToString(), "Failed to load repo: " + Settings.Default.Repos[i]);
                 }
 #endif
+            }
+            string[] localApps = Directory.GetDirectories(dir + @"\Apps\");
+            for (int i = 0; i < localApps.Length; i++)
+            {
+                Guid tmp = Guid.Parse(Path.GetFileName(localApps[i]));
+                if (!apps.ContainsKey(tmp))
+                {
+                    XElement data = XDocument.Load(dir + @"\Apps\" + tmp.ToString() + @"\info.xml").Element("app");
+                    apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, -1, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
+                }
             }
             List<App> tmp_appslist = new List<App>(apps.Values);
             tmp_appslist.Sort((x, y) => x.name.CompareTo(y.name));
@@ -106,21 +113,21 @@ namespace UpTool2
                 sidebarIcon.BackgroundImageLayout = ImageLayout.Stretch;
                 sidebarIcon.Click += (object sender, EventArgs e) => {
                     infoPanel_Title.Text = app.name;
+                    infoPanel_Title.ForeColor = app.local ? Color.Red : Color.Black;
                     infoPanel_Description.Text = app.description;
                     action_install.Tag = app;
-                    action_install.Enabled = !Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
+                    action_install.Enabled = !(app.local || Directory.Exists(dir + @"\Apps\" + app.ID.ToString()));
                     action_remove.Tag = app;
                     action_remove.Enabled = Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
                     action_update.Tag = app;
                     string xml = dir + @"\Apps\" + app.ID.ToString() + @"\info.xml";
-                    action_update.Enabled = File.Exists(xml) && int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < app.version;
+                    action_update.Enabled = (!app.local) && File.Exists(xml) && int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < app.version;
                     action_run.Tag = app;
-                    action_run.Enabled = app.runnable && Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
+                    action_run.Enabled = (!app.local) && app.runnable && Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
                 };
                 toolTip.SetToolTip(sidebarIcon, app.name);
                 sidebarPanel.Controls.Add(sidebarIcon);
             }
-
             client.Dispose();
             updateSidebarV(null, null);
         }
@@ -180,8 +187,10 @@ namespace UpTool2
         {
             string app = "";
             string tmp = "";
+#if !DEBUG
             try
             {
+#endif
                 App appI = (App)action_install.Tag;
                 app = dir + @"\Apps\" + appI.ID.ToString();
                 tmp = dir + @"\tmp";
@@ -191,34 +200,83 @@ namespace UpTool2
                 if (Directory.Exists(app))
                     Directory.Delete(app, true);
                 Directory.CreateDirectory(app);
-                //using (var client = new WebClient())
-                //{
-                //    client.DownloadFile(appI.file, app + @"\package.zip");
-                //}
                 if (new DownloadDialog(appI.file, app + @"\package.zip").ShowDialog() != DialogResult.OK)
                     throw new Exception("Download failed");
                 SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
                 if (BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper() != appI.hash)
                     throw new Exception("The hash is not equal to the one stored in the repo");
                 sha256.Dispose();
-                ZipFile.ExtractToDirectory(app + @"\package.zip", tmp);
-                Directory.Move(tmp + @"\Data", app + @"\app");
-                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C \"" + tmp + "\\Install.bat\"", WorkingDirectory = app + @"\app" }).WaitForExit();
-                new XElement("app", new XElement("Version", appI.version)).Save(app + @"\info.xml");
-                Directory.Delete(tmp, true);
-                if (relE)
-                    reloadElements();
+                completeInstall(app, appI);
+#if !DEBUG
             }
             catch (Exception e1)
             {
                 if (!relE)
                     throw;
-                if (Directory.Exists(tmp))
-                    Directory.Delete(tmp, true);
                 if (Directory.Exists(app))
                     Directory.Delete(app, true);
                 MessageBox.Show(e1.ToString(), "Install failed");
             }
+#endif
+            Directory.Delete(tmp, true);
+        }
+
+        private void controls_upload_Click(object sender, EventArgs e)
+        {
+            string app = "";
+            string tmp = "";
+#if !DEBUG
+            try
+            {
+#endif
+                if (searchPackageDialog.ShowDialog() == DialogResult.OK)
+                {
+                    Guid ID = Guid.NewGuid();
+                    app = dir + @"\Apps\" + ID.ToString();
+                    while (Directory.Exists(app))
+                    {
+                        ID = Guid.NewGuid();
+                        app = dir + @"\Apps\" + ID.ToString();
+                    }
+                    App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only", -1, "", true, "", ID, Color.Red, Resources.C_64.ToBitmap(), false, "");
+                    Directory.CreateDirectory(app);
+                    tmp = dir + @"\tmp";
+                    if (Directory.Exists(tmp))
+                        Directory.Delete(tmp, true);
+                    Directory.CreateDirectory(tmp);
+                    File.Copy(searchPackageDialog.FileName, app + @"\package.zip");
+                    completeInstall(app, appI);
+                }
+#if !DEBUG
+            }
+            catch (Exception e1)
+            {
+                if (!relE)
+                    throw;
+                if (Directory.Exists(app))
+                    Directory.Delete(app, true);
+                MessageBox.Show(e1.ToString(), "Install failed");
+            }
+#endif
+            Directory.Delete(tmp, true);
+        }
+
+        void completeInstall(string app, App appI)
+        {
+            try
+            {
+                string tmp = dir + @"\tmp";
+                ZipFile.ExtractToDirectory(app + @"\package.zip", tmp);
+                Directory.Move(tmp + @"\Data", app + @"\app");
+                if (appI.runnable)
+                    new XElement("app", new XElement("Name", appI.name), new XElement("Description", appI.description), new XElement("Version", appI.version), new XElement("MainFile", appI.mainFile)).Save(app + @"\info.xml");
+                else
+                    new XElement("app", new XElement("Name", appI.name), new XElement("Description", appI.description), new XElement("Version", appI.version)).Save(app + @"\info.xml");
+                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C \"" + tmp + "\\Install.bat\"", WorkingDirectory = app + @"\app" }).WaitForExit();
+                if (relE)
+                    reloadElements();
+            }
+            catch { throw; }
         }
 
         void clearSelection()
@@ -238,7 +296,7 @@ namespace UpTool2
             {
                 Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
                 App app = (App)sidebarIcon.Tag;
-                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)status) == (int)app.status;
+                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)status) != 0;
             }
             clearSelection();
         }
@@ -249,6 +307,7 @@ namespace UpTool2
             public string description;
             public int version;
             public string file;
+            public bool local;
             public string hash;
             public Guid ID;
             public Color color;
@@ -256,12 +315,13 @@ namespace UpTool2
             public bool runnable;
             public string mainFile;
 
-            public App(string name, string description, int version, string file, string hash, Guid iD, Color color, Image icon, bool runnable, string mainFile)
+            public App(string name, string description, int version, string file, bool local, string hash, Guid iD, Color color, Image icon, bool runnable, string mainFile)
             {
                 this.name = name ?? throw new ArgumentNullException(nameof(name));
                 this.description = description ?? throw new ArgumentNullException(nameof(description));
                 this.version = version;
                 this.file = file ?? throw new ArgumentNullException(nameof(file));
+                this.local = local;
                 this.hash = hash ?? throw new ArgumentNullException(nameof(hash));
                 ID = iD;
                 this.color = color;
@@ -280,7 +340,9 @@ namespace UpTool2
                         if (int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < version)
                             return Status.Updatable;
                         else
-                            return Status.Installed;
+                        {
+                            return local ? Status.Installed | Status.Local : Status.Installed;
+                        }
                     }
                     else
                         return Status.Not_Installed;

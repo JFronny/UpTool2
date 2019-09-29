@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.sidebarPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.infoPanel = new System.Windows.Forms.Panel();
+            this.action_run = new System.Windows.Forms.Button();
             this.action_remove = new System.Windows.Forms.Button();
             this.action_update = new System.Windows.Forms.Button();
             this.action_install = new System.Windows.Forms.Button();
@@ -43,7 +44,8 @@
             this.controls_settings = new System.Windows.Forms.Button();
             this.controls_reload = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.action_run = new System.Windows.Forms.Button();
+            this.controls_upload = new System.Windows.Forms.Button();
+            this.searchPackageDialog = new System.Windows.Forms.OpenFileDialog();
             this.infoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -75,6 +77,17 @@
             this.infoPanel.Name = "infoPanel";
             this.infoPanel.Size = new System.Drawing.Size(528, 450);
             this.infoPanel.TabIndex = 1;
+            // 
+            // action_run
+            // 
+            this.action_run.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.action_run.Location = new System.Drawing.Point(421, 5);
+            this.action_run.Name = "action_run";
+            this.action_run.Size = new System.Drawing.Size(23, 23);
+            this.action_run.TabIndex = 5;
+            this.action_run.Text = "↗";
+            this.action_run.UseVisualStyleBackColor = true;
+            this.action_run.Click += new System.EventHandler(this.Action_run_Click);
             // 
             // action_remove
             // 
@@ -151,6 +164,7 @@
             // 
             // optionsPanel
             // 
+            this.optionsPanel.Controls.Add(this.controls_upload);
             this.optionsPanel.Controls.Add(this.filterBox);
             this.optionsPanel.Controls.Add(this.searchBox);
             this.optionsPanel.Controls.Add(this.controls_settings);
@@ -167,9 +181,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.filterBox.FormattingEnabled = true;
-            this.filterBox.Location = new System.Drawing.Point(58, 7);
+            this.filterBox.Location = new System.Drawing.Point(58, 6);
             this.filterBox.Name = "filterBox";
-            this.filterBox.Size = new System.Drawing.Size(207, 21);
+            this.filterBox.Size = new System.Drawing.Size(178, 21);
             this.filterBox.TabIndex = 3;
             this.filterBox.SelectedIndexChanged += new System.EventHandler(this.updateSidebarV);
             // 
@@ -210,16 +224,20 @@
             this.toolTip.ReshowDelay = 100;
             this.toolTip.ShowAlways = true;
             // 
-            // action_run
+            // controls_upload
             // 
-            this.action_run.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.action_run.Location = new System.Drawing.Point(421, 5);
-            this.action_run.Name = "action_run";
-            this.action_run.Size = new System.Drawing.Size(23, 23);
-            this.action_run.TabIndex = 5;
-            this.action_run.Text = "↗";
-            this.action_run.UseVisualStyleBackColor = true;
-            this.action_run.Click += new System.EventHandler(this.Action_run_Click);
+            this.controls_upload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.controls_upload.Location = new System.Drawing.Point(242, 5);
+            this.controls_upload.Name = "controls_upload";
+            this.controls_upload.Size = new System.Drawing.Size(23, 23);
+            this.controls_upload.TabIndex = 4;
+            this.controls_upload.Text = "↑";
+            this.controls_upload.UseVisualStyleBackColor = true;
+            this.controls_upload.Click += new System.EventHandler(this.controls_upload_Click);
+            // 
+            // searchPackageDialog
+            // 
+            this.searchPackageDialog.Filter = "Packages (*.zip)|*.zip";
             // 
             // MainForm
             // 
@@ -261,6 +279,8 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ComboBox filterBox;
         private System.Windows.Forms.Button action_run;
+        private System.Windows.Forms.Button controls_upload;
+        private System.Windows.Forms.OpenFileDialog searchPackageDialog;
     }
 }
 
