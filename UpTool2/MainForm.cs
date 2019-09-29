@@ -258,7 +258,8 @@ namespace UpTool2
                 MessageBox.Show(e1.ToString(), "Install failed");
             }
 #endif
-            Directory.Delete(tmp, true);
+            if (tmp != "" && Directory.Exists(tmp))
+                Directory.Delete(tmp, true);
         }
 
         void completeInstall(string app, App appI)
