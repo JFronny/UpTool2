@@ -76,8 +76,8 @@ namespace UpTool2
                         hasHandle = true;
                     }
                     string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\UpTool2";
-                    if (!Directory.Exists(dir))
-                        Directory.CreateDirectory(dir);
+                    if (!Directory.Exists(dir + @"\Apps"))
+                        Directory.CreateDirectory(dir + @"\Apps");
                     string xml = dir + @"\info.xml";
                     if (!File.Exists(xml))
                         new XElement("meta", new XElement("Version", 0)).Save(xml);
