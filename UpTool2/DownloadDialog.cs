@@ -13,7 +13,6 @@ namespace UpTool2
 {
     public partial class DownloadDialog : Form
     {
-        WebClient client;
         bool close;
         public DownloadDialog(string uri, string file)
         {

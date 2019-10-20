@@ -12,3 +12,4 @@
       - __APPFILES
 - info.xml
   - Version
+  - Repo

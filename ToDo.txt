@@ -2,3 +2,4 @@ More Icons for Apps
 More apps: Laptop Sim (when done)
 Use local info when building GUI (Except name/description)
 Decent updater
+Do not refetch Repos after install/update (save local repo in main info.xml)
