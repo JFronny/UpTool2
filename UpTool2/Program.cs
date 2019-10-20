@@ -95,7 +95,7 @@ namespace UpTool2
                         }
                         new XElement("meta", new XElement("Version", version)).Save(xml);
                         splash.Hide();
-                        Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C echo Running Update & timeout /t 4 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & echo Done Updating, please restart & pause" });
+                        Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C timeout /t 2 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & \"" + Application.ExecutablePath + "\"", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
                     }
                     else
                         Application.Run(new MainForm());
