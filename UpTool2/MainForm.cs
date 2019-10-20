@@ -256,10 +256,11 @@ namespace UpTool2
             XElement repos = meta.Element("Repo");
             repos.RemoveNodes();
             tmp_appslist.ForEach(app => {
-                XElement el = new XElement(app.ID.ToString(),
+                XElement el = new XElement("App",
                     new XElement("Name", app.name),
                     new XElement("Description", app.description),
                     new XElement("Version", app.version),
+                    new XElement("ID", app.ID.ToString()),
                     new XElement("File", app.file),
                     new XElement("Hash", app.hash),
                     new XElement("MainFile", app.mainFile),
