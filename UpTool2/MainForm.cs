@@ -37,8 +37,9 @@ namespace UpTool2
                 if (new DownloadDialog(appI.file, app + @"\package.zip").ShowDialog() != DialogResult.OK)
                     throw new Exception("Download failed");
                 SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
-                if (BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper() != appI.hash)
-                    throw new Exception("The hash is not equal to the one stored in the repo");
+                string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper();
+                if (pkghash != appI.hash.ToUpper())
+                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + appI.hash.ToUpper());
                 sha256.Dispose();
                 completeInstall(app, appI);
 #if !DEBUG
@@ -136,7 +137,6 @@ namespace UpTool2
         }
         #endregion
         #region Repo management
-
         void reloadElements()
         {
             //remove
@@ -159,7 +159,7 @@ namespace UpTool2
             toolTip.SetToolTip(action_remove, "Remove");
             toolTip.SetToolTip(action_update, "Update");
             toolTip.SetToolTip(action_run, "Run");
-            getLiveRepos();
+            getReposFromDisk();
             foreach (App app in apps.Values)
             {
                 Panel sidebarIcon = new Panel();
@@ -168,7 +168,8 @@ namespace UpTool2
                 sidebarIcon.Size = new Size(70, 70);
                 sidebarIcon.BackgroundImage = app.icon;
                 sidebarIcon.BackgroundImageLayout = ImageLayout.Stretch;
-                sidebarIcon.Click += (object sender, EventArgs e) => {
+                sidebarIcon.Click += (object sender, EventArgs e) =>
+                {
                     infoPanel_Title.Text = app.name;
                     infoPanel_Title.ForeColor = app.local ? Color.Red : Color.Black;
                     infoPanel_Description.Text = app.description;
@@ -188,89 +189,91 @@ namespace UpTool2
             updateSidebarV(null, null);
         }
 
-        void getLiveRepos()
+        void getReposFromDisk()
         {
-            List<App> tmp_appslist = fetchRepos();
             apps.Clear();
-            tmp_appslist.ForEach(s => apps.Add(s.ID, s));
+            string xml = dir + @"\info.xml";
+            using (WebClient client = new WebClient())
+            {
+                XDocument.Load(xml).Element("meta").Element("Repo").Elements().ToList().ForEach(app =>
+                {
+                    apps.Add(Guid.Parse(app.Element("ID").Value), new App(
+                        app.Element("Name").Value,
+                        app.Element("Description").Value,
+                        int.Parse(app.Element("Version").Value),
+                        app.Element("File").Value,
+                        false,
+                        app.Element("Hash").Value,
+                        Guid.Parse(app.Element("ID").Value),
+                        ColorTranslator.FromHtml(app.Element("Color").Value),
+                        app.Element("Icon") == null ? Resources.C_64.ToBitmap() : Image.FromStream(client.OpenRead(app.Element("Icon").Value)),
+                        app.Element("MainFile") != null,
+                        app.Element("MainFile") != null ? "" : app.Element("MainFile").Value
+                        ));
+                });
+            }
+            Directory.GetDirectories(dir + @"\Apps\").Where(s => !apps.ContainsKey(Guid.Parse(Path.GetFileName(s)))).ToList().ForEach(s =>
+            {
+                Guid tmp = Guid.Parse(Path.GetFileName(s));
+                XElement data = XDocument.Load(getAppPath(tmp) + @"\info.xml").Element("app");
+                apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, -1, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
+            });
         }
 
-        List<App> fetchRepos()
+        void fetchRepos()
         {
-            WebClient client = new WebClient();
-            for (int i = 0; i < Settings.Default.Repos.Count; i++)
+            List<XElement> apps = new List<XElement>();
+            using (WebClient client = new WebClient())
             {
-#if !DEBUG
-                try
+                for (int i = 0; i < Settings.Default.Repos.Count; i++)
                 {
-#endif
-                    XDocument repo = XDocument.Load(Settings.Default.Repos[i]);
-                    foreach (XElement el in repo.Element("repo").Elements("app"))
+#if !DEBUG
+                    try
                     {
-                        int version = int.Parse(el.Element("Version").Value);
-                        Guid ID = Guid.Parse(el.Element("ID").Value);
-                        if (!(apps.ContainsKey(ID) && apps[ID].version >= version))
-                        {
-                            string name = el.Element("Name").Value;
-                            string description = el.Element("Description").Value;
-                            string file = el.Element("File").Value;
-                            string hash = el.Element("Hash").Value;
-                            bool runnable = el.Element("MainFile") != null;
-                            string mainFile = "";
-                            if (runnable)
-                                mainFile = el.Element("MainFile").Value;
-                            Color color = ColorTranslator.FromHtml(el.Element("Color").Value);
-                            Image icon = el.Element("Icon") == null ? Resources.C_64.ToBitmap() : Image.FromStream(client.OpenRead(el.Element("Icon").Value));
-                            App tmp_app = new App(name, description, version, file, false, hash, ID, color, icon, runnable, mainFile);
-                            if (el.Element("Icon") != null)
-                                tmp_app.tag = el.Element("Icon").Value;
-                            apps[ID] = tmp_app;
-                        }
-                    }
-#if !DEBUG
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.ToString(), "Failed to load repo: " + Settings.Default.Repos[i]);
-                }
 #endif
-                client.Dispose();
-            }
-            string[] localApps = Directory.GetDirectories(dir + @"\Apps\");
-            for (int i = 0; i < localApps.Length; i++)
-            {
-                Guid tmp = Guid.Parse(Path.GetFileName(localApps[i]));
-                if (!apps.ContainsKey(tmp))
-                {
-                    XElement data = XDocument.Load(dir + @"\Apps\" + tmp.ToString() + @"\info.xml").Element("app");
-                    apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, -1, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
+                        XDocument repo = XDocument.Load(Settings.Default.Repos[i]);
+                        foreach (XElement app in repo.Element("repo").Elements("app"))
+                        {
+                            //"Sanity check"
+                            int.Parse(app.Element("Version").Value);
+                            Guid.Parse(app.Element("ID").Value);
+                            ColorTranslator.FromHtml(app.Element("Color").Value);
+                            //Create XElement
+                            apps.Add(new XElement("App",
+                                new XElement("Name", app.Element("Name").Value),
+                                new XElement("Description", app.Element("Description").Value),
+                                new XElement("Version", app.Element("Version").Value),
+                                new XElement("ID", app.Element("ID").Value),
+                                new XElement("File", app.Element("File").Value),
+                                new XElement("Hash", app.Element("Hash").Value)
+                                ));
+                            if (app.Element("MainFile") != null)
+                                apps.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
+                            if (app.Element("Icon") != null)
+                                apps.Last().Add(new XElement("Icon", app.Element("Icon").Value));
+                            if (app.Element("Color") == null)
+                                apps.Last().Add(new XElement("Color", "#FFFFFF"));
+                            else
+                                apps.Last().Add(new XElement("Color", app.Element("Color").Value));
+                        }
+#if !DEBUG
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.ToString(), "Failed to load repo: " + Settings.Default.Repos[i]);
+                    }
+#endif
                 }
             }
-            List<App> tmp_appslist = new List<App>(apps.Values);
-            tmp_appslist.Sort((x, y) => x.name.CompareTo(y.name));
+            apps.Sort((x, y) => x.Element("Name").Value.CompareTo(y.Element("Name").Value));
             string xml = dir + @"\info.xml";
             XElement meta = XDocument.Load(xml).Element("meta");
             if (meta.Element("Repo") == null)
                 meta.Add(new XElement("Repo"));
-            meta.Save(xml);
             XElement repos = meta.Element("Repo");
             repos.RemoveNodes();
-            tmp_appslist.ForEach(app => {
-                XElement el = new XElement("App",
-                    new XElement("Name", app.name),
-                    new XElement("Description", app.description),
-                    new XElement("Version", app.version),
-                    new XElement("ID", app.ID.ToString()),
-                    new XElement("File", app.file),
-                    new XElement("Hash", app.hash),
-                    new XElement("MainFile", app.mainFile),
-                    new XElement("Color", string.Format("{0:x6}", app.color.ToArgb() & 0xFFFFFF)));
-                repos.Add(el);
-                if (app.tag != null)
-                    el.Add(new XElement("Icon", (string)app.tag));
-            });
+            apps.ForEach(app => repos.Add(app));
             meta.Save(xml);
-            return tmp_appslist;
         }
         #endregion
         #region Run/Update/Reload/Settings (Small links to other stuff)
@@ -290,7 +293,12 @@ namespace UpTool2
             reloadElements();
             relE = true;
         }
-        private void Controls_reload_Click(object sender, EventArgs e) => reloadElements();
+        private void Controls_reload_Click(object sender, EventArgs e)
+        {
+            fetchRepos();
+            reloadElements();
+        }
+
         private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForm().Show();
         #endregion
         #region GUI (stuff only present for GUI)
@@ -318,6 +326,7 @@ namespace UpTool2
         {
             InitializeComponent();
             filterBox.DataSource = Enum.GetValues(typeof(Status));
+            fetchRepos();
             reloadElements();
             if (!Directory.Exists(appsPath))
                 Directory.CreateDirectory(appsPath);
@@ -342,9 +351,8 @@ namespace UpTool2
             public Image icon;
             public bool runnable;
             public string mainFile;
-            public object tag;
 
-            public App(string name, string description, int version, string file, bool local, string hash, Guid iD, Color color, Image icon, bool runnable, string mainFile, object tag = null)
+            public App(string name, string description, int version, string file, bool local, string hash, Guid iD, Color color, Image icon, bool runnable, string mainFile)
             {
                 this.name = name ?? throw new ArgumentNullException(nameof(name));
                 this.description = description ?? throw new ArgumentNullException(nameof(description));
@@ -357,7 +365,6 @@ namespace UpTool2
                 this.icon = icon ?? throw new ArgumentNullException(nameof(icon));
                 this.runnable = runnable;
                 this.mainFile = mainFile ?? throw new ArgumentNullException(nameof(mainFile));
-                this.tag = tag;
             }
 
             public Status status
@@ -389,8 +396,10 @@ namespace UpTool2
         enum Status { Not_Installed = 1, Updatable = 2, Installed = 4, Local = 8, All = 15 }
         string dir => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\UpTool2";
         string appsPath => dir + @"\Apps";
-        string getAppPath(App app) => appsPath + @"\" + app.ID.ToString();
-        string getDataPath(App app) => getAppPath(app) + @"\app";
+        string getAppPath(App app) => getAppPath(app.ID);
+        string getDataPath(App app) => getDataPath(app.ID);
+        string getAppPath(Guid app) => appsPath + @"\" + app.ToString();
+        string getDataPath(Guid app) => getAppPath(app) + @"\app";
         bool relE = true;
         #endregion
     }
