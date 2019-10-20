@@ -1,5 +1,6 @@
 More Icons for Apps
 More apps: Laptop Sim (when done)
 Use local info when building GUI (Except name/description)
-Decent updater
+Decent updater and Installer (Do not open CMD)
 Save Images on disk to allow offline usage
+Test Updates

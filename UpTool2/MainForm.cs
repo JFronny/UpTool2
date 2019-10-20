@@ -36,11 +36,12 @@ namespace UpTool2
                 Directory.CreateDirectory(app);
                 if (new DownloadDialog(appI.file, app + @"\package.zip").ShowDialog() != DialogResult.OK)
                     throw new Exception("Download failed");
-                SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
-                string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper();
-                if (pkghash != appI.hash.ToUpper())
-                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + appI.hash.ToUpper());
-                sha256.Dispose();
+                using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+                {
+                    string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper();
+                    if (pkghash != appI.hash.ToUpper())
+                        throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + appI.hash.ToUpper());
+                }
                 completeInstall(app, appI);
 #if !DEBUG
             }

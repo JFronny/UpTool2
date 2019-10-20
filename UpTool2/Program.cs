@@ -85,14 +85,14 @@ namespace UpTool2
                     int version = int.Parse(meta.Element("Version").Value);
                     if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)
                     {
-                        using (var client = new WebClient())
+                        if (new DownloadDialog(meta.Element("File").Value, dir + @"\update.exe").ShowDialog() != DialogResult.OK)
+                            throw new Exception("Failed to update");
+                        using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
                         {
-                            client.DownloadFile(meta.Element("File").Value, dir + @"\update.exe");
+                            string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(dir + @"\update.exe"))).Replace("-", string.Empty).ToUpper();
+                            if (pkghash != meta.Element("Hash").Value.ToUpper())
+                                throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
                         }
-                        SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
-                        if (BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(dir + @"\update.exe"))).Replace("-", string.Empty).ToUpper() != meta.Element("Hash").Value)
-                            throw new Exception("The hash is not equal to the one stored in the repo");
-                        sha256.Dispose();
                         new XElement("meta", new XElement("Version", version)).Save(xml);
                         splash.Hide();
                         Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C echo Running Update & timeout /t 4 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & echo Done Updating, please restart & pause" });
