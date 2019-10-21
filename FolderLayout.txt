@@ -12,4 +12,5 @@
       - __APPFILES
 - info.xml
   - Version
-  - Repo
+  - Repos
+  - Local Repo

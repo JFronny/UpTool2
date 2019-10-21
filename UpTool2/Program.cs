@@ -80,7 +80,7 @@ namespace UpTool2
                         Directory.CreateDirectory(dir + @"\Apps");
                     string xml = dir + @"\info.xml";
                     if (!File.Exists(xml))
-                        new XElement("meta", new XElement("Version", 0), new XElement("Repo")).Save(xml);
+                        new XElement("meta", new XElement("Version", 0), new XElement("Repos", new XElement("Repo", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml")), new XElement("LocalRepo")).Save(xml);
                     XElement meta = XDocument.Load("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Meta.xml").Element("meta");
                     int version = int.Parse(meta.Element("Version").Value);
                     if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)

@@ -11,6 +11,8 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Linq;
 using Microsoft.VisualBasic;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace UpTool2
 {
@@ -194,25 +196,22 @@ namespace UpTool2
         {
             apps.Clear();
             string xml = dir + @"\info.xml";
-            using (WebClient client = new WebClient())
+            XDocument.Load(xml).Element("meta").Element("LocalRepo").Elements().ToList().ForEach(app =>
             {
-                XDocument.Load(xml).Element("meta").Element("Repo").Elements().ToList().ForEach(app =>
-                {
-                    apps.Add(Guid.Parse(app.Element("ID").Value), new App(
-                        app.Element("Name").Value,
-                        app.Element("Description").Value,
-                        int.Parse(app.Element("Version").Value),
-                        app.Element("File").Value,
-                        false,
-                        app.Element("Hash").Value,
-                        Guid.Parse(app.Element("ID").Value),
-                        ColorTranslator.FromHtml(app.Element("Color").Value),
-                        app.Element("Icon") == null ? Resources.C_64.ToBitmap() : Image.FromStream(client.OpenRead(app.Element("Icon").Value)),
-                        app.Element("MainFile") != null,
-                        app.Element("MainFile") != null ? "" : app.Element("MainFile").Value
-                        ));
-                });
-            }
+                apps.Add(Guid.Parse(app.Element("ID").Value), new App(
+                    app.Element("Name").Value,
+                    app.Element("Description").Value,
+                    int.Parse(app.Element("Version").Value),
+                    app.Element("File").Value,
+                    false,
+                    app.Element("Hash").Value,
+                    Guid.Parse(app.Element("ID").Value),
+                    ColorTranslator.FromHtml(app.Element("Color").Value),
+                    app.Element("Icon") == null ? Resources.C_64.ToBitmap() : (Bitmap)new ImageConverter().ConvertFrom(Convert.FromBase64String(app.Element("Icon").Value)),
+                    app.Element("MainFile") != null,
+                    app.Element("MainFile") != null ? "" : app.Element("MainFile").Value
+                    ));
+            });
             Directory.GetDirectories(dir + @"\Apps\").Where(s => !apps.ContainsKey(Guid.Parse(Path.GetFileName(s)))).ToList().ForEach(s =>
             {
                 Guid tmp = Guid.Parse(Path.GetFileName(s));
@@ -223,57 +222,100 @@ namespace UpTool2
 
         void fetchRepos()
         {
-            List<XElement> apps = new List<XElement>();
+            string xml = dir + @"\info.xml";
+            XElement meta = XDocument.Load(xml).Element("meta");
+            List<XElement> tmp_apps_list = new List<XElement>();
+            if (meta.Element("Repos") == null)
+                meta.Add(new XElement("Repos"));
+            if (meta.Element("Repos").Elements("Repo").Count() == 0)
+                meta.Element("Repos").Add(new XElement("Repo", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml"));
+            string[] repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Value).ToArray();
             using (WebClient client = new WebClient())
             {
-                for (int i = 0; i < Settings.Default.Repos.Count; i++)
+                for (int i = 0; i < repArr.Length; i++)
                 {
 #if !DEBUG
                     try
                     {
 #endif
-                        XDocument repo = XDocument.Load(Settings.Default.Repos[i]);
+                        XDocument repo = XDocument.Load(repArr[i]);
                         foreach (XElement app in repo.Element("repo").Elements("app"))
                         {
-                            //"Sanity check"
-                            int.Parse(app.Element("Version").Value);
-                            Guid.Parse(app.Element("ID").Value);
-                            ColorTranslator.FromHtml(app.Element("Color").Value);
-                            //Create XElement
-                            apps.Add(new XElement("App",
-                                new XElement("Name", app.Element("Name").Value),
-                                new XElement("Description", app.Element("Description").Value),
-                                new XElement("Version", app.Element("Version").Value),
-                                new XElement("ID", app.Element("ID").Value),
-                                new XElement("File", app.Element("File").Value),
-                                new XElement("Hash", app.Element("Hash").Value)
-                                ));
-                            if (app.Element("MainFile") != null)
-                                apps.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
-                            if (app.Element("Icon") != null)
-                                apps.Last().Add(new XElement("Icon", app.Element("Icon").Value));
-                            if (app.Element("Color") == null)
-                                apps.Last().Add(new XElement("Color", "#FFFFFF"));
-                            else
-                                apps.Last().Add(new XElement("Color", app.Element("Color").Value));
+                            if (tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() == 0 ||
+                                tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value)
+                                .Where(a => int.Parse(a.Element("Version").Value) >= int.Parse(app.Element("Version").Value)).Count() == 0)
+                            {
+                                //"Sanity check"
+                                int.Parse(app.Element("Version").Value);
+                                Guid.Parse(app.Element("ID").Value);
+                                ColorTranslator.FromHtml(app.Element("Color").Value);
+                                //Create XElement
+                                tmp_apps_list.Add(new XElement("App",
+                                    new XElement("Name", app.Element("Name").Value),
+                                    new XElement("Description", app.Element("Description").Value),
+                                    new XElement("Version", app.Element("Version").Value),
+                                    new XElement("ID", app.Element("ID").Value),
+                                    new XElement("File", app.Element("File").Value),
+                                    new XElement("Hash", app.Element("Hash").Value)
+                                    ));
+                                if (app.Element("MainFile") != null)
+                                    tmp_apps_list.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
+                                if (app.Element("Icon") != null)
+                                {
+#if !DEBUG
+                                    try
+                                    {
+#endif
+                                        //Scale Image and save as Base64
+                                        Image src = Image.FromStream(client.OpenRead(app.Element("Icon").Value));
+                                        Bitmap dest = new Bitmap(70, 70);
+                                        dest.SetResolution(src.HorizontalResolution, src.VerticalResolution);
+                                        using (Graphics g = Graphics.FromImage(dest))
+                                        {
+                                            g.CompositingMode = CompositingMode.SourceCopy;
+                                            g.CompositingQuality = CompositingQuality.HighQuality;
+                                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                            g.SmoothingMode = SmoothingMode.HighQuality;
+                                            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                                            using (var wrapMode = new ImageAttributes())
+                                            {
+                                                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                                                g.DrawImage(src, new Rectangle(0, 0, 70, 70), 0, 0, src.Width, src.Height, GraphicsUnit.Pixel, wrapMode);
+                                            }
+                                        }
+                                        using (var ms = new MemoryStream())
+                                        {
+                                            dest.Save(ms, ImageFormat.Png);
+                                            tmp_apps_list.Last().Add(new XElement("Icon", Convert.ToBase64String(ms.ToArray())));
+                                        }
+#if !DEBUG
+                                    }
+                                    catch { }
+#endif
+                                }
+                                if (app.Element("Color") == null)
+                                    tmp_apps_list.Last().Add(new XElement("Color", "#FFFFFF"));
+                                else
+                                    tmp_apps_list.Last().Add(new XElement("Color", app.Element("Color").Value));
+                                if (tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() > 1)
+                                    tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse().Skip(1).ToList().ForEach(a => tmp_apps_list.Remove(a));
+                            }
                         }
 #if !DEBUG
                     }
                     catch (Exception e)
                     {
-                        MessageBox.Show(e.ToString(), "Failed to load repo: " + Settings.Default.Repos[i]);
+                        MessageBox.Show(e.ToString(), "Failed to load repo: " + repArr[i]);
                     }
 #endif
                 }
             }
-            apps.Sort((x, y) => x.Element("Name").Value.CompareTo(y.Element("Name").Value));
-            string xml = dir + @"\info.xml";
-            XElement meta = XDocument.Load(xml).Element("meta");
-            if (meta.Element("Repo") == null)
-                meta.Add(new XElement("Repo"));
-            XElement repos = meta.Element("Repo");
+            tmp_apps_list.Sort((x, y) => x.Element("Name").Value.CompareTo(y.Element("Name").Value));
+            if (meta.Element("LocalRepo") == null)
+                meta.Add(new XElement("LocalRepo"));
+            XElement repos = meta.Element("LocalRepo");
             repos.RemoveNodes();
-            apps.ForEach(app => repos.Add(app));
+            tmp_apps_list.ForEach(app => repos.Add(app));
             meta.Save(xml);
         }
         #endregion
