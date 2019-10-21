@@ -1,6 +1,4 @@
 More Icons for Apps
 More apps: Laptop Sim (when done)
 Decent app Installer (Do not open CMD)
-Save Images on disk to allow offline usage
 Test Updates
-Remove Settings.settings (move to main XML)

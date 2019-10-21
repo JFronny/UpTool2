@@ -228,8 +228,8 @@ namespace UpTool2
             if (meta.Element("Repos") == null)
                 meta.Add(new XElement("Repos"));
             if (meta.Element("Repos").Elements("Repo").Count() == 0)
-                meta.Element("Repos").Add(new XElement("Repo", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml"));
-            string[] repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Value).ToArray();
+                meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml")));
+            string[] repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link").Value).ToArray();
             using (WebClient client = new WebClient())
             {
                 for (int i = 0; i < repArr.Length; i++)
@@ -342,7 +342,7 @@ namespace UpTool2
             reloadElements();
         }
 
-        private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForm().Show();
+        private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForms().Show();
         #endregion
         #region GUI (stuff only present for GUI)
         void clearSelection()
