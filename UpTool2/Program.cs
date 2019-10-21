@@ -48,7 +48,6 @@ namespace UpTool2
             splash.Controls.Add(splashL);
             splash.Show();
             splash.BringToFront();
-            Thread.Sleep(1000);
             string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
             string mutexId = string.Format("Global\\{{{0}}}", appGuid);
             bool createdNew;
@@ -81,21 +80,27 @@ namespace UpTool2
                     string xml = dir + @"\info.xml";
                     if (!File.Exists(xml))
                         new XElement("meta", new XElement("Version", 0), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
-                    XElement meta = XDocument.Load("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Meta.xml").Element("meta");
-                    int version = int.Parse(meta.Element("Version").Value);
-                    if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)
+                    online = Ping("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Meta.xml");
+                    if (online)
                     {
-                        if (new DownloadDialog(meta.Element("File").Value, dir + @"\update.exe").ShowDialog() != DialogResult.OK)
-                            throw new Exception("Failed to update");
-                        using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+                        XElement meta = XDocument.Load("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Meta.xml").Element("meta");
+                        int version = int.Parse(meta.Element("Version").Value);
+                        if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)
                         {
-                            string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(dir + @"\update.exe"))).Replace("-", string.Empty).ToUpper();
-                            if (pkghash != meta.Element("Hash").Value.ToUpper())
-                                throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
+                            if (new DownloadDialog(meta.Element("File").Value, dir + @"\update.exe").ShowDialog() != DialogResult.OK)
+                                throw new Exception("Failed to update");
+                            using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+                            {
+                                string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(dir + @"\update.exe"))).Replace("-", string.Empty).ToUpper();
+                                if (pkghash != meta.Element("Hash").Value.ToUpper())
+                                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
+                            }
+                            new XElement("meta", new XElement("Version", version)).Save(xml);
+                            splash.Hide();
+                            Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C timeout /t 2 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & \"" + Application.ExecutablePath + "\"", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
                         }
-                        new XElement("meta", new XElement("Version", version)).Save(xml);
-                        splash.Hide();
-                        Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C timeout /t 2 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & \"" + Application.ExecutablePath + "\"", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
+                        else
+                            Application.Run(new MainForm());
                     }
                     else
                         Application.Run(new MainForm());
@@ -113,5 +118,26 @@ namespace UpTool2
 #endif
             }
         }
+
+        public static bool Ping(string url)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Timeout = 3000;
+                request.AllowAutoRedirect = false;
+                request.Method = "HEAD";
+
+                using (var response = request.GetResponse())
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public static bool online;
     }
 }

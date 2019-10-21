@@ -361,7 +361,7 @@ namespace UpTool2
             {
                 Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
                 App app = (App)sidebarIcon.Tag;
-                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)status) != 0;
+                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
             }
             clearSelection();
         }
@@ -369,7 +369,15 @@ namespace UpTool2
         {
             InitializeComponent();
             filterBox.DataSource = Enum.GetValues(typeof(Status));
-            fetchRepos();
+            if (Program.online)
+                fetchRepos();
+            else
+            {
+                MessageBox.Show("Starting in offline mode!");
+                controls_reload.Enabled = false;
+                filterBox.Enabled = false;
+                filterBox.SelectedIndex = 2;
+            }
             reloadElements();
             if (!Directory.Exists(appsPath))
                 Directory.CreateDirectory(appsPath);
