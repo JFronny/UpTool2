@@ -2,3 +2,4 @@ More Icons for Apps
 More apps: Laptop Sim (when done)
 Decent app Installer (Do not open CMD)
 Test Updates
+Fully allow offline usage

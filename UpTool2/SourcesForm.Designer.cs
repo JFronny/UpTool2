@@ -70,7 +70,10 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.sourceGrid);
             this.Name = "SettingsForms";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Sources";
+            this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsForms_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.sourceGrid)).EndInit();
             this.ResumeLayout(false);

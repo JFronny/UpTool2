@@ -342,7 +342,7 @@ namespace UpTool2
             reloadElements();
         }
 
-        private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForms().Show();
+        private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForms().ShowDialog();
         #endregion
         #region GUI (stuff only present for GUI)
         void clearSelection()
