@@ -1,3 +1,4 @@
 More Icons for Apps
 More apps: Laptop Sim (when done)
-Test Updates
+Fix installing apps (command prompt suprises users, which may close it)
+Use background colors for status indication, ignore repos
