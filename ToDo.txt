@@ -2,5 +2,7 @@ More Icons for Apps
 More apps: Laptop Sim (when done)
 Split up main File (MainForm.cs) to (more or less) independent modules
 Allow Repos to contain "Links" to seperate Repos/App files (Repo with only one app & without a repo tag)
+Move Repo to main set of Files instead of Releases
+Automatically push Meta.xml changes after building
 
 NOTE: All command prompts will be removed soon (tm) Update your scripts to reflect this change (there may be some things provided for dialogs)
