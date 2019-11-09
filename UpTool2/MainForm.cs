@@ -124,8 +124,10 @@ namespace UpTool2
         }
         void completeInstall(string app, App appI)
         {
+#if !DEBUG
             try
             {
+#endif
                 string tmp = dir + @"\tmp";
                 ZipFile.ExtractToDirectory(app + @"\package.zip", tmp);
                 Directory.Move(tmp + @"\Data", app + @"\app");
@@ -136,8 +138,10 @@ namespace UpTool2
                 Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C \"" + tmp + "\\Install.bat\"", WorkingDirectory = app + @"\app", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden }).WaitForExit();
                 if (relE)
                     reloadElements();
+#if !DEBUG
             }
             catch { throw; }
+#endif
         }
         #endregion
         #region Repo management
@@ -223,8 +227,18 @@ namespace UpTool2
             Directory.GetDirectories(dir + @"\Apps\").Where(s => !apps.ContainsKey(Guid.Parse(Path.GetFileName(s)))).ToList().ForEach(s =>
             {
                 Guid tmp = Guid.Parse(Path.GetFileName(s));
-                XElement data = XDocument.Load(getAppPath(tmp) + @"\info.xml").Element("app");
-                apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, -1, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
+                try
+                {
+                    XElement data = XDocument.Load(getAppPath(tmp) + @"\info.xml").Element("app");
+                    apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, -1, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
+                }
+                catch (Exception e)
+                {
+                    if (MessageBox.Show("An error occured while loading this local repo:\r\n" + e.Message + "\r\nDo you want to exit? Otherwise the folder will be deleted, possibly causeing problems later.", "", MessageBoxButtons.YesNo) == DialogResult.No)
+                        Directory.Delete(getAppPath(tmp), true);
+                    else
+                        Environment.Exit(0);
+                }
             });
         }
 
@@ -321,8 +335,8 @@ namespace UpTool2
             tmp_apps_list.ForEach(app => repos.Add(app));
             meta.Save(xml);
         }
-        #endregion
-        #region Run/Update/Reload/Settings (Small links to other stuff)
+#endregion
+#region Run/Update/Reload/Settings (Small links to other stuff)
         private void Action_run_Click(object sender, EventArgs e)
         {
             Console.WriteLine(new string('-', 10));
@@ -360,8 +374,8 @@ namespace UpTool2
         }
 
         private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForms().ShowDialog();
-        #endregion
-        #region GUI (stuff only present for GUI)
+#endregion
+#region GUI (stuff only present for GUI)
         void clearSelection()
         {
             action_install.Enabled = false;
@@ -421,8 +435,8 @@ namespace UpTool2
             Program.splash.Hide();
             BringToFront();
         }
-        #endregion
-        #region Definitions
+#endregion
+#region Definitions
         private struct App : IEquatable<App>
         {
             public string name;
@@ -490,6 +504,6 @@ namespace UpTool2
         string getAppPath(Guid app) => appsPath + @"\" + app.ToString();
         string getDataPath(Guid app) => getAppPath(app) + @"\app";
         bool relE = true;
-        #endregion
+#endregion
     }
 }
