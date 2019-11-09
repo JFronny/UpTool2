@@ -1,5 +1,6 @@
 More Icons for Apps
 More apps: Laptop Sim (when done)
-Fix installing apps (command prompt suprises users, which may close it)
-Use background colors for status indication, ignore repos
-Fix opening Folder instead of running program when clicking "Run"
+Split up main File (MainForm.cs) to (more or less) independent modules
+Allow Repos to contain "Links" to seperate Repos/App files (Repo with only one app & without a repo tag)
+
+NOTE: All command prompts will be removed soon (tm) Update your scripts to reflect this change (there may be some things provided for dialogs)

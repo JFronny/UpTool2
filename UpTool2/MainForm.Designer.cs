@@ -39,12 +39,12 @@
             this.infoPanel_Title = new System.Windows.Forms.Label();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.optionsPanel = new System.Windows.Forms.Panel();
+            this.controls_upload = new System.Windows.Forms.Button();
             this.filterBox = new System.Windows.Forms.ComboBox();
             this.searchBox = new System.Windows.Forms.TextBox();
             this.controls_settings = new System.Windows.Forms.Button();
             this.controls_reload = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.controls_upload = new System.Windows.Forms.Button();
             this.searchPackageDialog = new System.Windows.Forms.OpenFileDialog();
             this.infoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
@@ -175,6 +175,17 @@
             this.optionsPanel.Size = new System.Drawing.Size(268, 59);
             this.optionsPanel.TabIndex = 0;
             // 
+            // controls_upload
+            // 
+            this.controls_upload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.controls_upload.Location = new System.Drawing.Point(242, 5);
+            this.controls_upload.Name = "controls_upload";
+            this.controls_upload.Size = new System.Drawing.Size(23, 23);
+            this.controls_upload.TabIndex = 4;
+            this.controls_upload.Text = "↑";
+            this.controls_upload.UseVisualStyleBackColor = true;
+            this.controls_upload.Click += new System.EventHandler(this.controls_upload_Click);
+            // 
             // filterBox
             // 
             this.filterBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -223,17 +234,6 @@
             this.toolTip.InitialDelay = 300;
             this.toolTip.ReshowDelay = 100;
             this.toolTip.ShowAlways = true;
-            // 
-            // controls_upload
-            // 
-            this.controls_upload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.controls_upload.Location = new System.Drawing.Point(242, 5);
-            this.controls_upload.Name = "controls_upload";
-            this.controls_upload.Size = new System.Drawing.Size(23, 23);
-            this.controls_upload.TabIndex = 4;
-            this.controls_upload.Text = "↑";
-            this.controls_upload.UseVisualStyleBackColor = true;
-            this.controls_upload.Click += new System.EventHandler(this.controls_upload_Click);
             // 
             // searchPackageDialog
             // 

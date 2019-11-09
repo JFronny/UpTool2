@@ -13,6 +13,7 @@ using System.Linq;
 using Microsoft.VisualBasic;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Threading;
 
 namespace UpTool2
 {
@@ -198,19 +199,26 @@ namespace UpTool2
             string xml = dir + @"\info.xml";
             XDocument.Load(xml).Element("meta").Element("LocalRepo").Elements().ToList().ForEach(app =>
             {
-                apps.Add(Guid.Parse(app.Element("ID").Value), new App(
-                    app.Element("Name").Value,
-                    app.Element("Description").Value,
-                    int.Parse(app.Element("Version").Value),
-                    app.Element("File").Value,
-                    false,
-                    app.Element("Hash").Value,
-                    Guid.Parse(app.Element("ID").Value),
-                    ColorTranslator.FromHtml(app.Element("Color").Value),
-                    app.Element("Icon") == null ? Resources.C_64.ToBitmap() : (Bitmap)new ImageConverter().ConvertFrom(Convert.FromBase64String(app.Element("Icon").Value)),
-                    app.Element("MainFile") != null,
-                    app.Element("MainFile") != null ? "" : app.Element("MainFile").Value
+                Guid id = Guid.Parse(app.Element("ID").Value);
+                string locInPath = getAppPath(id) + "\\info.xml";
+                XElement locIn = File.Exists(locInPath) ? XDocument.Load(locInPath).Element("app") : app;
+                apps.Add(id, new App(
+                    name: locIn.Element("Name").Value,
+                    description: locIn.Element("Description").Value,
+                    version: int.Parse(app.Element("Version").Value),
+                    file: app.Element("File").Value,
+                    local: false,
+                    hash: app.Element("Hash").Value,
+                    iD: id,
+                    color: Color.White,
+                    icon: app.Element("Icon") == null ? Resources.C_64.ToBitmap() : (Bitmap)new ImageConverter().ConvertFrom(Convert.FromBase64String(app.Element("Icon").Value)),
+                    runnable: locIn.Element("MainFile") != null || app.Element("MainFile") != null,
+                    mainFile: locIn.Element("MainFile") == null ? (app.Element("MainFile") == null ? "" : app.Element("MainFile").Value) : locIn.Element("MainFile").Value
                     ));
+#if DEBUG
+                Console.WriteLine(locIn.Element("MainFile") == null ? "NULL" : locIn.Element("MainFile").Value);
+                Console.WriteLine(apps[id].mainFile);
+#endif
             });
             Directory.GetDirectories(dir + @"\Apps\").Where(s => !apps.ContainsKey(Guid.Parse(Path.GetFileName(s)))).ToList().ForEach(s =>
             {
@@ -248,7 +256,6 @@ namespace UpTool2
                                 //"Sanity check"
                                 int.Parse(app.Element("Version").Value);
                                 Guid.Parse(app.Element("ID").Value);
-                                ColorTranslator.FromHtml(app.Element("Color").Value);
                                 //Create XElement
                                 tmp_apps_list.Add(new XElement("App",
                                     new XElement("Name", app.Element("Name").Value),
@@ -293,10 +300,6 @@ namespace UpTool2
                                     catch { }
 #endif
                                 }
-                                if (app.Element("Color") == null)
-                                    tmp_apps_list.Last().Add(new XElement("Color", "#FFFFFF"));
-                                else
-                                    tmp_apps_list.Last().Add(new XElement("Color", app.Element("Color").Value));
                                 if (tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() > 1)
                                     tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse().Skip(1).ToList().ForEach(a => tmp_apps_list.Remove(a));
                             }
@@ -320,7 +323,21 @@ namespace UpTool2
         }
         #endregion
         #region Run/Update/Reload/Settings (Small links to other stuff)
-        private void Action_run_Click(object sender, EventArgs e) => _ = Process.Start(new ProcessStartInfo { FileName = getDataPath((App)action_run.Tag) + "\\" + ((App)action_run.Tag).mainFile, WorkingDirectory = getDataPath((App)action_run.Tag) });
+        private void Action_run_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine(new string('-', 10));
+            Console.WriteLine(getDataPath((App)action_run.Tag));
+            Console.WriteLine("\\");
+            Console.WriteLine(((App)action_run.Tag).mainFile);
+            Console.WriteLine(getDataPath((App)action_run.Tag));
+            _ = Process.Start(
+                new ProcessStartInfo {
+                    FileName = getDataPath((App)action_run.Tag) + "\\" +
+                    ((App)action_run.Tag).mainFile,
+                    WorkingDirectory = getDataPath((App)action_run.Tag)
+                });
+        }
+
         private void Action_update_Click(object sender, EventArgs e)
         {
             try
@@ -356,14 +373,31 @@ namespace UpTool2
         }
         private void updateSidebarV(object sender, EventArgs e)
         {
-            Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
-            for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+#if DEBUG
+            if (searchBox.Text == "!DEBUG:PRINT!")
             {
-                Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
-                App app = (App)sidebarIcon.Tag;
-                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
+                searchBox.Text = "!DEBUG:PRINT";
+                string _tmp_file = Path.GetTempFileName();
+                File.WriteAllText(_tmp_file, string.Join("\r\n\r\n", apps.Select(app => app.Value).Select(app => app.ToString()).ToArray()));
+                new Thread(() => {
+                    Process.Start("notepad", _tmp_file).WaitForExit();
+                    File.Delete(_tmp_file);
+                }).Start();
             }
-            clearSelection();
+            else
+            {
+#endif
+                Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
+                for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+                {
+                    Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
+                    App app = (App)sidebarIcon.Tag;
+                    sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
+                }
+                clearSelection();
+#if DEBUG
+            }
+#endif
         }
         public MainForm()
         {
@@ -416,6 +450,9 @@ namespace UpTool2
                 this.icon = icon ?? throw new ArgumentNullException(nameof(icon));
                 this.runnable = runnable;
                 this.mainFile = mainFile ?? throw new ArgumentNullException(nameof(mainFile));
+#if DEBUG
+                Console.WriteLine(";" + mainFile + ";" + this.mainFile);
+#endif
             }
 
             public Status status
@@ -440,6 +477,7 @@ namespace UpTool2
             public override bool Equals(object obj) => obj is App app && Equals(app);
             public bool Equals(App other) => ID.Equals(other.ID);
             public override int GetHashCode() => 1213502048 + EqualityComparer<Guid>.Default.GetHashCode(ID);
+            public override string ToString() => "Name: " + name + "\r\nDescription:\r\n" + string.Join("\r\n", description.Split('\n').Select(s => { if (s.EndsWith("\r")) s.Remove(s.Length - 1, 1); return ">   " + s; })) + "\r\nVersion: " + version + "\r\nFile: " + file + "\r\nLocal: " + local.ToString() + "\r\nHash: " + hash + "\r\nID: " + ID.ToString() + "\r\nColor: " + color.ToKnownColor().ToString() + "\r\nRunnable: " + runnable + "\r\nMainFile: " + mainFile + "\r\nStatus: " + status.ToString() + "\r\nObject Hash Code: " + GetHashCode();
             public static bool operator ==(App left, App right) => left.Equals(right);
             public static bool operator !=(App left, App right) => !(left == right);
         }
