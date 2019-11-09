@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Drawing;
+using System.Linq;
 
 namespace UpTool2
 {
@@ -78,12 +79,20 @@ namespace UpTool2
                     if (!Directory.Exists(dir + @"\Apps"))
                         Directory.CreateDirectory(dir + @"\Apps");
                     string xml = dir + @"\info.xml";
+                    string metaXml = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml";
                     if (!File.Exists(xml))
-                        new XElement("meta", new XElement("Version", 0), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
-                    online = Ping("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Meta.xml");
+                        new XElement("meta", new XElement("Version", 0), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
+                    else
+                    {
+                        //Update old app repo to in-git repo
+                        XDocument x = XDocument.Load(xml);
+                        x.Element("meta").Element("Repos").Elements("Repo").Select(s => s.Element("Link")).Where(s => s.Value == "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml").ToList().ForEach(s => s.Value = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml");
+                        x.Save(xml);
+                    }
+                    online = Ping(metaXml);
                     if (online)
                     {
-                        XElement meta = XDocument.Load("https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Meta.xml").Element("meta");
+                        XElement meta = XDocument.Load(metaXml).Element("meta");
                         int version = int.Parse(meta.Element("Version").Value);
                         if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)
                         {
