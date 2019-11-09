@@ -81,16 +81,23 @@ namespace UpTool2
                         Directory.CreateDirectory(dir + @"\Apps");
                     string xml = dir + @"\info.xml";
                     string metaXml = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml";
-                    if ((!File.Exists(xml)) || XDocument.Load(xml).Element("meta") == null || XDocument.Load(xml).Element("meta").Element("Repos") == null || XDocument.Load(xml).Element("meta").Element("Repos").Elements("Repo").Count() == 0)
+                    if ((!File.Exists(xml)) || XDocument.Load(xml).Element("meta") == null)
                         new XElement("meta", new XElement("Version", 0), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
                     else
                     {
-                        //Update old app repo to in-git repo
                         XDocument x = XDocument.Load(xml);
                         XElement meta = x.Element("meta");
-                        XElement repos = meta.Element("Repos");
-                        IEnumerable<XElement> reposa = repos.Elements("Repo");
-                        reposa.Select(s => s.Element("Link")).Where(s => s.Value == "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml").ToList().ForEach(s => s.Value = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml");
+                        if (XDocument.Load(xml).Element("meta").Element("Repos") == null || XDocument.Load(xml).Element("meta").Element("Repos").Elements("Repo").Count() == 0)
+                        {
+                            meta.Add(new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml"))));
+                            meta.Add(new XElement("LocalRepo"));
+                        }
+                        else
+                        {
+                            XElement repos = meta.Element("Repos");
+                            IEnumerable<XElement> reposa = repos.Elements("Repo");
+                            reposa.Select(s => s.Element("Link")).Where(s => s.Value == "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml").ToList().ForEach(s => s.Value = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml");
+                        }
                         x.Save(xml);
                     }
                     online = Ping(metaXml);
