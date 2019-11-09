@@ -41,6 +41,5 @@ namespace UpTool2
         private void progressChanged(object sender, DownloadProgressChangedEventArgs e) => progressBar.Value = e.ProgressPercentage;
 
         private void DownloadDialog_FormClosing(object sender, FormClosingEventArgs e) => e.Cancel = !close;
-
     }
 }
