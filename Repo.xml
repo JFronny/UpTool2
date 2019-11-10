@@ -7,11 +7,10 @@ Features:
 - Up to 1000 clicks per second
 - Right- and LeftClicks
 - Custom Keybinds</Description>
-    <Version>2</Version>
+    <Version>3</Version>
     <ID>4863b486-5619-432e-8086-c06e1d5b1f5a</ID>
-    <File>https://github.com/CreepyCrafter24/CC-Clicker/releases/download/2.0.0/CC-Clicker.zip</File>
-    <Hash>E63A3F2EACED69E6BBC9B99F43329CA9776507701EF7D0C4B4D9F87E06024AF8</Hash>
-    <Color>#FFFFFF</Color>
+    <File>https://github.com/CreepyCrafter24/CC-Clicker/releases/download/v2.1/CC-Clicker.zip</File>
+    <Hash>227EC3F0AB72F81FAE8441526424BFE492CB1225BC7367C9005A4CD232E7E4FB</Hash>
     <Icon>https://raw.githubusercontent.com/CreepyCrafter24/CC-Clicker/master/C_64.ico</Icon>
     <MainFile>CC-Clicker 2.0.exe</MainFile>
   </app>
@@ -22,7 +21,6 @@ Features:
     <ID>3191d2f3-bf48-48ea-97a2-59fb32722d0a</ID>
     <File>https://github.com/CreepyCrafter24/CC-Functions/releases/download/v1.0/CC-Functions.W32.Test.zip</File>
     <Hash>B2E4CBFE38DD2E69780C45DC87F892272C2447C3B8FAED9731178B6912D4CED7</Hash>
-    <Color>#FFFFFF</Color>
     <MainFile>CC_Functions.W32.Test.exe</MainFile>
   </app>
   <app>
@@ -32,7 +30,6 @@ Features:
     <ID>63d64672-3ca3-4760-96a3-443b262d326f</ID>
     <File>https://github.com/CreepyCrafter24/cashew/releases/download/v1.0.1.0/Cashew.zip</File>
     <Hash>22A87178E0D9BB8302FAB34AB337C352245167D7B29AE37C9E235F7C4F422B7B</Hash>
-    <Color>#FFFFFF</Color>
     <Icon>https://raw.githubusercontent.com/CreepyCrafter24/cashew/master/cashew/Cashew-64.ico</Icon>
     <MainFile>cashew.exe</MainFile>
   </app>
@@ -44,39 +41,35 @@ Features:
     <File>https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/CREPL.zip</File>
     <Hash>2F1F7AE87300E35CA33598B9134CE145EC3F682654688989E0B6DF5C07BC305E</Hash>
   <Icon>https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Terminal-icon.ico</Icon>
-    <Color>#FFFFFF</Color>
     <MainFile>CREPL.exe</MainFile>
   </app>
   <app>
     <Name>Resizor</Name>
     <Description>Resize Windows with style</Description>
-    <Version>3</Version>
+    <Version>4</Version>
     <ID>e09cfca6-b6f7-4c56-96c4-d7cc2a318984</ID>
-    <File>https://github.com/CreepyCrafter24/Resizor/releases/download/v1.0.0.3/Release.zip</File>
-    <Hash>B9FC5F907F3F9C10E9A54A914297FD4717C2A80595549D612BF267D034D61F0A</Hash>
-    <Color>#0F00FF</Color>
+    <File>https://github.com/CreepyCrafter24/Resizor/releases/download/v1.1/Resizor.zip</File>
+    <Hash>BC4708BD1A722155BFAF0A471874CB9825F293F6D62BCE3D63C02D86BDD4FFDA</Hash>
     <Icon>https://raw.githubusercontent.com/CreepyCrafter24/Resizor/master/Resizor/Resizor.ico</Icon>
     <MainFile>Resizor.exe</MainFile>
   </app>
   <app>
     <Name>testexetrisathlon</Name>
     <Description>Terminal based Tetris clone</Description>
-    <Version>2</Version>
+    <Version>3</Version>
     <ID>9214aca9-af09-441d-8329-612e77347eba</ID>
-    <File>https://github.com/CreepyCrafter24/testexetrisathlon/releases/download/v1.3/testexetrisathlon.zip</File>
-    <Hash>E7365C34370897B533CAB34BBBA5B2742790AE436F401539807F4CCE4DD04C40</Hash>
+    <File>https://github.com/CreepyCrafter24/testexetrisathlon/releases/download/v1.4/testexetrisathlon.zip</File>
+    <Hash>F0626A25CFB74BC99F2FE7457515F12AD12979F2DAB7C3808DD702BC103DE673</Hash>
     <Icon>https://raw.githubusercontent.com/CreepyCrafter24/testexetrisathlon/master/testexetrisathlon/tetris_yUxH6t_256px.ico</Icon>
-    <Color>#FFFFFF</Color>
     <MainFile>testexetrisathlon.exe</MainFile>
   </app>
   <app>
     <Name>WinPart</Name>
     <Description>View information about your (logical) partitions</Description>
-    <Version>2</Version>
+    <Version>3</Version>
     <ID>a48b0879-42ec-40e1-885a-480e948242d7</ID>
-    <File>https://github.com/CreepyCrafter24/WinPart/releases/download/v1.0/WinPartB.zip</File>
-    <Hash>C9B2B6611C3DC7E4A24B70C85A9810BFF976AFC5D6D8CF3D0B166678248668C5</Hash>
-    <Color>#FFFFFF</Color>
+    <File>https://github.com/CreepyCrafter24/WinPart/releases/download/v1.1/WinPart.zip</File>
+    <Hash>CCEB1A86828B325D2AC2C19AC402D1CE9D1318628C07E98ABA6EB25BEF23D2F9</Hash>
     <MainFile>WinPart.bat</MainFile>
   </app>
   <app>
@@ -86,7 +79,6 @@ Features:
     <ID>50d6fc2e-e93a-4f5a-9cca-10cc4a000431</ID>
     <File>https://github.com/CreepyCrafter24/ZalGen/releases/download/v1.0/ZalGen.zip</File>
     <Hash>505167424EB07462443C31086583FAB414F01B2FEED3CD55DEF351E6B28FE6C1</Hash>
-    <Color>#FFFFFF</Color>
     <MainFile>ZalGen.exe</MainFile>
   </app>
 </repo>
