@@ -12,7 +12,6 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Drawing;
 using System.Linq;
-using System.Collections.Generic;
 using System.Xml;
 using System.IO.Compression;
 
@@ -53,14 +52,13 @@ namespace UpTool2
 #endif
                         hasHandle = true;
                     }
-                    string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\UpTool2";
-                    if (!Directory.Exists(dir + @"\Apps"))
-                        Directory.CreateDirectory(dir + @"\Apps");
-                    string xml = dir + @"\info.xml";
+                    if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
+                        Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
+                    string xml = GlobalVariables.dir + @"\info.xml";
                     FixXML(xml);
                     string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
                     online = Ping(metaXML);
-                    if (!online || UpdateCheck(dir, xml, metaXML))
+                    if (!online || UpdateCheck(GlobalVariables.dir, xml, metaXML))
                         Application.Run(new MainForm());
 #if !DEBUG
                 }
