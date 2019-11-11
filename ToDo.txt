@@ -3,7 +3,6 @@ More apps: Laptop Sim (when done)
 Split up main File (MainForm.cs) to (more or less) independent modules
 Allow Repos to contain "Links" to seperate Repos/App files (Repo with only one app & without a repo tag)
 Automatically push Meta.xml changes after building
-Allow Zips for updates
-Allow 3rd party update source in main.xml
+Show number of available updates
 
 NOTE: All command prompts will be removed soon (tm) Update your scripts to reflect this change (there may be some things provided for dialogs)

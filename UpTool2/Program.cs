@@ -14,6 +14,7 @@ using System.Drawing;
 using System.Linq;
 using System.Collections.Generic;
 using System.Xml;
+using System.IO.Compression;
 
 namespace UpTool2
 {
@@ -26,14 +27,13 @@ namespace UpTool2
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            showSplash();
+            ShowSplash();
             string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
             string mutexId = string.Format("Global\\{{{0}}}", appGuid);
-            bool createdNew;
             var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
             var securitySettings = new MutexSecurity();
             securitySettings.AddAccessRule(allowEveryoneRule);
-            using (var mutex = new Mutex(false, mutexId, out createdNew, securitySettings))
+            using (var mutex = new Mutex(false, mutexId, out bool createdNew, securitySettings))
             {
                 var hasHandle = false;
 #if !DEBUG
@@ -57,10 +57,10 @@ namespace UpTool2
                     if (!Directory.Exists(dir + @"\Apps"))
                         Directory.CreateDirectory(dir + @"\Apps");
                     string xml = dir + @"\info.xml";
-                    fixXML(xml);
-                    string metaXml = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml";
-                    online = Ping(metaXml);
-                    if (!online || updateCheck(dir, xml, metaXml))
+                    FixXML(xml);
+                    string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
+                    online = Ping(metaXML);
+                    if (!online || UpdateCheck(dir, xml, metaXML))
                         Application.Run(new MainForm());
 #if !DEBUG
                 }
@@ -77,7 +77,7 @@ namespace UpTool2
             }
         }
 
-        static void showSplash()
+        static void ShowSplash()
         {
             splash = new Form
             {
@@ -107,27 +107,30 @@ namespace UpTool2
             splash.BringToFront();
         }
 
-        static void fixXML(string xml)
+        static void FixXML(string xml)
         {
             try
             {
                 if ((!File.Exists(xml)) || XDocument.Load(xml).Element("meta") == null)
-                    new XElement("meta", new XElement("Version", 0), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
+                    new XElement("meta", new XElement("Version", 0), new XElement("UpdateSource", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml"), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
                 else
                 {
                     XDocument x = XDocument.Load(xml);
                     XElement meta = x.Element("meta");
-                    if (XDocument.Load(xml).Element("meta").Element("Repos") == null || XDocument.Load(xml).Element("meta").Element("Repos").Elements("Repo").Count() == 0)
-                    {
+                    if (XDocument.Load(xml).Element("meta").Element("Version") == null)
+                        meta.Add(new XElement("Version", 0));
+                    if (XDocument.Load(xml).Element("meta").Element("UpdateSource") == null)
+                        meta.Add(new XElement("UpdateSource", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml"));
+                    if (XDocument.Load(xml).Element("meta").Element("Repos") == null)
                         meta.Add(new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml"))));
-                        meta.Add(new XElement("LocalRepo"));
-                    }
+                    else if (XDocument.Load(xml).Element("meta").Element("Repos").Elements("Repo").Count() == 0)
+                        meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml")));
                     else
-                    {
-                        XElement repos = meta.Element("Repos");
-                        IEnumerable<XElement> reposa = repos.Elements("Repo");
-                        reposa.Select(s => s.Element("Link")).Where(s => s.Value == "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml").ToList().ForEach(s => s.Value = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml");
-                    }
+                        meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
+                            .Where(s => s.Value == "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml")
+                            .ToList().ForEach(s => s.Value = "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Repo.xml");
+                    if (XDocument.Load(xml).Element("meta").Element("LocalRepo") == null)
+                        meta.Add(new XElement("LocalRepo"));
                     x.Save(xml);
                 }
             }
@@ -137,19 +140,37 @@ namespace UpTool2
             }
         }
 
-        static bool updateCheck(string dir, string xml, string metaXml)
+        static bool UpdateCheck(string dir, string xml, string metaXML)
         {
-            XElement meta = XDocument.Load(metaXml).Element("meta");
+            XElement meta = XDocument.Load(metaXML).Element("meta");
             int version = int.Parse(meta.Element("Version").Value);
             if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)
             {
-                if (new DownloadDialog(meta.Element("File").Value, dir + @"\update.exe").ShowDialog() != DialogResult.OK)
-                    throw new Exception("Failed to update");
+                using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value, dir + @"\update.tmp"))
+                {
+                    if (dlg.ShowDialog() != DialogResult.OK)
+                        throw new Exception("Failed to update");
+                }
                 using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
                 {
-                    string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(dir + @"\update.exe"))).Replace("-", string.Empty).ToUpper();
+                    string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(dir + @"\update.tmp"))).Replace("-", string.Empty).ToUpper();
                     if (pkghash != meta.Element("Hash").Value.ToUpper())
                         throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
+                }
+                try
+                {
+                    //Try extracting. This is done to support automatically built updates
+                    if (Directory.Exists(dir + @"\update"))
+                        Directory.Delete(dir + @"\update", true);
+                    ZipFile.ExtractToDirectory(dir + @"\update.tmp", dir + @"\update");
+                    File.Delete(dir + @"\update.tmp");
+                    File.Copy(dir + @"\update", dir + @"\update.exe", true);
+                }
+                catch (InvalidDataException)
+                {
+                    //If it can not be extracted as a .zip we try reading to see if it is a binary by trying to read it's name
+                    AssemblyName.GetAssemblyName(dir + @"\update.tmp");
+                    File.Move(dir + @"\update.tmp", dir + @"\update.exe");
                 }
                 new XElement("meta", new XElement("Version", version)).Save(xml);
                 splash.Hide();

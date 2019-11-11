@@ -14,6 +14,7 @@ using Microsoft.VisualBasic;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace UpTool2
 {
@@ -162,6 +163,9 @@ namespace UpTool2
             toolTip.SetToolTip(controls_settings, "Settings");
             toolTip.SetToolTip(controls_reload, "Refresh repositories");
             toolTip.SetToolTip(controls_upload, "Install package from disk");
+            toolTip.SetToolTip(controls_local, "Install UpTool2 locally");
+            controls_local.Visible = Application.ExecutablePath != dir + @"\UpTool2.exe";
+            searchBox.Size = (Application.ExecutablePath != dir + @"\UpTool2.exe") ? new Size(233, 20) : new Size(262, 20);
             toolTip.SetToolTip(filterBox, "Filter");
             toolTip.SetToolTip(action_install, "Install");
             toolTip.SetToolTip(action_remove, "Remove");
@@ -283,10 +287,8 @@ namespace UpTool2
                                     tmp_apps_list.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
                                 if (app.Element("Icon") != null)
                                 {
-#if !DEBUG
                                     try
                                     {
-#endif
                                         //Scale Image and save as Base64
                                         Image src = Image.FromStream(client.OpenRead(app.Element("Icon").Value));
                                         Bitmap dest = new Bitmap(70, 70);
@@ -309,10 +311,8 @@ namespace UpTool2
                                             dest.Save(ms, ImageFormat.Png);
                                             tmp_apps_list.Last().Add(new XElement("Icon", Convert.ToBase64String(ms.ToArray())));
                                         }
-#if !DEBUG
                                     }
                                     catch { }
-#endif
                                 }
                                 if (tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() > 1)
                                     tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse().Skip(1).ToList().ForEach(a => tmp_apps_list.Remove(a));
@@ -335,8 +335,8 @@ namespace UpTool2
             tmp_apps_list.ForEach(app => repos.Add(app));
             meta.Save(xml);
         }
-#endregion
-#region Run/Update/Reload/Settings (Small links to other stuff)
+        #endregion
+        #region Run/Update/Reload/Settings (Small links to other stuff)
         private void Action_run_Click(object sender, EventArgs e)
         {
             Console.WriteLine(new string('-', 10));
@@ -345,7 +345,8 @@ namespace UpTool2
             Console.WriteLine(((App)action_run.Tag).mainFile);
             Console.WriteLine(getDataPath((App)action_run.Tag));
             _ = Process.Start(
-                new ProcessStartInfo {
+                new ProcessStartInfo
+                {
                     FileName = getDataPath((App)action_run.Tag) + "\\" +
                     ((App)action_run.Tag).mainFile,
                     WorkingDirectory = getDataPath((App)action_run.Tag)
@@ -374,8 +375,8 @@ namespace UpTool2
         }
 
         private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForms().ShowDialog();
-#endregion
-#region GUI (stuff only present for GUI)
+        #endregion
+        #region GUI (stuff only present for GUI)
         void clearSelection()
         {
             action_install.Enabled = false;
@@ -401,14 +402,14 @@ namespace UpTool2
             else
             {
 #endif
-                Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
-                for (int i = 0; i < sidebarPanel.Controls.Count; i++)
-                {
-                    Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
-                    App app = (App)sidebarIcon.Tag;
-                    sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
-                }
-                clearSelection();
+            Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
+            for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+            {
+                Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
+                App app = (App)sidebarIcon.Tag;
+                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
+            }
+            clearSelection();
 #if DEBUG
             }
 #endif
@@ -435,8 +436,64 @@ namespace UpTool2
             Program.splash.Hide();
             BringToFront();
         }
-#endregion
-#region Definitions
+
+        private void controls_local_Click(object sender, EventArgs e)
+        {
+            File.Copy(dir + @"\update.exe", dir + @"\UpTool2.exe", true);
+            Shortcut.Create(Path.GetDirectoryName(Application.ExecutablePath) + "\\UpTool2.lnk", dir + @"\UpTool2.exe", null, null, null, null, null);
+            Shortcut.Create(Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk", dir + @"\UpTool2.exe", null, null, null, null, null);
+            Close();
+        }
+
+        public class Shortcut
+        {
+
+            private static Type m_type = Type.GetTypeFromProgID("WScript.Shell");
+            private static object m_shell = Activator.CreateInstance(m_type);
+
+            [ComImport, TypeLibType((short)0x1040), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")]
+            private interface IWshShortcut
+            {
+                [DispId(0)]
+                string FullName { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0)] get; }
+                [DispId(0x3e8)]
+                string Arguments { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3e8)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3e8)] set; }
+                [DispId(0x3e9)]
+                string Description { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3e9)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3e9)] set; }
+                [DispId(0x3ea)]
+                string Hotkey { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ea)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ea)] set; }
+                [DispId(0x3eb)]
+                string IconLocation { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3eb)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3eb)] set; }
+                [DispId(0x3ec)]
+                string RelativePath { [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ec)] set; }
+                [DispId(0x3ed)]
+                string TargetPath { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ed)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ed)] set; }
+                [DispId(0x3ee)]
+                int WindowStyle { [DispId(0x3ee)] get; [param: In] [DispId(0x3ee)] set; }
+                [DispId(0x3ef)]
+                string WorkingDirectory { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ef)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ef)] set; }
+                [TypeLibFunc((short)0x40), DispId(0x7d0)]
+                void Load([In, MarshalAs(UnmanagedType.BStr)] string PathLink);
+                [DispId(0x7d1)]
+                void Save();
+            }
+
+            public static void Create(string fileName, string targetPath, string arguments, string workingDirectory, string description, string hotkey, string iconPath)
+            {
+                IWshShortcut shortcut = (IWshShortcut)m_type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, null, m_shell, new object[] { fileName });
+                shortcut.Description = description;
+                shortcut.TargetPath = targetPath;
+                shortcut.WorkingDirectory = workingDirectory;
+                shortcut.Arguments = arguments;
+                if (!string.IsNullOrEmpty(hotkey))
+                    shortcut.Hotkey = hotkey;
+                if (!string.IsNullOrEmpty(iconPath))
+                    shortcut.IconLocation = iconPath;
+                shortcut.Save();
+            }
+        }
+        #endregion
+        #region Definitions
         private struct App : IEquatable<App>
         {
             public string name;
@@ -504,6 +561,6 @@ namespace UpTool2
         string getAppPath(Guid app) => appsPath + @"\" + app.ToString();
         string getDataPath(Guid app) => getAppPath(app) + @"\app";
         bool relE = true;
-#endregion
+        #endregion
     }
 }

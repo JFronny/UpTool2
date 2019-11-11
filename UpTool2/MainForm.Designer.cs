@@ -46,6 +46,7 @@
             this.controls_reload = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.searchPackageDialog = new System.Windows.Forms.OpenFileDialog();
+            this.controls_local = new System.Windows.Forms.Button();
             this.infoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -169,6 +170,7 @@
             this.optionsPanel.Controls.Add(this.searchBox);
             this.optionsPanel.Controls.Add(this.controls_settings);
             this.optionsPanel.Controls.Add(this.controls_reload);
+            this.optionsPanel.Controls.Add(this.controls_local);
             this.optionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.optionsPanel.Location = new System.Drawing.Point(0, 0);
             this.optionsPanel.Name = "optionsPanel";
@@ -204,7 +206,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.searchBox.Location = new System.Drawing.Point(3, 33);
             this.searchBox.Name = "searchBox";
-            this.searchBox.Size = new System.Drawing.Size(262, 20);
+            this.searchBox.Size = new System.Drawing.Size(233, 20);
             this.searchBox.TabIndex = 2;
             this.searchBox.TextChanged += new System.EventHandler(this.updateSidebarV);
             // 
@@ -238,6 +240,17 @@
             // searchPackageDialog
             // 
             this.searchPackageDialog.Filter = "Packages (*.zip)|*.zip";
+            // 
+            // controls_local
+            // 
+            this.controls_local.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.controls_local.Location = new System.Drawing.Point(242, 31);
+            this.controls_local.Name = "controls_local";
+            this.controls_local.Size = new System.Drawing.Size(23, 23);
+            this.controls_local.TabIndex = 6;
+            this.controls_local.Text = "⇓";
+            this.controls_local.UseVisualStyleBackColor = true;
+            this.controls_local.Click += new System.EventHandler(this.controls_local_Click);
             // 
             // MainForm
             // 
@@ -281,6 +294,7 @@
         private System.Windows.Forms.Button action_run;
         private System.Windows.Forms.Button controls_upload;
         private System.Windows.Forms.OpenFileDialog searchPackageDialog;
+        private System.Windows.Forms.Button controls_local;
     }
 }
 
