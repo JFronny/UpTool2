@@ -64,5 +64,8 @@ namespace UpTool2
         public override string ToString() => "Name: " + name + "\r\nDescription:\r\n" + string.Join("\r\n", description.Split('\n').Select(s => { if (s.EndsWith("\r")) s.Remove(s.Length - 1, 1); return ">   " + s; })) + "\r\nVersion: " + version + "\r\nFile: " + file + "\r\nLocal: " + local.ToString() + "\r\nHash: " + hash + "\r\nID: " + ID.ToString() + "\r\nColor: " + color.ToKnownColor().ToString() + "\r\nRunnable: " + runnable + "\r\nMainFile: " + mainFile + "\r\nStatus: " + status.ToString() + "\r\nObject Hash Code: " + GetHashCode();
         public static bool operator ==(App left, App right) => left.Equals(right);
         public static bool operator !=(App left, App right) => !(left == right);
+        public string appPath => GlobalVariables.getAppPath(this);
+        public string dataPath => GlobalVariables.getDataPath(this);
+        public string infoPath => GlobalVariables.getInfoPath(this);
     }
 }

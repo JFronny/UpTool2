@@ -17,5 +17,6 @@ namespace UpTool2
         public static string getDataPath(Guid app) => getAppPath(app) + @"\app";
         public static string getInfoPath(Guid app) => getAppPath(app) + "\\info.xml";
         public static bool relE = true;
+        public static Action reloadElements;
     }
 }
