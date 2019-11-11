@@ -1,0 +1,16 @@
+More Icons for Apps
+More apps: Laptop Sim (when done)
+Split up main File (MainForm.cs) to (more or less) independent modules
+Automatically push Meta.xml changes after building
+
+
+
+
+
+
+NOTE: All command prompts will be removed soon (tm) Update your scripts to reflect this change (there may be some things provided for dialogs)
+
+Repo structure:
+<repo>
+ ##In-Line app definitions with <app> , references to apps ( <applink> ) or repos ( <repolink> ) see Repo.xml for example app definitions. A remote app consists only of the <app> tag
+</repo>

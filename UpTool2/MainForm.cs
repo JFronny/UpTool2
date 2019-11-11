@@ -172,6 +172,7 @@ namespace UpTool2
             toolTip.SetToolTip(action_update, "Update");
             toolTip.SetToolTip(action_run, "Run");
             getReposFromDisk();
+            int availableUpdates = 0;
             foreach (App app in apps.Values)
             {
                 Panel sidebarIcon = new Panel();
@@ -191,14 +192,17 @@ namespace UpTool2
                     action_remove.Enabled = Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
                     action_update.Tag = app;
                     string xml = dir + @"\Apps\" + app.ID.ToString() + @"\info.xml";
-                    action_update.Enabled = (!app.local) && File.Exists(xml) && int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < app.version;
+                    action_update.Enabled = (!app.local) && File.Exists(getInfoPath(app)) && int.Parse(XDocument.Load(getInfoPath(app)).Element("app").Element("Version").Value) < app.version;
                     action_run.Tag = app;
                     action_run.Enabled = (!app.local) && app.runnable && Directory.Exists(dir + @"\Apps\" + app.ID.ToString());
                 };
+                if ((!app.local) && File.Exists(getInfoPath(app)) && int.Parse(XDocument.Load(getInfoPath(app)).Element("app").Element("Version").Value) < app.version)
+                    availableUpdates++;
                 toolTip.SetToolTip(sidebarIcon, app.name);
                 sidebarPanel.Controls.Add(sidebarIcon);
             }
             updateSidebarV(null, null);
+            Text = "UpTool2 " + ((availableUpdates == 0) ? "(All up-to-date)" : "(" + availableUpdates.ToString() + " Updates)");
         }
 
         void getReposFromDisk()
@@ -208,7 +212,7 @@ namespace UpTool2
             XDocument.Load(xml).Element("meta").Element("LocalRepo").Elements().ToList().ForEach(app =>
             {
                 Guid id = Guid.Parse(app.Element("ID").Value);
-                string locInPath = getAppPath(id) + "\\info.xml";
+                string locInPath = getInfoPath(id);
                 XElement locIn = File.Exists(locInPath) ? XDocument.Load(locInPath).Element("app") : app;
                 apps.Add(id, new App(
                     name: locIn.Element("Name").Value,
@@ -233,7 +237,7 @@ namespace UpTool2
                 Guid tmp = Guid.Parse(Path.GetFileName(s));
                 try
                 {
-                    XElement data = XDocument.Load(getAppPath(tmp) + @"\info.xml").Element("app");
+                    XElement data = XDocument.Load(getInfoPath(tmp)).Element("app");
                     apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, -1, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
                 }
                 catch (Exception e)
@@ -255,68 +259,71 @@ namespace UpTool2
                 meta.Add(new XElement("Repos"));
             if (meta.Element("Repos").Elements("Repo").Count() == 0)
                 meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml")));
-            string[] repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link").Value).ToArray();
+            List<string> repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link").Value).ToList();
             using (WebClient client = new WebClient())
             {
-                for (int i = 0; i < repArr.Length; i++)
+                int i = 0;
+                while (i < repArr.Count)
                 {
 #if !DEBUG
                     try
                     {
 #endif
                         XDocument repo = XDocument.Load(repArr[i]);
-                        foreach (XElement app in repo.Element("repo").Elements("app"))
+                        repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value));
+                        XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app => tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() == 0 ||
+                            tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value)
+                            .Where(a => int.Parse(a.Element("Version").Value) >= int.Parse(app.Element("Version").Value)).Count() == 0).ToArray()
+                            .Concat(repo.Element("repo").Elements("applink").Select(s => XDocument.Load(s.Value).Element("app"))).ToArray();
+                        for (int i1 = 0; i1 < tmp_apparray.Length; i1++)
                         {
-                            if (tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() == 0 ||
-                                tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value)
-                                .Where(a => int.Parse(a.Element("Version").Value) >= int.Parse(app.Element("Version").Value)).Count() == 0)
+                            XElement app = tmp_apparray[i1];
+                            //"Sanity check"
+                            int.Parse(app.Element("Version").Value);
+                            Guid.Parse(app.Element("ID").Value);
+                            //Create XElement
+                            tmp_apps_list.Add(new XElement("App",
+                                                                new XElement("Name", app.Element("Name").Value),
+                                                                new XElement("Description", app.Element("Description").Value),
+                                                                new XElement("Version", app.Element("Version").Value),
+                                                                new XElement("ID", app.Element("ID").Value),
+                                                                new XElement("File", app.Element("File").Value),
+                                                                new XElement("Hash", app.Element("Hash").Value)
+                                                                ));
+                            if (app.Element("MainFile") != null)
+                                tmp_apps_list.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
+                            if (app.Element("Icon") != null)
                             {
-                                //"Sanity check"
-                                int.Parse(app.Element("Version").Value);
-                                Guid.Parse(app.Element("ID").Value);
-                                //Create XElement
-                                tmp_apps_list.Add(new XElement("App",
-                                    new XElement("Name", app.Element("Name").Value),
-                                    new XElement("Description", app.Element("Description").Value),
-                                    new XElement("Version", app.Element("Version").Value),
-                                    new XElement("ID", app.Element("ID").Value),
-                                    new XElement("File", app.Element("File").Value),
-                                    new XElement("Hash", app.Element("Hash").Value)
-                                    ));
-                                if (app.Element("MainFile") != null)
-                                    tmp_apps_list.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
-                                if (app.Element("Icon") != null)
+                                try
                                 {
-                                    try
+                                    //Scale Image and save as Base64
+                                    Image src = Image.FromStream(client.OpenRead(app.Element("Icon").Value));
+                                    Bitmap dest = new Bitmap(70, 70);
+                                    dest.SetResolution(src.HorizontalResolution, src.VerticalResolution);
+                                    using (Graphics g = Graphics.FromImage(dest))
                                     {
-                                        //Scale Image and save as Base64
-                                        Image src = Image.FromStream(client.OpenRead(app.Element("Icon").Value));
-                                        Bitmap dest = new Bitmap(70, 70);
-                                        dest.SetResolution(src.HorizontalResolution, src.VerticalResolution);
-                                        using (Graphics g = Graphics.FromImage(dest))
+                                        g.CompositingMode = CompositingMode.SourceCopy;
+                                        g.CompositingQuality = CompositingQuality.HighQuality;
+                                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                        g.SmoothingMode = SmoothingMode.HighQuality;
+                                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                                        using (var wrapMode = new ImageAttributes())
                                         {
-                                            g.CompositingMode = CompositingMode.SourceCopy;
-                                            g.CompositingQuality = CompositingQuality.HighQuality;
-                                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                            g.SmoothingMode = SmoothingMode.HighQuality;
-                                            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                            using (var wrapMode = new ImageAttributes())
-                                            {
-                                                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                                                g.DrawImage(src, new Rectangle(0, 0, 70, 70), 0, 0, src.Width, src.Height, GraphicsUnit.Pixel, wrapMode);
-                                            }
-                                        }
-                                        using (var ms = new MemoryStream())
-                                        {
-                                            dest.Save(ms, ImageFormat.Png);
-                                            tmp_apps_list.Last().Add(new XElement("Icon", Convert.ToBase64String(ms.ToArray())));
+                                            wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                                            g.DrawImage(src, new Rectangle(0, 0, 70, 70), 0, 0, src.Width, src.Height, GraphicsUnit.Pixel, wrapMode);
                                         }
                                     }
-                                    catch { }
+                                    using (var ms = new MemoryStream())
+                                    {
+                                        dest.Save(ms, ImageFormat.Png);
+                                        tmp_apps_list.Last().Add(new XElement("Icon", Convert.ToBase64String(ms.ToArray())));
+                                    }
                                 }
-                                if (tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() > 1)
-                                    tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse().Skip(1).ToList().ForEach(a => tmp_apps_list.Remove(a));
+                                catch { }
                             }
+
+                            if (tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() > 1)
+                                tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse().Skip(1).ToList().ForEach(a => tmp_apps_list.Remove(a));
                         }
 #if !DEBUG
                     }
@@ -325,6 +332,7 @@ namespace UpTool2
                         MessageBox.Show(e.ToString(), "Failed to load repo: " + repArr[i]);
                     }
 #endif
+                    i++;
                 }
             }
             tmp_apps_list.Sort((x, y) => x.Element("Name").Value.CompareTo(y.Element("Name").Value));
@@ -440,57 +448,42 @@ namespace UpTool2
         private void controls_local_Click(object sender, EventArgs e)
         {
             File.Copy(dir + @"\update.exe", dir + @"\UpTool2.exe", true);
-            Shortcut.Create(Path.GetDirectoryName(Application.ExecutablePath) + "\\UpTool2.lnk", dir + @"\UpTool2.exe", null, null, null, null, null);
-            Shortcut.Create(Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk", dir + @"\UpTool2.exe", null, null, null, null, null);
+            Type m_type = Type.GetTypeFromProgID("WScript.Shell");
+            object m_shell = Activator.CreateInstance(m_type);
+            IWshShortcut shortcut = (IWshShortcut)m_type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, null, m_shell, new object[] { Path.GetDirectoryName(Application.ExecutablePath) + "\\UpTool2.lnk" });
+            shortcut.TargetPath = dir + @"\UpTool2.exe";
+            shortcut.Save();
+            shortcut = (IWshShortcut)m_type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, null, m_shell, new object[] { Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk" });
+            shortcut.TargetPath = dir + @"\UpTool2.exe";
+            shortcut.Save();
             Close();
         }
 
-        public class Shortcut
+        [ComImport, TypeLibType(0x1040), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")]
+        private interface IWshShortcut
         {
-
-            private static Type m_type = Type.GetTypeFromProgID("WScript.Shell");
-            private static object m_shell = Activator.CreateInstance(m_type);
-
-            [ComImport, TypeLibType((short)0x1040), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")]
-            private interface IWshShortcut
-            {
-                [DispId(0)]
-                string FullName { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0)] get; }
-                [DispId(0x3e8)]
-                string Arguments { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3e8)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3e8)] set; }
-                [DispId(0x3e9)]
-                string Description { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3e9)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3e9)] set; }
-                [DispId(0x3ea)]
-                string Hotkey { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ea)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ea)] set; }
-                [DispId(0x3eb)]
-                string IconLocation { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3eb)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3eb)] set; }
-                [DispId(0x3ec)]
-                string RelativePath { [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ec)] set; }
-                [DispId(0x3ed)]
-                string TargetPath { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ed)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ed)] set; }
-                [DispId(0x3ee)]
-                int WindowStyle { [DispId(0x3ee)] get; [param: In] [DispId(0x3ee)] set; }
-                [DispId(0x3ef)]
-                string WorkingDirectory { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ef)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ef)] set; }
-                [TypeLibFunc((short)0x40), DispId(0x7d0)]
-                void Load([In, MarshalAs(UnmanagedType.BStr)] string PathLink);
-                [DispId(0x7d1)]
-                void Save();
-            }
-
-            public static void Create(string fileName, string targetPath, string arguments, string workingDirectory, string description, string hotkey, string iconPath)
-            {
-                IWshShortcut shortcut = (IWshShortcut)m_type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, null, m_shell, new object[] { fileName });
-                shortcut.Description = description;
-                shortcut.TargetPath = targetPath;
-                shortcut.WorkingDirectory = workingDirectory;
-                shortcut.Arguments = arguments;
-                if (!string.IsNullOrEmpty(hotkey))
-                    shortcut.Hotkey = hotkey;
-                if (!string.IsNullOrEmpty(iconPath))
-                    shortcut.IconLocation = iconPath;
-                shortcut.Save();
-            }
+            [DispId(0)]
+            string FullName { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0)] get; }
+            [DispId(0x3e8)]
+            string Arguments { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3e8)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3e8)] set; }
+            [DispId(0x3e9)]
+            string Description { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3e9)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3e9)] set; }
+            [DispId(0x3ea)]
+            string Hotkey { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ea)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ea)] set; }
+            [DispId(0x3eb)]
+            string IconLocation { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3eb)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3eb)] set; }
+            [DispId(0x3ec)]
+            string RelativePath { [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ec)] set; }
+            [DispId(0x3ed)]
+            string TargetPath { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ed)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ed)] set; }
+            [DispId(0x3ee)]
+            int WindowStyle { [DispId(0x3ee)] get; [param: In] [DispId(0x3ee)] set; }
+            [DispId(0x3ef)]
+            string WorkingDirectory { [return: MarshalAs(UnmanagedType.BStr)] [DispId(0x3ef)] get; [param: In, MarshalAs(UnmanagedType.BStr)] [DispId(0x3ef)] set; }
+            [TypeLibFunc((short)0x40), DispId(0x7d0)]
+            void Load([In, MarshalAs(UnmanagedType.BStr)] string PathLink);
+            [DispId(0x7d1)]
+            void Save();
         }
         #endregion
         #region Definitions
@@ -558,8 +551,10 @@ namespace UpTool2
         string appsPath => dir + @"\Apps";
         string getAppPath(App app) => getAppPath(app.ID);
         string getDataPath(App app) => getDataPath(app.ID);
+        string getInfoPath(App app) => getInfoPath(app.ID);
         string getAppPath(Guid app) => appsPath + @"\" + app.ToString();
         string getDataPath(Guid app) => getAppPath(app) + @"\app";
+        string getInfoPath(Guid app) => getAppPath(app) + "\\info.xml";
         bool relE = true;
         #endregion
     }
