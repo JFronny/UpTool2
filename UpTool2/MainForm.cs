@@ -6,7 +6,6 @@ using System.Xml.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Security.Cryptography;
 using Microsoft.VisualBasic;
 
 namespace UpTool2
@@ -118,15 +117,16 @@ namespace UpTool2
                     infoPanel_Title.ForeColor = app.local ? Color.Red : Color.Black;
                     infoPanel_Description.Text = app.description;
                     action_install.Tag = app;
-                    action_install.Enabled = !(app.local || Directory.Exists(GlobalVariables.getAppPath(app)));
+                    action_install.Enabled = !(app.local || Directory.Exists(app.appPath));
                     action_remove.Tag = app;
-                    action_remove.Enabled = Directory.Exists(GlobalVariables.getAppPath(app));
+                    action_remove.Enabled = Directory.Exists(app.appPath);
                     action_update.Tag = app;
-                    action_update.Enabled = (!app.local) && File.Exists(GlobalVariables.getInfoPath(app)) && int.Parse(XDocument.Load(GlobalVariables.getInfoPath(app)).Element("app").Element("Version").Value) < app.version;
+                    string ver = XDocument.Load(app.infoPath).Element("app").Element("Version").Value;
+                    action_update.Enabled = (!app.local) && File.Exists(app.infoPath) && int.Parse(ver) < app.version;
                     action_run.Tag = app;
-                    action_run.Enabled = (!app.local) && app.runnable && Directory.Exists(GlobalVariables.getAppPath(app));
+                    action_run.Enabled = (!app.local) && app.runnable && Directory.Exists(app.appPath);
                 };
-                if ((!app.local) && File.Exists(GlobalVariables.getInfoPath(app)) && int.Parse(XDocument.Load(GlobalVariables.getInfoPath(app)).Element("app").Element("Version").Value) < app.version)
+                if ((!app.local) && File.Exists(app.infoPath) && int.Parse(XDocument.Load(app.infoPath).Element("app").Element("Version").Value) < app.version)
                     availableUpdates++;
                 toolTip.SetToolTip(sidebarIcon, app.name);
                 sidebarPanel.Controls.Add(sidebarIcon);

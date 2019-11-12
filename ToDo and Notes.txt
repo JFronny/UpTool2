@@ -1,9 +1,9 @@
 More Icons for Apps
 More apps: Laptop Sim (when done)
-Split up main File (MainForm.cs) to (more or less) independent modules
 Automatically push Meta.xml changes after building
-
-
+Support semantic versioning for app updates (App object versions will have to be converted)
+Use binary version for Updates
+Less code in MainForm.cs!
 
 
 

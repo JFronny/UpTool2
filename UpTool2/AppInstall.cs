@@ -21,7 +21,7 @@ namespace UpTool2
             string tmp = "";
             try
             {
-                app = GlobalVariables.dir + @"\Apps\" + appI.ID.ToString();
+                app = appI.appPath;
                 tmp = GlobalVariables.dir + @"\tmp";
                 if (Directory.Exists(""))
                     Directory.Delete("", true);
@@ -37,7 +37,7 @@ namespace UpTool2
                     if (pkghash != appI.hash.ToUpper())
                         throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + appI.hash.ToUpper());
                 }
-                completeInstall(app, appI);
+                completeInstall(appI);
             }
             catch
             {
@@ -65,7 +65,7 @@ namespace UpTool2
                     Directory.Delete(tmp, true);
                 Directory.CreateDirectory(tmp);
                 File.Copy(zipPath, app + @"\package.zip");
-                completeInstall(app, meta);
+                completeInstall(meta);
             }
             catch
             {
@@ -80,20 +80,22 @@ namespace UpTool2
             }
         }
 
-        static void completeInstall(string app, App appI)
+        static void completeInstall(App app) => completeInstall(app.appPath, app.name, app.description, app.version, app.mainFile);
+
+        static void completeInstall(string appPath, string name, string description, int version, string mainFile)
         {
 #if !DEBUG
             try
             {
 #endif
                 string tmp = GlobalVariables.dir + @"\tmp";
-                ZipFile.ExtractToDirectory(app + @"\package.zip", tmp);
-                Directory.Move(tmp + @"\Data", app + @"\app");
-                if (appI.runnable)
-                    new XElement("app", new XElement("Name", appI.name), new XElement("Description", appI.description), new XElement("Version", appI.version), new XElement("MainFile", appI.mainFile)).Save(app + @"\info.xml");
+                ZipFile.ExtractToDirectory(appPath + @"\package.zip", tmp);
+                Directory.Move(tmp + @"\Data", appPath + @"\app");
+                if (mainFile == null)
+                    new XElement("app", new XElement("Name", name), new XElement("Description", description), new XElement("Version", version)).Save(appPath + @"\info.xml");
                 else
-                    new XElement("app", new XElement("Name", appI.name), new XElement("Description", appI.description), new XElement("Version", appI.version)).Save(app + @"\info.xml");
-                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C \"" + tmp + "\\Install.bat\"", WorkingDirectory = app + @"\app", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden }).WaitForExit();
+                    new XElement("app", new XElement("Name", name), new XElement("Description", description), new XElement("Version", version), new XElement("MainFile", mainFile)).Save(appPath + @"\info.xml");
+                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C \"" + tmp + "\\Install.bat\"", WorkingDirectory = appPath + @"\app", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden }).WaitForExit();
                 if (GlobalVariables.relE)
                     GlobalVariables.reloadElements.Invoke();
 #if !DEBUG

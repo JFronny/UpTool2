@@ -141,8 +141,13 @@ namespace UpTool2
         static bool UpdateCheck(string dir, string xml, string metaXML)
         {
             XElement meta = XDocument.Load(metaXML).Element("meta");
-            int version = int.Parse(meta.Element("Version").Value);
-            if (int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version)
+            bool updatable;
+            string ver = meta.Element("Version").Value;
+            if (int.TryParse(ver, out int version))
+                updatable = int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version;
+            else
+                updatable = Assembly.GetExecutingAssembly().GetName().Version.CompareTo(Version.Parse(ver)) < 0;
+            if (updatable)
             {
                 using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value, dir + @"\update.tmp"))
                 {
@@ -170,7 +175,7 @@ namespace UpTool2
                     AssemblyName.GetAssemblyName(dir + @"\update.tmp");
                     File.Move(dir + @"\update.tmp", dir + @"\update.exe");
                 }
-                new XElement("meta", new XElement("Version", version)).Save(xml);
+                new XElement("meta", new XElement("Version", ver)).Save(xml);
                 splash.Hide();
                 Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C timeout /t 2 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & \"" + Application.ExecutablePath + "\"", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
                 return false;
