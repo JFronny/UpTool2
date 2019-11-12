@@ -2,11 +2,14 @@
 using System.Drawing;
 using System.Windows.Forms;
 using UpTool2.Properties;
-using System.Xml.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.IO.Compression;
 using Microsoft.VisualBasic;
+#if DEBUG
+using System.Threading;
+using System.Linq;
+#endif
 
 namespace UpTool2
 {
@@ -63,7 +66,7 @@ namespace UpTool2
                     Guid ID = Guid.NewGuid();
                     while (GlobalVariables.apps.ContainsKey(ID) || Directory.Exists(GlobalVariables.getAppPath(ID)))
                         ID = Guid.NewGuid();
-                    App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only", -1, "", true, "", ID, Color.Red, Resources.C_64.ToBitmap(), false, "");
+                    App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only", GlobalVariables.minimumVer, "", true, "", ID, Color.Red, Resources.C_64.ToBitmap(), false, "");
                     AppInstall.installZip(searchPackageDialog.FileName, appI);
                 }
 #if !DEBUG
@@ -111,6 +114,7 @@ namespace UpTool2
                 sidebarIcon.Size = new Size(70, 70);
                 sidebarIcon.BackgroundImage = app.icon;
                 sidebarIcon.BackgroundImageLayout = ImageLayout.Stretch;
+                bool updatable = (!app.local) && ((app.status & Status.Updatable) == Status.Updatable);
                 sidebarIcon.Click += (object sender, EventArgs e) =>
                 {
                     infoPanel_Title.Text = app.name;
@@ -121,12 +125,11 @@ namespace UpTool2
                     action_remove.Tag = app;
                     action_remove.Enabled = Directory.Exists(app.appPath);
                     action_update.Tag = app;
-                    string ver = XDocument.Load(app.infoPath).Element("app").Element("Version").Value;
-                    action_update.Enabled = (!app.local) && File.Exists(app.infoPath) && int.Parse(ver) < app.version;
+                    action_update.Enabled = updatable;
                     action_run.Tag = app;
                     action_run.Enabled = (!app.local) && app.runnable && Directory.Exists(app.appPath);
                 };
-                if ((!app.local) && File.Exists(app.infoPath) && int.Parse(XDocument.Load(app.infoPath).Element("app").Element("Version").Value) < app.version)
+                if (updatable)
                     availableUpdates++;
                 toolTip.SetToolTip(sidebarIcon, app.name);
                 sidebarPanel.Controls.Add(sidebarIcon);
@@ -185,7 +188,7 @@ namespace UpTool2
             {
                 searchBox.Text = "!DEBUG:PRINT";
                 string _tmp_file = Path.GetTempFileName();
-                File.WriteAllText(_tmp_file, string.Join("\r\n\r\n", apps.Select(app => app.Value).Select(app => app.ToString()).ToArray()));
+                File.WriteAllText(_tmp_file, string.Join("\r\n\r\n", GlobalVariables.apps.Values.Select(app => app.ToString()).ToArray()));
                 new Thread(() => {
                     Process.Start("notepad", _tmp_file).WaitForExit();
                     File.Delete(_tmp_file);

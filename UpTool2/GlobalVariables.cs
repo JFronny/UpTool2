@@ -18,5 +18,6 @@ namespace UpTool2
         public static string getInfoPath(Guid app) => getAppPath(app) + "\\info.xml";
         public static bool relE = true;
         public static Action reloadElements;
+        public static Version minimumVer => Version.Parse("0.0.0.0");
     }
 }

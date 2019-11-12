@@ -146,7 +146,7 @@ namespace UpTool2
             if (int.TryParse(ver, out int version))
                 updatable = int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version;
             else
-                updatable = Assembly.GetExecutingAssembly().GetName().Version.CompareTo(Version.Parse(ver)) < 0;
+                updatable = Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(ver);
             if (updatable)
             {
                 using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value, dir + @"\update.tmp"))

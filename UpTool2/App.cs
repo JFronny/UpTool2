@@ -11,7 +11,7 @@ namespace UpTool2
     {
         public string name;
         public string description;
-        public int version;
+        public Version version;
         public string file;
         public bool local;
         public string hash;
@@ -21,7 +21,7 @@ namespace UpTool2
         public bool runnable;
         public string mainFile;
 
-        public App(string name, string description, int version, string file, bool local, string hash, Guid iD, Color color, Image icon, bool runnable, string mainFile)
+        public App(string name, string description, Version version, string file, bool local, string hash, Guid iD, Color color, Image icon, bool runnable, string mainFile)
         {
             this.name = name ?? throw new ArgumentNullException(nameof(name));
             this.description = description ?? throw new ArgumentNullException(nameof(description));
@@ -34,24 +34,18 @@ namespace UpTool2
             this.icon = icon ?? throw new ArgumentNullException(nameof(icon));
             this.runnable = runnable;
             this.mainFile = mainFile ?? throw new ArgumentNullException(nameof(mainFile));
-#if DEBUG
-                Console.WriteLine(";" + mainFile + ";" + this.mainFile);
-#endif
         }
 
         public Status status
         {
             get {
-                string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\UpTool2";
-                string xml = dir + @"\Apps\" + ID.ToString() + @"\info.xml";
+                string xml = GlobalVariables.getInfoPath(ID);
                 if (File.Exists(xml))
                 {
-                    if (int.Parse(XDocument.Load(xml).Element("app").Element("Version").Value) < version)
-                        return Status.Updatable;
+                    if (Version.TryParse(XDocument.Load(xml).Element("app").Element("Version").Value, out Version ver) && ver >= version)
+                        return local ? (Status.Installed | Status.Local) : Status.Installed;
                     else
-                    {
-                        return local ? Status.Installed | Status.Local : Status.Installed;
-                    }
+                        return Status.Installed | Status.Updatable;
                 }
                 else
                     return Status.Not_Installed;

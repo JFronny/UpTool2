@@ -19,13 +19,15 @@ namespace UpTool2
         {
             string app = "";
             string tmp = "";
+#if !DEBUG
             try
             {
+#endif
                 app = appI.appPath;
                 tmp = GlobalVariables.dir + @"\tmp";
-                if (Directory.Exists(""))
-                    Directory.Delete("", true);
-                Directory.CreateDirectory("");
+                if (Directory.Exists(tmp))
+                    Directory.Delete(tmp, true);
+                Directory.CreateDirectory(tmp);
                 if (Directory.Exists(app))
                     Directory.Delete(app, true);
                 Directory.CreateDirectory(app);
@@ -38,6 +40,7 @@ namespace UpTool2
                         throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + appI.hash.ToUpper());
                 }
                 completeInstall(appI);
+#if !DEBUG
             }
             catch
             {
@@ -47,9 +50,12 @@ namespace UpTool2
             }
             finally
             {
+#endif
                 if (tmp != "" && Directory.Exists(tmp))
-                    Directory.Delete(tmp, true);
+                        Directory.Delete(tmp, true);
+#if !DEBUG
             }
+#endif
         }
 
         public static void installZip(string zipPath, App meta)
@@ -82,7 +88,7 @@ namespace UpTool2
 
         static void completeInstall(App app) => completeInstall(app.appPath, app.name, app.description, app.version, app.mainFile);
 
-        static void completeInstall(string appPath, string name, string description, int version, string mainFile)
+        static void completeInstall(string appPath, string name, string description, Version version, string mainFile)
         {
 #if !DEBUG
             try

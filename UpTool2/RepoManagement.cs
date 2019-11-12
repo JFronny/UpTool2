@@ -37,7 +37,7 @@ namespace UpTool2
                         repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value));
                         XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app => tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() == 0 ||
                             tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value)
-                            .Where(a => int.Parse(a.Element("Version").Value) >= int.Parse(app.Element("Version").Value)).Count() == 0).ToArray()
+                            .Where(a => a.Element("Version").getVer() >= app.Element("Version").getVer()).Count() == 0).ToArray()
                             .Concat(repo.Element("repo").Elements("applink").Select(s => XDocument.Load(s.Value).Element("app"))).ToArray();
                         for (int i1 = 0; i1 < tmp_apparray.Length; i1++)
                         {
@@ -108,6 +108,8 @@ namespace UpTool2
             meta.Save(xml);
         }
 
+        static Version getVer(this XElement el) => int.TryParse(el.Value, out int i) ? new Version(0, 0, 0, i) : Version.Parse(el.Value);
+
         public static void getReposFromDisk()
         {
             GlobalVariables.apps.Clear();
@@ -117,10 +119,12 @@ namespace UpTool2
                 Guid id = Guid.Parse(app.Element("ID").Value);
                 string locInPath = GlobalVariables.getInfoPath(id);
                 XElement locIn = File.Exists(locInPath) ? XDocument.Load(locInPath).Element("app") : app;
+                if (int.TryParse(app.Element("Version").Value, out int iputareallylongnameheresoiwillnotuseitlaterbyaccident))
+                    app.Element("Version").Value = GlobalVariables.minimumVer.ToString();
                 GlobalVariables.apps.Add(id, new App(
                     name: locIn.Element("Name").Value,
                     description: locIn.Element("Description").Value,
-                    version: int.Parse(app.Element("Version").Value),
+                    version: Version.Parse(app.Element("Version").Value),
                     file: app.Element("File").Value,
                     local: false,
                     hash: app.Element("Hash").Value,
@@ -132,7 +136,7 @@ namespace UpTool2
                     ));
 #if DEBUG
                 Console.WriteLine(locIn.Element("MainFile") == null ? "NULL" : locIn.Element("MainFile").Value);
-                Console.WriteLine(apps[id].mainFile);
+                Console.WriteLine(GlobalVariables.apps[id].mainFile);
 #endif
             });
             Directory.GetDirectories(GlobalVariables.dir + @"\Apps\").Where(s => !GlobalVariables.apps.ContainsKey(Guid.Parse(Path.GetFileName(s)))).ToList().ForEach(s =>
@@ -141,7 +145,7 @@ namespace UpTool2
                 try
                 {
                     XElement data = XDocument.Load(GlobalVariables.getInfoPath(tmp)).Element("app");
-                    GlobalVariables.apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, -1, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
+                    GlobalVariables.apps.Add(tmp, new App("(local) " + data.Element("Name").Value, data.Element("Description").Value, GlobalVariables.minimumVer, "", true, "", tmp, Color.Red, Resources.C_64.ToBitmap(), data.Element("MainFile") != null, data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
                 }
                 catch (Exception e)
                 {
