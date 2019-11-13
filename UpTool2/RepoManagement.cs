@@ -23,7 +23,7 @@ namespace UpTool2
                 meta.Add(new XElement("Repos"));
             if (meta.Element("Repos").Elements("Repo").Count() == 0)
                 meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml")));
-            List<string> repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link").Value).ToList();
+            List<string> repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link").Value).Distinct().ToList();
             using (WebClient client = new WebClient())
             {
                 int i = 0;
@@ -34,7 +34,7 @@ namespace UpTool2
                     {
 #endif
                         XDocument repo = XDocument.Load(repArr[i]);
-                        repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value));
+                        repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value).Where(s => !repArr.Contains(s)));
                         XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app => tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value).Count() == 0 ||
                             tmp_apps_list.Where(a => a.Element("ID").Value == app.Element("ID").Value)
                             .Where(a => a.Element("Version").getVer() >= app.Element("Version").getVer()).Count() == 0).ToArray()
