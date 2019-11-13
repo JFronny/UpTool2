@@ -14,10 +14,16 @@ jobs:
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
         .\MSBuild.exe $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Release -m
         .\MSBuild.exe $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Debug -m
+        cd "C:\Program Files\7-Zip\"
+        .\7z a $Env:GITHUB_WORKSPACE\Release.zip $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
         cd $Env:GITHUB_WORKSPACE
-    - name: Get Changed Files
-      uses: lots0logs/gh-action-get-changed-files@1.0.0
-    - uses: actions/upload-artifact@master
+        $xml = New-Object XML
+        $xml.load("Meta.xml")
+        $xml.meta.Hash = $(Get-FileHash .\Release.zip).Hash
+        $xml.save("Meta.xml")
+    - uses: matheusalbino/git-commit@v1.0.1
       with:
-        name: my-artifact
-        path: ${HOME}
+        user-name: Equal
+        user-email: equal@example.com
+        message: This a commit from Github Actions
+        github-token: ${{ secrets.GITHUB_TOKEN }}
