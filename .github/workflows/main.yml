@@ -1,0 +1,23 @@
+name: CD
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run a multi-line script
+      run: |
+        cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+        .\MSBuild.exe $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Release -m
+        .\MSBuild.exe $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Debug -m
+        cd $Env:GITHUB_WORKSPACE
+    - name: Get Changed Files
+      uses: lots0logs/gh-action-get-changed-files@1.0.0
+    - uses: actions/upload-artifact@master
+      with:
+        name: my-artifact
+        path: ${HOME}
