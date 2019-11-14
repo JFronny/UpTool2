@@ -25,6 +25,19 @@ jobs:
         $xml.meta.Version = $asmver
         $xml.meta.File = "https://github.com/CreepyCrafter24/UpTool2/raw/master/Release.zip"
         $xml.save("Meta.xml")
+        # Some copy/pasted code to remove the UTF-8 BOM
+        $FilePath=$(pwd).Path + "\Meta.xml"
+        [System.IO.FileInfo] $file = Get-Item -Path $FilePath
+        $sequenceBOM = New-Object System.Byte[] 3
+        $reader = $file.OpenRead()
+        $bytesRead = $reader.Read($sequenceBOM, 0, 3)
+        $reader.Dispose()
+        if ($bytesRead -eq 3 -and $sequenceBOM[0] -eq 239 -and $sequenceBOM[1] -eq 187 -and $sequenceBOM[2] -eq 191)
+        {
+            $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
+            [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
+            Write-Host "Remove UTF-8 BOM successfully"
+        }
     - uses: matheusalbino/git-commit@v1.0.1
       with:
         user-name: Equal
