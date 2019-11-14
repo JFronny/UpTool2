@@ -160,6 +160,8 @@ namespace UpTool2
                     if (pkghash != meta.Element("Hash").Value.ToUpper())
                         throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
                 }
+                if (File.Exists(dir + @"\update.exe"))
+                    File.Delete(dir + @"\update.exe");
                 try
                 {
                     //Try extracting. This is done to support automatically built updates
@@ -167,7 +169,9 @@ namespace UpTool2
                         Directory.Delete(dir + @"\update", true);
                     ZipFile.ExtractToDirectory(dir + @"\update.tmp", dir + @"\update");
                     File.Delete(dir + @"\update.tmp");
-                    File.Copy(dir + @"\update", dir + @"\update.exe", true);
+                    string[] array = Directory.GetFiles(dir + @"\update\Release");
+                    for (int i = 0; i < array.Length; i++)
+                        File.Copy(array[i], dir + @"\update.exe", true);
                 }
                 catch (InvalidDataException)
                 {

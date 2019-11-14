@@ -44,9 +44,9 @@
             this.searchBox = new System.Windows.Forms.TextBox();
             this.controls_settings = new System.Windows.Forms.Button();
             this.controls_reload = new System.Windows.Forms.Button();
+            this.controls_local = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.searchPackageDialog = new System.Windows.Forms.OpenFileDialog();
-            this.controls_local = new System.Windows.Forms.Button();
             this.infoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -230,17 +230,6 @@
             this.controls_reload.UseVisualStyleBackColor = true;
             this.controls_reload.Click += new System.EventHandler(this.Controls_reload_Click);
             // 
-            // toolTip
-            // 
-            this.toolTip.AutoPopDelay = 5000;
-            this.toolTip.InitialDelay = 300;
-            this.toolTip.ReshowDelay = 100;
-            this.toolTip.ShowAlways = true;
-            // 
-            // searchPackageDialog
-            // 
-            this.searchPackageDialog.Filter = "Packages (*.zip)|*.zip";
-            // 
             // controls_local
             // 
             this.controls_local.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -252,17 +241,30 @@
             this.controls_local.UseVisualStyleBackColor = true;
             this.controls_local.Click += new System.EventHandler(this.controls_local_Click);
             // 
+            // toolTip
+            // 
+            this.toolTip.AutoPopDelay = 5000;
+            this.toolTip.InitialDelay = 300;
+            this.toolTip.ReshowDelay = 100;
+            this.toolTip.ShowAlways = true;
+            // 
+            // searchPackageDialog
+            // 
+            this.searchPackageDialog.Filter = "Packages (*.zip)|*.zip";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer);
+            this.HelpButton = true;
             this.MinimumSize = new System.Drawing.Size(543, 238);
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.Text = "UpTool 2";
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.MainForm_HelpRequested);
             this.infoPanel.ResumeLayout(false);
             this.infoPanel.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);

@@ -6,6 +6,8 @@ using System.IO;
 using System.Diagnostics;
 using System.IO.Compression;
 using Microsoft.VisualBasic;
+using System.Reflection;
+using System.Runtime.InteropServices;
 #if DEBUG
 using System.Threading;
 using System.Linq;
@@ -188,7 +190,7 @@ namespace UpTool2
             {
                 searchBox.Text = "!DEBUG:PRINT";
                 string _tmp_file = Path.GetTempFileName();
-                File.WriteAllText(_tmp_file, string.Join("\r\n\r\n", GlobalVariables.apps.Values.Select(app => app.ToString()).ToArray()));
+                File.WriteAllText(_tmp_file, string.Join("\r\n\r\n", GlobalVariables.apps.Values.Select(app => app.ToString()).Concat(new string[] { "Assembly version: " + Assembly.GetExecutingAssembly().GetName().Version.ToString() }).ToArray()));
                 new Thread(() => {
                     Process.Start("notepad", _tmp_file).WaitForExit();
                     File.Delete(_tmp_file);
@@ -238,6 +240,52 @@ namespace UpTool2
             Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Path.GetDirectoryName(Application.ExecutablePath) + "\\UpTool2.lnk");
             Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
             Close();
+        }
+
+        struct _IMAGE_FILE_HEADER
+        {
+            public ushort Machine;
+            public ushort NumberOfSections;
+            public uint TimeDateStamp;
+            public uint PointerToSymbolTable;
+            public uint NumberOfSymbols;
+            public ushort SizeOfOptionalHeader;
+            public ushort Characteristics;
+        };
+
+        static DateTime GetBuildDateTime(Assembly assembly)
+        {
+            var path = assembly.GetName().CodeBase;
+            if (File.Exists(path))
+            {
+                var buffer = new byte[Math.Max(Marshal.SizeOf(typeof(_IMAGE_FILE_HEADER)), 4)];
+                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    fileStream.Position = 0x3C;
+                    fileStream.Read(buffer, 0, 4);
+                    fileStream.Position = BitConverter.ToUInt32(buffer, 0); // COFF header offset
+                    fileStream.Read(buffer, 0, 4); // "PE\0\0"
+                    fileStream.Read(buffer, 0, buffer.Length);
+                }
+                var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                try
+                {
+                    var coffHeader = (_IMAGE_FILE_HEADER)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), typeof(_IMAGE_FILE_HEADER));
+
+                    return TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1) + new TimeSpan(coffHeader.TimeDateStamp * TimeSpan.TicksPerSecond));
+                }
+                finally
+                {
+                    pinnedBuffer.Free();
+                }
+            }
+            return new DateTime();
+        }
+
+        private void MainForm_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            DateTime buildTime = GetBuildDateTime(Assembly.GetExecutingAssembly());
+            MessageBox.Show("UpTool2 by CC24\r\nVersion: " + Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\r\nBuild Date: " + buildTime.ToString("dd.MM.yyyy"), "UpTool2");
         }
     }
 }
