@@ -16,12 +16,13 @@ jobs:
         .\MSBuild.exe $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Debug -m
         cd "C:\Program Files\7-Zip\"
         .\7z a $Env:GITHUB_WORKSPACE\Release.zip $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
+        cd $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
+        $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2.exe").GetName().version.ToString())
         cd $Env:GITHUB_WORKSPACE
         $xml = New-Object XML
         $xml.load("Meta.xml")
         $xml.meta.Hash = $(Get-FileHash .\Release.zip).Hash
-        $asm = $Env:GITHUB_WORKSPACE\UpTool2\bin\Release\UpTool2.exe
-        $xml.meta.Version = $([Reflection.Assembly]::Loadfile($asm).GetName().version.ToString())
+        $xml.meta.Version = $asmver
         $xml.meta.File = "https://github.com/CreepyCrafter24/UpTool2/raw/master/Release.zip"
         $xml.save("Meta.xml")
     - uses: matheusalbino/git-commit@v1.0.1
