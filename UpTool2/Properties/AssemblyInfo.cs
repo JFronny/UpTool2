@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("UpTool2")]
 [assembly: AssemblyDescription("Download and update applications from UpTool repos")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("CreepyCrafter24")]
+[assembly: AssemblyCompany("JFronny")]
 [assembly: AssemblyProduct("UpTool2")]
-[assembly: AssemblyCopyright("Copyright © CreepyCrafter24 2019")]
+[assembly: AssemblyCopyright("Copyright © JFronny 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

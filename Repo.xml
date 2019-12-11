@@ -9,9 +9,9 @@ Features:
 - Custom Keybinds</Description>
     <Version>3</Version>
     <ID>4863b486-5619-432e-8086-c06e1d5b1f5a</ID>
-    <File>https://github.com/CreepyCrafter24/CC-Clicker/releases/download/v2.1/CC-Clicker.zip</File>
+    <File>https://github.com/JFronny/CC-Clicker/releases/download/v2.1/CC-Clicker.zip</File>
     <Hash>227EC3F0AB72F81FAE8441526424BFE492CB1225BC7367C9005A4CD232E7E4FB</Hash>
-    <Icon>https://raw.githubusercontent.com/CreepyCrafter24/CC-Clicker/master/C_64.ico</Icon>
+    <Icon>https://raw.githubusercontent.com/JFronny/CC-Clicker/master/C_64.ico</Icon>
     <MainFile>CC-Clicker 2.0.exe</MainFile>
   </app>
   <app>
@@ -19,7 +19,7 @@ Features:
     <Description>Collection of Utilities for manipulating Windows</Description>
     <Version>1</Version>
     <ID>3191d2f3-bf48-48ea-97a2-59fb32722d0a</ID>
-    <File>https://github.com/CreepyCrafter24/CC-Functions/releases/download/v1.0/CC-Functions.W32.Test.zip</File>
+    <File>https://github.com/JFronny/CC-Functions/releases/download/v1.0/CC-Functions.W32.Test.zip</File>
     <Hash>B2E4CBFE38DD2E69780C45DC87F892272C2447C3B8FAED9731178B6912D4CED7</Hash>
     <MainFile>CC_Functions.W32.Test.exe</MainFile>
   </app>
@@ -28,9 +28,9 @@ Features:
     <Description>A basic GUI for multiple common programming languages including c# and HTML</Description>
     <Version>2</Version>
     <ID>63d64672-3ca3-4760-96a3-443b262d326f</ID>
-    <File>https://github.com/CreepyCrafter24/cashew/releases/download/v1.2/package.zip</File>
+    <File>https://github.com/JFronny/cashew/releases/download/v1.2/package.zip</File>
     <Hash>8FF2BBDD01452EBC0FC63AF96A930D10F90D481A5BC99481C660B81C22B54351</Hash>
-    <Icon>https://raw.githubusercontent.com/CreepyCrafter24/cashew/master/cashew/Cashew-64.ico</Icon>
+    <Icon>https://raw.githubusercontent.com/JFronny/cashew/master/cashew/Cashew-64.ico</Icon>
     <MainFile>cashew.exe</MainFile>
   </app>
   <app>
@@ -38,17 +38,26 @@ Features:
     <Description>Roslyn based C# Shell with scripting</Description>
     <Version>2</Version>
     <ID>1720101c-b39c-4e90-815f-0b016788871c</ID>
-    <File>https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/CREPL.zip</File>
+    <File>https://github.com/JFronny/UpTool2/releases/download/Repo/CREPL.zip</File>
     <Hash>2F1F7AE87300E35CA33598B9134CE145EC3F682654688989E0B6DF5C07BC305E</Hash>
-  <Icon>https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Terminal-icon.ico</Icon>
+  <Icon>https://github.com/JFronny/UpTool2/releases/download/Repo/Terminal-icon.ico</Icon>
     <MainFile>CREPL.exe</MainFile>
+  </app>
+  <app>
+    <Name>GradeCalc</Name>
+    <Description>Calculate grades for students</Description>
+    <Version>1</Version>
+    <ID>c8119098-ec7f-4fb3-8668-9e81915b112d</ID>
+    <File>https://github.com/JFronny/GradeCalc/releases/download/v1.0/package.zip</File>
+    <Hash>E3BC3924FA5035BEA1062A1B86CDA3F11BE54B90C53FC3BAF056C069C6ABA98C</Hash>
+    <MainFile>GradeCalc.exe</MainFile>
   </app>
   <app>
     <Name>PowerCalc</Name>
     <Description>Graph creation for mathematical functions</Description>
     <Version>1</Version>
     <ID>b0a9945b-8da9-41d4-b1d8-9aefa6f10ccd</ID>
-    <File>https://github.com/CreepyCrafter24/PowerCalc/releases/download/v1.1/package.zip</File>
+    <File>https://github.com/JFronny/PowerCalc/releases/download/v1.1/package.zip</File>
     <Hash>CFC0E5F13158A93B8A77043100323B8CD6C3454F6811867CE58C01A955884498</Hash>
     <MainFile>PowerCalc.exe</MainFile>
   </app>
@@ -57,9 +66,9 @@ Features:
     <Description>Resize Windows with style</Description>
     <Version>4</Version>
     <ID>e09cfca6-b6f7-4c56-96c4-d7cc2a318984</ID>
-    <File>https://github.com/CreepyCrafter24/Resizor/releases/download/v1.1/Resizor.zip</File>
+    <File>https://github.com/JFronny/Resizor/releases/download/v1.1/Resizor.zip</File>
     <Hash>BC4708BD1A722155BFAF0A471874CB9825F293F6D62BCE3D63C02D86BDD4FFDA</Hash>
-    <Icon>https://raw.githubusercontent.com/CreepyCrafter24/Resizor/master/Resizor/Resizor.ico</Icon>
+    <Icon>https://raw.githubusercontent.com/JFronny/Resizor/master/Resizor/Resizor.ico</Icon>
     <MainFile>Resizor.exe</MainFile>
   </app>
   <app>
@@ -67,9 +76,9 @@ Features:
     <Description>Terminal based Tetris clone</Description>
     <Version>3</Version>
     <ID>9214aca9-af09-441d-8329-612e77347eba</ID>
-    <File>https://github.com/CreepyCrafter24/testexetrisathlon/releases/download/v1.4/testexetrisathlon.zip</File>
+    <File>https://github.com/JFronny/testexetrisathlon/releases/download/v1.4/testexetrisathlon.zip</File>
     <Hash>F0626A25CFB74BC99F2FE7457515F12AD12979F2DAB7C3808DD702BC103DE673</Hash>
-    <Icon>https://raw.githubusercontent.com/CreepyCrafter24/testexetrisathlon/master/testexetrisathlon/tetris_yUxH6t_256px.ico</Icon>
+    <Icon>https://raw.githubusercontent.com/JFronny/testexetrisathlon/master/testexetrisathlon/tetris_yUxH6t_256px.ico</Icon>
     <MainFile>testexetrisathlon.exe</MainFile>
   </app>
   <app>
@@ -77,7 +86,7 @@ Features:
     <Description>View information about your (logical) partitions</Description>
     <Version>3</Version>
     <ID>a48b0879-42ec-40e1-885a-480e948242d7</ID>
-    <File>https://github.com/CreepyCrafter24/WinPart/releases/download/v1.1/WinPart.zip</File>
+    <File>https://github.com/JFronny/WinPart/releases/download/v1.1/WinPart.zip</File>
     <Hash>CCEB1A86828B325D2AC2C19AC402D1CE9D1318628C07E98ABA6EB25BEF23D2F9</Hash>
     <MainFile>WinPart.bat</MainFile>
   </app>
@@ -86,7 +95,7 @@ Features:
     <Description>Generate cool Zalgo-Text</Description>
     <Version>1</Version>
     <ID>50d6fc2e-e93a-4f5a-9cca-10cc4a000431</ID>
-    <File>https://github.com/CreepyCrafter24/ZalGen/releases/download/v1.0/ZalGen.zip</File>
+    <File>https://github.com/JFronny/ZalGen/releases/download/v1.0/ZalGen.zip</File>
     <Hash>505167424EB07462443C31086583FAB414F01B2FEED3CD55DEF351E6B28FE6C1</Hash>
     <MainFile>ZalGen.exe</MainFile>
   </app>

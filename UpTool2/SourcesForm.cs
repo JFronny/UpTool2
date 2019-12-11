@@ -26,7 +26,7 @@ namespace UpTool2
             if (meta.Element("Repos") == null)
                 meta.Add(new XElement("Repos"));
             if (meta.Element("Repos").Elements("Repo").Count() == 0)
-                meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml")));
+                meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml")));
             repos = meta.Element("Repos");
             foreach (XElement repo in repos.Elements("Repo"))
             {
