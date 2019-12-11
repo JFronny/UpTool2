@@ -22,7 +22,7 @@ jobs:
         $xml.load("Meta.xml")
         $xml.meta.Hash = $(Get-FileHash .\Release.zip).Hash
         $xml.meta.Version = $asmver
-        $xml.meta.File = "https://github.com/CreepyCrafter24/UpTool2/raw/master/Release.zip"
+        $xml.meta.File = "https://github.com/JFronny/UpTool2/raw/master/Release.zip"
         $xml.save("Meta.xml")
         # Some copy/pasted code to remove the UTF-8 BOM
         $FilePath=$(pwd).Path + "\Meta.xml"
