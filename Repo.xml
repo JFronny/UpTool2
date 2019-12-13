@@ -17,9 +17,9 @@ Features:
   <app>
     <Name>CC-Functions.W32.Test</Name>
     <Description>Collection of Utilities for manipulating Windows</Description>
-    <Version>1</Version>
+    <Version>2</Version>
     <ID>3191d2f3-bf48-48ea-97a2-59fb32722d0a</ID>
-    <File>https://github.com/JFronny/CC-Functions/releases/download/v1.0/CC-Functions.W32.Test.zip</File>
+    <File>https://github.com/JFronny/CC-Functions/releases/download/v1.1/package.zip</File>
     <Hash>B2E4CBFE38DD2E69780C45DC87F892272C2447C3B8FAED9731178B6912D4CED7</Hash>
     <MainFile>CC_Functions.W32.Test.exe</MainFile>
   </app>
