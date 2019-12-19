@@ -158,18 +158,19 @@ namespace UpTool2
                     if (pkghash != meta.Element("Hash").Value.ToUpper())
                         throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
                 }
-                if (Directory.Exists(dir + @"\Install"))
-                    Directory.Delete(dir + @"\Install", true);
+                if (Directory.Exists(dir + @"\Install\tmp"))
+                    Directory.Delete(dir + @"\Install\tmp", true);
+                Directory.CreateDirectory(dir + @"\Install\tmp");
                 using (MemoryStream ms = new MemoryStream(dl))
                 using (ZipArchive ar = new ZipArchive(ms))
                 {
                     ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
                     {
-                        s.ExtractToFile(dir + @"\Install\" + s.Name, true);
+                        s.ExtractToFile(dir + @"\Install\tmp" + s.Name, true);
                     });
                 }
                 splash.Hide();
-                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C timeout /t 2 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & \"" + Application.ExecutablePath + "\"", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
+                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = dir + @"\Install" });
                 return false;
             }
             return true;
