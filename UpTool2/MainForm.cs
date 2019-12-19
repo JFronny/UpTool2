@@ -98,8 +98,6 @@ namespace UpTool2
             toolTip.SetToolTip(controls_settings, "Settings");
             toolTip.SetToolTip(controls_reload, "Refresh repositories");
             toolTip.SetToolTip(controls_upload, "Install package from disk");
-            toolTip.SetToolTip(controls_local, "Install UpTool2 locally");
-            controls_local.Visible = Application.ExecutablePath != GlobalVariables.dir + @"\UpTool2.exe";
             searchBox.Size = (Application.ExecutablePath != GlobalVariables.dir + @"\UpTool2.exe") ? new Size(233, 20) : new Size(262, 20);
             toolTip.SetToolTip(filterBox, "Filter");
             toolTip.SetToolTip(action_install, "Install");
@@ -233,13 +231,6 @@ namespace UpTool2
         {
             Program.splash.Hide();
             BringToFront();
-        }
-        private void controls_local_Click(object sender, EventArgs e)
-        {
-            File.Copy(GlobalVariables.dir + @"\update.exe", GlobalVariables.dir + @"\UpTool2.exe", true);
-            Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Path.GetDirectoryName(Application.ExecutablePath) + "\\UpTool2.lnk");
-            Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
-            Close();
         }
 
         struct _IMAGE_FILE_HEADER

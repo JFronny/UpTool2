@@ -15,4 +15,6 @@
   - Repos
   - Local Repo
 - Install
-  - __ZIP_CONTENTS
+  - __ZIP CONTENTS
+  - tmp
+    - __FILES FOR UPDATE

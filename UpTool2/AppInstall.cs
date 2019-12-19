@@ -31,14 +31,16 @@ namespace UpTool2
                 if (Directory.Exists(app))
                     Directory.Delete(app, true);
                 Directory.CreateDirectory(app);
-                if (new DownloadDialog(appI.file, app + @"\package.zip").ShowDialog() != DialogResult.OK)
+                DownloadDialog dlg = new DownloadDialog(appI.file);
+                if (dlg.ShowDialog() != DialogResult.OK)
                     throw new Exception("Download failed");
                 using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
                 {
-                    string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(app + @"\package.zip"))).Replace("-", string.Empty).ToUpper();
+                    string pkghash = BitConverter.ToString(sha256.ComputeHash(dlg.result)).Replace("-", string.Empty).ToUpper();
                     if (pkghash != appI.hash.ToUpper())
                         throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + appI.hash.ToUpper());
                 }
+                File.WriteAllBytes(app + @"\package.zip", dlg.result);
                 completeInstall(appI);
 #if !DEBUG
             }

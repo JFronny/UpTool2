@@ -17,6 +17,9 @@ using System.IO.Compression;
 
 namespace UpTool2
 {
+    /*if (Application.ExecutablePath != GlobalVariables.dir + @"\UpTool2.exe")
+            Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Path.GetDirectoryName(Application.ExecutablePath) + "\\UpTool2.lnk");
+            Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");*/
     static class Program
     {
         public static Form splash;
@@ -52,13 +55,21 @@ namespace UpTool2
 #endif
                         hasHandle = true;
                     }
-                    if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
-                        Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
                     string xml = GlobalVariables.dir + @"\info.xml";
                     FixXML(xml);
                     string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
                     online = Ping(metaXML);
-                    if (!online || UpdateCheck(GlobalVariables.dir, metaXML))
+                    if (Application.ExecutablePath != GlobalVariables.dir + @"\UpTool2.exe")
+                    {
+                        if (!online)
+                            throw new WebException("Could not install");
+                        installUpdate(XDocument.Load(metaXML).Element("meta"));
+                    }
+                    if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk"))
+                        Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
+                    if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
+                        Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
+                    if (!online || UpdateCheck(metaXML))
                         Application.Run(new MainForm());
 #if !DEBUG
                 }
@@ -140,40 +151,45 @@ namespace UpTool2
             }
         }
 
-        static bool UpdateCheck(string dir, string metaXML)
+        static bool UpdateCheck(string metaXML)
         {
             XElement meta = XDocument.Load(metaXML).Element("meta");
             if (Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(meta.Element("Version").Value))
             {
-                byte[] dl;
-                using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value))
-                {
-                    if (dlg.ShowDialog() != DialogResult.OK)
-                        throw new Exception("Failed to update");
-                    dl = dlg.result;
-                }
-                using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
-                {
-                    string pkghash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
-                    if (pkghash != meta.Element("Hash").Value.ToUpper())
-                        throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
-                }
-                if (Directory.Exists(dir + @"\Install\tmp"))
-                    Directory.Delete(dir + @"\Install\tmp", true);
-                Directory.CreateDirectory(dir + @"\Install\tmp");
-                using (MemoryStream ms = new MemoryStream(dl))
-                using (ZipArchive ar = new ZipArchive(ms))
-                {
-                    ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
-                    {
-                        s.ExtractToFile(dir + @"\Install\tmp" + s.Name, true);
-                    });
-                }
-                splash.Hide();
-                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = dir + @"\Install" });
+                installUpdate(meta);
                 return false;
             }
             return true;
+        }
+
+        static void installUpdate(XElement meta)
+        {
+            byte[] dl;
+            using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value))
+            {
+                if (dlg.ShowDialog() != DialogResult.OK)
+                    throw new Exception("Failed to update");
+                dl = dlg.result;
+            }
+            using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+            {
+                string pkghash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
+                if (pkghash != meta.Element("Hash").Value.ToUpper())
+                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
+            }
+            if (Directory.Exists(GlobalVariables.dir + @"\Install\tmp"))
+                Directory.Delete(GlobalVariables.dir + @"\Install\tmp", true);
+            Directory.CreateDirectory(GlobalVariables.dir + @"\Install\tmp");
+            using (MemoryStream ms = new MemoryStream(dl))
+            using (ZipArchive ar = new ZipArchive(ms))
+            {
+                ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
+                {
+                    s.ExtractToFile(GlobalVariables.dir + @"\Install\tmp" + s.Name, true);
+                });
+            }
+            splash.Hide();
+            Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = GlobalVariables.dir + @"\Install" });
         }
 
         public static bool Ping(string url)
