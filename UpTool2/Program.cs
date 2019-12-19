@@ -58,7 +58,7 @@ namespace UpTool2
                     FixXML(xml);
                     string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
                     online = Ping(metaXML);
-                    if (!online || UpdateCheck(GlobalVariables.dir, xml, metaXML))
+                    if (!online || UpdateCheck(GlobalVariables.dir, metaXML))
                         Application.Run(new MainForm());
 #if !DEBUG
                 }
@@ -110,13 +110,11 @@ namespace UpTool2
             try
             {
                 if ((!File.Exists(xml)) || XDocument.Load(xml).Element("meta") == null)
-                    new XElement("meta", new XElement("Version", 0), new XElement("UpdateSource", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml"), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
+                    new XElement("meta", new XElement("UpdateSource", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml"), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
                 else
                 {
                     XDocument x = XDocument.Load(xml);
                     XElement meta = x.Element("meta");
-                    if (XDocument.Load(xml).Element("meta").Element("Version") == null)
-                        meta.Add(new XElement("Version", 0));
                     if (XDocument.Load(xml).Element("meta").Element("UpdateSource") == null
                         || XDocument.Load(xml).Element("meta").Element("UpdateSource").Value == null
                         || XDocument.Load(xml).Element("meta").Element("UpdateSource").Value == "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml")
@@ -138,20 +136,14 @@ namespace UpTool2
             }
             catch (XmlException)
             {
-                new XElement("meta", new XElement("Version", 0), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
+                new XElement("meta", new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
             }
         }
 
-        static bool UpdateCheck(string dir, string xml, string metaXML)
+        static bool UpdateCheck(string dir, string metaXML)
         {
             XElement meta = XDocument.Load(metaXML).Element("meta");
-            bool updatable;
-            string ver = meta.Element("Version").Value;
-            if (int.TryParse(ver, out int version))
-                updatable = int.Parse(XDocument.Load(xml).Element("meta").Element("Version").Value) < version;
-            else
-                updatable = Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(ver);
-            if (updatable)
+            if (Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(meta.Element("Version").Value))
             {
                 using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value, dir + @"\update.tmp"))
                 {
@@ -166,24 +158,13 @@ namespace UpTool2
                 }
                 if (File.Exists(dir + @"\update.exe"))
                     File.Delete(dir + @"\update.exe");
-                try
-                {
-                    //Try extracting. This is done to support automatically built updates
-                    if (Directory.Exists(dir + @"\update"))
-                        Directory.Delete(dir + @"\update", true);
-                    ZipFile.ExtractToDirectory(dir + @"\update.tmp", dir + @"\update");
-                    File.Delete(dir + @"\update.tmp");
-                    string[] array = Directory.GetFiles(dir + @"\update\Release");
-                    for (int i = 0; i < array.Length; i++)
-                        File.Copy(array[i], dir + @"\update.exe", true);
-                }
-                catch (InvalidDataException)
-                {
-                    //If it can not be extracted as a .zip we try reading to see if it is a binary by trying to read it's name
-                    AssemblyName.GetAssemblyName(dir + @"\update.tmp");
-                    File.Move(dir + @"\update.tmp", dir + @"\update.exe");
-                }
-                new XElement("meta", new XElement("Version", ver)).Save(xml);
+                if (Directory.Exists(dir + @"\update"))
+                    Directory.Delete(dir + @"\update", true);
+                ZipFile.ExtractToDirectory(dir + @"\update.tmp", dir + @"\update");
+                File.Delete(dir + @"\update.tmp");
+                string[] array = Directory.GetFiles(dir + @"\update\Release");
+                for (int i = 0; i < array.Length; i++)
+                    File.Copy(array[i], dir + @"\update.exe", true);
                 splash.Hide();
                 Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C timeout /t 2 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & \"" + Application.ExecutablePath + "\"", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
                 return false;
