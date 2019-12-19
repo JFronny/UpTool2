@@ -98,7 +98,6 @@ namespace UpTool2
             toolTip.SetToolTip(controls_settings, "Settings");
             toolTip.SetToolTip(controls_reload, "Refresh repositories");
             toolTip.SetToolTip(controls_upload, "Install package from disk");
-            searchBox.Size = (Application.ExecutablePath != GlobalVariables.dir + @"\UpTool2.exe") ? new Size(233, 20) : new Size(262, 20);
             toolTip.SetToolTip(filterBox, "Filter");
             toolTip.SetToolTip(action_install, "Install");
             toolTip.SetToolTip(action_remove, "Remove");

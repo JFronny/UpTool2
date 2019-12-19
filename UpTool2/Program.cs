@@ -56,6 +56,7 @@ namespace UpTool2
                     FixXML(xml);
                     string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
                     online = Ping(metaXML);
+#if DEBUG
                     if (Application.ExecutablePath != GlobalVariables.dir + @"\Install\UpTool2.exe")
                     {
                         if (!online)
@@ -68,6 +69,7 @@ namespace UpTool2
                     }
                     if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk"))
                         Shortcut.Make(GlobalVariables.dir + @"\Install\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
+#endif
                     if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
                         Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
                     if (!online || UpdateCheck(metaXML))
