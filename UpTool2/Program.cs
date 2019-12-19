@@ -145,26 +145,29 @@ namespace UpTool2
             XElement meta = XDocument.Load(metaXML).Element("meta");
             if (Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(meta.Element("Version").Value))
             {
-                using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value, dir + @"\update.tmp"))
+                byte[] dl;
+                using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value))
                 {
                     if (dlg.ShowDialog() != DialogResult.OK)
                         throw new Exception("Failed to update");
+                    dl = dlg.result;
                 }
                 using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
                 {
-                    string pkghash = BitConverter.ToString(sha256.ComputeHash(File.ReadAllBytes(dir + @"\update.tmp"))).Replace("-", string.Empty).ToUpper();
+                    string pkghash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
                     if (pkghash != meta.Element("Hash").Value.ToUpper())
                         throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
                 }
-                if (File.Exists(dir + @"\update.exe"))
-                    File.Delete(dir + @"\update.exe");
-                if (Directory.Exists(dir + @"\update"))
-                    Directory.Delete(dir + @"\update", true);
-                ZipFile.ExtractToDirectory(dir + @"\update.tmp", dir + @"\update");
-                File.Delete(dir + @"\update.tmp");
-                string[] array = Directory.GetFiles(dir + @"\update\Release");
-                for (int i = 0; i < array.Length; i++)
-                    File.Copy(array[i], dir + @"\update.exe", true);
+                if (Directory.Exists(dir + @"\Install"))
+                    Directory.Delete(dir + @"\Install", true);
+                using (MemoryStream ms = new MemoryStream(dl))
+                using (ZipArchive ar = new ZipArchive(ms))
+                {
+                    ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
+                    {
+                        s.ExtractToFile(dir + @"\Install\" + s.Name, true);
+                    });
+                }
                 splash.Hide();
                 Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C timeout /t 2 & copy /b/v/y \"" + dir + @"\update.exe" + "\" \"" + Application.ExecutablePath + "\" & \"" + Application.ExecutablePath + "\"", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
                 return false;

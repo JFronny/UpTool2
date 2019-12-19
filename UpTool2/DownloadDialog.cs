@@ -14,15 +14,18 @@ namespace UpTool2
     public partial class DownloadDialog : Form
     {
         bool close;
-        public DownloadDialog(string uri, string file)
+        WebClient client;
+        public byte[] result;
+        public DownloadDialog(string uri)
         {
             InitializeComponent();
             try
             {
                 WebClient client = new WebClient();
                 client.DownloadProgressChanged += progressChanged;
-                client.DownloadFileCompleted += done;
-                client.DownloadFileAsync(new Uri(uri), file);
+                client.DownloadDataCompleted += done;
+                //client.DownloadFileAsync(new Uri(uri), file);
+                client.DownloadDataAsync(new Uri(uri), client);
             }
             catch
             {
@@ -31,10 +34,11 @@ namespace UpTool2
             }
         }
 
-        private void done(object sender, AsyncCompletedEventArgs e)
+        private void done(object sender, DownloadDataCompletedEventArgs e)
         {
             DialogResult = DialogResult.OK;
             close = true;
+            result = e.Result;
             Close();
         }
 
