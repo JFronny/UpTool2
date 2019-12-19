@@ -17,9 +17,6 @@ using System.IO.Compression;
 
 namespace UpTool2
 {
-    /*if (Application.ExecutablePath != GlobalVariables.dir + @"\UpTool2.exe")
-            Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Path.GetDirectoryName(Application.ExecutablePath) + "\\UpTool2.lnk");
-            Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");*/
     static class Program
     {
         public static Form splash;
@@ -59,14 +56,18 @@ namespace UpTool2
                     FixXML(xml);
                     string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
                     online = Ping(metaXML);
-                    if (Application.ExecutablePath != GlobalVariables.dir + @"\UpTool2.exe")
+                    if (Application.ExecutablePath != GlobalVariables.dir + @"\Install\UpTool2.exe")
                     {
                         if (!online)
                             throw new WebException("Could not install");
+                        MessageBox.Show("Installing an Update. Please restart from your start menu!");
                         installUpdate(XDocument.Load(metaXML).Element("meta"));
+                        Shortcut.Make(GlobalVariables.dir + @"\Install\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
+                        mutex.ReleaseMutex();
+                        Environment.Exit(0);
                     }
                     if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk"))
-                        Shortcut.Make(GlobalVariables.dir + @"\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
+                        Shortcut.Make(GlobalVariables.dir + @"\Install\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
                     if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
                         Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
                     if (!online || UpdateCheck(metaXML))
@@ -185,7 +186,7 @@ namespace UpTool2
             {
                 ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
                 {
-                    s.ExtractToFile(GlobalVariables.dir + @"\Install\tmp" + s.Name, true);
+                    s.ExtractToFile(GlobalVariables.dir + @"\Install\tmp\" + s.Name, true);
                 });
             }
             splash.Hide();
