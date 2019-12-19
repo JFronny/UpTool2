@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Run a multi-line script
+    - name: Build
       id: base_init
       run: |
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
@@ -19,12 +19,37 @@ jobs:
         cd $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2.exe").GetName().version.ToString())
         cd $Env:GITHUB_WORKSPACE
+        echo "::set-output name=vers::$asmver"
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.base_init.outputs.vers }}
+        release_name: Release ${{ steps.base_init.outputs.vers }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload_release_asset 
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Release.zip
+        asset_name: Release.zip
+        asset_content_type: application/zip
+    - name: Fix files
+      id: final
+      run: |
         $xml = New-Object XML
         $xml.load("Meta.xml")
         $xml.meta.Hash = $(Get-FileHash .\Release.zip).Hash
-        $xml.meta.Version = $asmver
-        $xml.meta.File = "https://github.com/JFronny/UpTool2/raw/master/Release.zip"
+        $xml.meta.Version = ${{ steps.base_init.outputs.vers }}
+        $xml.meta.File = ${{ steps.upload_release_asset.outputs.browser_download_url }}
         $xml.save("Meta.xml")
+        rm Release.zip
         # Some copy/pasted code to remove the UTF-8 BOM
         $FilePath=$(pwd).Path + "\Meta.xml"
         [System.IO.FileInfo] $file = Get-Item -Path $FilePath
@@ -38,24 +63,9 @@ jobs:
             [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
             Write-Host "Remove UTF-8 BOM successfully"
         }
-        echo "::set-output name=vers::$asmver"
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1.0.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: matheusalbino/git-commit@v1.0.1
       with:
-        tag_name: ${{ steps.base_init.outputs.vers }}
-        release_name: Release ${{ steps.base_init.outputs.vers }}
-        draft: false
-        prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./Release.zip
-        asset_name: Release.zip
-        asset_content_type: application/zip
+        user-name: Equal
+        user-email: equal@example.com
+        message: This a commit from Github Actions
+        github-token: ${{ secrets.GITHUB_TOKEN }}
