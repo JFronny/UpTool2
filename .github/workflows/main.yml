@@ -10,6 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run a multi-line script
+      id: base_init
       run: |
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
         .\MSBuild.exe $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Release -m
@@ -37,14 +38,15 @@ jobs:
             [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
             Write-Host "Remove UTF-8 BOM successfully"
         }
+        echo "::set-output name=vers::$asmver"
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1.0.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ steps.base_init.outputs.vers }}
+        release_name: Release ${{ steps.base_init.outputs.vers }}
         draft: false
         prerelease: false
     - name: Upload Release Asset
