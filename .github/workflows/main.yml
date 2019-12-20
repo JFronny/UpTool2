@@ -68,9 +68,10 @@ jobs:
             Write-Host "Remove UTF-8 BOM successfully"
         }
         echo "Pushing"
-        echo "Adding"
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
         git add .
         echo "Committing"
-        git commit -m "Automated update to Meta.xml"
+        git commit -m "Add changes" -a
         echo "It work"
         git push
