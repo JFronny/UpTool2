@@ -66,8 +66,9 @@ jobs:
             [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
             Write-Host "Remove UTF-8 BOM successfully"
         }
-        echo "Committing"
-        git add .
-        git commit -m "Automated update to Meta.xml"
         echo "Pushing"
+        echo "Adding"
+        git add .
+        echo "Committing"
+        git commit -m "Automated update to Meta.xml"
         git push
