@@ -119,7 +119,7 @@ namespace UpTool2
             splash.BringToFront();
         }
 
-        static void FixXML(string xml)
+        static void FixXML(string xml, bool throwOnError = false)
         {
             try
             {
@@ -129,28 +129,34 @@ namespace UpTool2
                 {
                     XDocument x = XDocument.Load(xml);
                     XElement meta = x.Element("meta");
-                    if (XDocument.Load(xml).Element("meta").Element("UpdateSource") == null
-                        || XDocument.Load(xml).Element("meta").Element("UpdateSource").Value == null
-                        || XDocument.Load(xml).Element("meta").Element("UpdateSource").Value == "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml")
-                        meta.Add(new XElement("UpdateSource", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml"));
-                    if (XDocument.Load(xml).Element("meta").Element("Repos") == null
-                        || XDocument.Load(xml).Element("meta").Element("Repos").Value == null
-                        || XDocument.Load(xml).Element("meta").Element("Repos").Value == "https://github.com/CreepyCrafter24/UpTool2/releases/download/Repo/Repo.xml")
-                        meta.Add(new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"))));
-                    else if (XDocument.Load(xml).Element("meta").Element("Repos").Elements("Repo").Count() == 0)
+                    if (meta.Element("UpdateSource") == null)
+                        meta.Add(new XElement("UpdateSource"));
+                    if (new string[] { null, "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
+                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml" }
+                        .Contains(meta.Element("UpdateSource").Value))
+                        meta.Element("UpdateSource").Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml";
+                    if (meta.Element("Repos") == null)
+                        meta.Add(new XElement("Repos"));
+                    if (meta.Element("Repos").Elements("Repo").Count() == 0)
                         meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml")));
-                    else
-                        meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
-                            .Where(s => s.Value == "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml")
-                            .ToList().ForEach(s => s.Value = "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml");
-                    if (XDocument.Load(xml).Element("meta").Element("LocalRepo") == null)
+                    meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
+                        .Where(s => new string[] { null, "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml",
+                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"}.Contains(s.Value))
+                        .ToList().ForEach(s => s.Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml");
+                    if (meta.Element("LocalRepo") == null)
                         meta.Add(new XElement("LocalRepo"));
                     x.Save(xml);
                 }
             }
             catch (XmlException)
             {
-                new XElement("meta", new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
+                if (throwOnError)
+                    throw;
+                else
+                {
+                    File.Delete(xml);
+                    FixXML(xml);
+                }
             }
         }
 
