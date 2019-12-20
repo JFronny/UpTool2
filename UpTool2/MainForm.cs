@@ -241,7 +241,7 @@ namespace UpTool2
             public uint NumberOfSymbols;
             public ushort SizeOfOptionalHeader;
             public ushort Characteristics;
-        };
+        }
 
         static DateTime GetBuildDateTime(Assembly assembly)
         {

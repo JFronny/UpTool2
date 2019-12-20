@@ -56,11 +56,11 @@ namespace UpTool2
                     FixXML(xml);
                     string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
                     online = Ping(metaXML);
-#if DEBUG
+#if !DEBUG
                     if (Application.ExecutablePath != GlobalVariables.dir + @"\Install\UpTool2.exe")
                     {
-                        if (!online)
-                            throw new WebException("Could not install");
+                        if ((!online) || MessageBox.Show("Thank you for downloading UpTool2.\r\nTo prevent inconsistent behavior you will need to install this before running.\r\nFiles will be placed in %appdata%\\UpTool2 and %appdata%\\Microsoft\\Windows\\Start Menu\\Programs\r\nDo you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                            throw new WebException("Could fetch Metadata (are you online?)");
                         MessageBox.Show("Installing an Update. Please restart from your start menu!");
                         installUpdate(XDocument.Load(metaXML).Element("meta"));
                         Shortcut.Make(GlobalVariables.dir + @"\Install\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
