@@ -48,12 +48,14 @@ jobs:
         git clone https://gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4 MetaXML
         cd MetaXML
         echo "Building XML"
+        cat Meta.xml
         $xml = New-Object XML
         $xml.load("Meta.xml")
         $xml.meta.Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
         $xml.meta.Version = "${{ steps.base_init.outputs.vers }}"
         $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
         $xml.save("Meta.xml")
+        cat Meta.xml
         echo "Removing UTF-8 BOM"
         $FilePath=$(pwd).Path + "\Meta.xml"
         [System.IO.FileInfo] $file = Get-Item -Path $FilePath
