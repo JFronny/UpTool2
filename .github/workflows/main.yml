@@ -73,4 +73,4 @@ jobs:
         git add .
         git commit -m "Add changes" -a
         echo "Plz work"
-        git push "https://$GITHUB_ACTOR:${{ secrets.GIST }}@gist.github.com/JFronny/16e76794d5b90fe2325a42d9238c9ebf308228b7"
+        git push "https://$GITHUB_ACTOR:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4"
