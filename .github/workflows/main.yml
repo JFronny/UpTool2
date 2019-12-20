@@ -51,7 +51,6 @@ jobs:
         $xml.meta.Version = ${{ steps.base_init.outputs.vers }}
         $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
         $xml.save("Meta.xml")
-        rm Release.zip
         # Some copy/pasted code to remove the UTF-8 BOM
         $FilePath=$(pwd).Path + "\Meta.xml"
         [System.IO.FileInfo] $file = Get-Item -Path $FilePath
