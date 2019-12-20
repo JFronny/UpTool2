@@ -43,9 +43,11 @@ jobs:
     - name: Fix files
       id: final
       run: |
+        git clone https://gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4
+        cd f1ccbba3d8a2f5862592bb29fdb612c4
         $xml = New-Object XML
         $xml.load("Meta.xml")
-        $xml.meta.Hash = $(Get-FileHash .\Release.zip).Hash
+        $xml.meta.Hash = $(Get-FileHash ..\Release.zip).Hash
         $xml.meta.Version = ${{ steps.base_init.outputs.vers }}
         $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
         $xml.save("Meta.xml")
@@ -63,9 +65,6 @@ jobs:
             [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
             Write-Host "Remove UTF-8 BOM successfully"
         }
-    - uses: matheusalbino/git-commit@v1.0.1
-      with:
-        user-name: Equal
-        user-email: equal@example.com
-        message: This a commit from Github Actions
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        git add .
+        git commit -m "Automated update to Meta.xml"
+        git push
