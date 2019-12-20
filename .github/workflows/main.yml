@@ -79,3 +79,4 @@ jobs:
         git add .
         git commit -m "Add changes" -a
         git push -u origin master
+        echo "All done"
