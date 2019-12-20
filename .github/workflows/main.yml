@@ -51,9 +51,11 @@ jobs:
         cat Meta.xml
         $xml = New-Object XML
         $xml.load("Meta.xml")
+        echo $xml.meta
         $xml.meta.Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
         $xml.meta.Version = "${{ steps.base_init.outputs.vers }}"
         $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
+        echo $xml.meta
         $xml.save("Meta.xml")
         cat Meta.xml
         echo "Removing UTF-8 BOM"
