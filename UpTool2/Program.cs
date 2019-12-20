@@ -39,23 +39,23 @@ namespace UpTool2
                 try
                 {
 #endif
-                    try
-                    {
-                        hasHandle = mutex.WaitOne(5000, false);
-                        if (hasHandle == false)
-                            throw new TimeoutException("Timeout waiting for exclusive access");
-                    }
-                    catch (AbandonedMutexException)
-                    {
+                try
+                {
+                    hasHandle = mutex.WaitOne(5000, false);
+                    if (hasHandle == false)
+                        throw new TimeoutException("Timeout waiting for exclusive access");
+                }
+                catch (AbandonedMutexException)
+                {
 #if DEBUG
-                        Console.WriteLine("Mutex abandoned");
+                    Console.WriteLine("Mutex abandoned");
 #endif
-                        hasHandle = true;
-                    }
-                    string xml = GlobalVariables.dir + @"\info.xml";
-                    FixXML(xml);
-                    string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
-                    online = Ping(metaXML);
+                    hasHandle = true;
+                }
+                string xml = GlobalVariables.dir + @"\info.xml";
+                FixXML(xml);
+                string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
+                online = Ping(metaXML);
 #if !DEBUG
                     if (Application.ExecutablePath != GlobalVariables.dir + @"\Install\UpTool2.exe")
                     {
@@ -70,10 +70,10 @@ namespace UpTool2
                     if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk"))
                         Shortcut.Make(GlobalVariables.dir + @"\Install\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
 #endif
-                    if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
-                        Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
-                    if (!online || UpdateCheck(metaXML))
-                        Application.Run(new MainForm());
+                if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
+                    Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
+                if (!online || UpdateCheck(metaXML))
+                    Application.Run(new MainForm());
 #if !DEBUG
                 }
                 catch (Exception e1)
@@ -124,29 +124,26 @@ namespace UpTool2
             try
             {
                 if ((!File.Exists(xml)) || XDocument.Load(xml).Element("meta") == null)
-                    new XElement("meta", new XElement("UpdateSource", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml"), new XElement("Repos", new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"))), new XElement("LocalRepo")).Save(xml);
-                else
-                {
-                    XDocument x = XDocument.Load(xml);
-                    XElement meta = x.Element("meta");
-                    if (meta.Element("UpdateSource") == null)
-                        meta.Add(new XElement("UpdateSource"));
-                    if (new string[] { null, "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
+                    new XElement("meta").Save(xml);
+                XDocument x = XDocument.Load(xml);
+                XElement meta = x.Element("meta");
+                if (meta.Element("UpdateSource") == null)
+                    meta.Add(new XElement("UpdateSource"));
+                if (new string[] { null, "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
                         "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml" }
-                        .Contains(meta.Element("UpdateSource").Value))
-                        meta.Element("UpdateSource").Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml";
-                    if (meta.Element("Repos") == null)
-                        meta.Add(new XElement("Repos"));
-                    if (meta.Element("Repos").Elements("Repo").Count() == 0)
-                        meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml")));
-                    meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
-                        .Where(s => new string[] { null, "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml",
+                    .Contains(meta.Element("UpdateSource").Value))
+                    meta.Element("UpdateSource").Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml";
+                if (meta.Element("Repos") == null)
+                    meta.Add(new XElement("Repos"));
+                if (meta.Element("Repos").Elements("Repo").Count() == 0)
+                    meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml")));
+                meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
+                    .Where(s => new string[] { null, "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml",
                         "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"}.Contains(s.Value))
-                        .ToList().ForEach(s => s.Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml");
-                    if (meta.Element("LocalRepo") == null)
-                        meta.Add(new XElement("LocalRepo"));
-                    x.Save(xml);
-                }
+                    .ToList().ForEach(s => s.Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml");
+                if (meta.Element("LocalRepo") == null)
+                    meta.Add(new XElement("LocalRepo"));
+                x.Save(xml);
             }
             catch (XmlException)
             {
