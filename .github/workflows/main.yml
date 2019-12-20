@@ -72,5 +72,5 @@ jobs:
         git config --local user.name "GitHub Action"
         git add .
         git commit -m "Add changes" -a
-        echo "$GITHUB_ACTOR"
+        git config --get remote.origin.url
         git push "https://$GITHUB_ACTOR:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4"
