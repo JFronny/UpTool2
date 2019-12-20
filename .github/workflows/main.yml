@@ -68,9 +68,10 @@ jobs:
             Write-Host "Remove UTF-8 BOM successfully"
         }
         echo "Pushing"
+        git remote rm origin
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        git remote add origin https://JFronny:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4
         git add .
         git commit -m "Add changes" -a
-        git config --get remote.origin.url
-        git push "https://$GITHUB_ACTOR:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4"
+        git push -u origin master
