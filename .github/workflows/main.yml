@@ -43,15 +43,17 @@ jobs:
     - name: Fix files
       id: final
       run: |
-        git clone https://gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4
-        cd f1ccbba3d8a2f5862592bb29fdb612c4
+        echo "Cloning"
+        git clone https://gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4 MetaXML
+        cd MetaXML
+        echo "Building XML"
         $xml = New-Object XML
         $xml.load("Meta.xml")
         $xml.meta.Hash = $(Get-FileHash ..\Release.zip).Hash
         $xml.meta.Version = ${{ steps.base_init.outputs.vers }}
         $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
         $xml.save("Meta.xml")
-        # Some copy/pasted code to remove the UTF-8 BOM
+        echo "Removing UTF-8 BOM"
         $FilePath=$(pwd).Path + "\Meta.xml"
         [System.IO.FileInfo] $file = Get-Item -Path $FilePath
         $sequenceBOM = New-Object System.Byte[] 3
@@ -64,6 +66,7 @@ jobs:
             [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
             Write-Host "Remove UTF-8 BOM successfully"
         }
+        echo "Pushing"
         git add .
         git commit -m "Automated update to Meta.xml"
         git push
