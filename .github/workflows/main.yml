@@ -71,7 +71,6 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
-        echo "Committing"
         git commit -m "Add changes" -a
-        echo "It work"
-        git push
+        echo "Plz work"
+        git push "https://" + "$Env:GITHUB_ACTOR" + ":" + "${{ secrets.GIST }}" + "@github.com/JFronny/UpTool2/blob/16e76794d5b90fe2325a42d9238c9ebf308228b7"
