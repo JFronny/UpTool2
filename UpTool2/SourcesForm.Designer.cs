@@ -31,22 +31,21 @@
             this.sourceGrid = new System.Windows.Forms.DataGridView();
             this.sbName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sbLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)(this.sourceGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize) (this.sourceGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // sourceGrid
             // 
             this.sourceGrid.BackgroundColor = System.Drawing.Color.White;
-            this.sourceGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.sourceGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.sbName,
-            this.sbLink});
+            this.sourceGrid.ColumnHeadersHeightSizeMode =
+                System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.sourceGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {this.sbName, this.sbLink});
             this.sourceGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sourceGrid.GridColor = System.Drawing.Color.White;
             this.sourceGrid.Location = new System.Drawing.Point(0, 0);
             this.sourceGrid.MultiSelect = false;
             this.sourceGrid.Name = "sourceGrid";
-            this.sourceGrid.Size = new System.Drawing.Size(800, 450);
+            this.sourceGrid.Size = new System.Drawing.Size(933, 519);
             this.sourceGrid.TabIndex = 0;
             // 
             // sbName
@@ -54,20 +53,20 @@
             this.sbName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.sbName.HeaderText = "Name";
             this.sbName.Name = "sbName";
-            this.sbName.Width = 60;
+            this.sbName.Width = 64;
             // 
             // sbLink
             // 
             this.sbLink.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.sbLink.HeaderText = "Link";
             this.sbLink.Name = "sbLink";
-            this.sbLink.Width = 52;
+            this.sbLink.Width = 54;
             // 
             // SettingsForms
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(933, 519);
             this.Controls.Add(this.sourceGrid);
             this.Name = "SettingsForms";
             this.ShowIcon = false;
@@ -75,9 +74,8 @@
             this.Text = "Sources";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsForms_FormClosing);
-            ((System.ComponentModel.ISupportInitialize)(this.sourceGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize) (this.sourceGrid)).EndInit();
             this.ResumeLayout(false);
-
         }
 
         #endregion

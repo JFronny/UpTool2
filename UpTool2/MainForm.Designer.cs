@@ -47,7 +47,7 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.searchPackageDialog = new System.Windows.Forms.OpenFileDialog();
             this.infoPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize) (this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
@@ -59,9 +59,9 @@
             this.sidebarPanel.AutoScroll = true;
             this.sidebarPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sidebarPanel.Location = new System.Drawing.Point(0, 59);
+            this.sidebarPanel.Location = new System.Drawing.Point(0, 68);
             this.sidebarPanel.Name = "sidebarPanel";
-            this.sidebarPanel.Size = new System.Drawing.Size(268, 391);
+            this.sidebarPanel.Size = new System.Drawing.Size(312, 451);
             this.sidebarPanel.TabIndex = 0;
             // 
             // infoPanel
@@ -75,15 +75,17 @@
             this.infoPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.infoPanel.Location = new System.Drawing.Point(0, 0);
             this.infoPanel.Name = "infoPanel";
-            this.infoPanel.Size = new System.Drawing.Size(528, 450);
+            this.infoPanel.Size = new System.Drawing.Size(616, 519);
             this.infoPanel.TabIndex = 1;
             // 
             // action_run
             // 
-            this.action_run.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.action_run.Location = new System.Drawing.Point(421, 5);
+            this.action_run.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.action_run.Location = new System.Drawing.Point(491, 6);
             this.action_run.Name = "action_run";
-            this.action_run.Size = new System.Drawing.Size(23, 23);
+            this.action_run.Size = new System.Drawing.Size(27, 27);
             this.action_run.TabIndex = 5;
             this.action_run.Text = "↗";
             this.action_run.UseVisualStyleBackColor = true;
@@ -91,11 +93,13 @@
             // 
             // action_remove
             // 
-            this.action_remove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.action_remove.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
             this.action_remove.Enabled = false;
-            this.action_remove.Location = new System.Drawing.Point(448, 5);
+            this.action_remove.Location = new System.Drawing.Point(523, 6);
             this.action_remove.Name = "action_remove";
-            this.action_remove.Size = new System.Drawing.Size(23, 23);
+            this.action_remove.Size = new System.Drawing.Size(27, 27);
             this.action_remove.TabIndex = 4;
             this.action_remove.Text = "🗑";
             this.action_remove.UseVisualStyleBackColor = true;
@@ -103,11 +107,13 @@
             // 
             // action_update
             // 
-            this.action_update.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.action_update.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
             this.action_update.Enabled = false;
-            this.action_update.Location = new System.Drawing.Point(475, 5);
+            this.action_update.Location = new System.Drawing.Point(554, 6);
             this.action_update.Name = "action_update";
-            this.action_update.Size = new System.Drawing.Size(23, 23);
+            this.action_update.Size = new System.Drawing.Size(27, 27);
             this.action_update.TabIndex = 3;
             this.action_update.Text = "⭱";
             this.action_update.UseVisualStyleBackColor = true;
@@ -115,11 +121,13 @@
             // 
             // action_install
             // 
-            this.action_install.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.action_install.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
             this.action_install.Enabled = false;
-            this.action_install.Location = new System.Drawing.Point(502, 5);
+            this.action_install.Location = new System.Drawing.Point(586, 6);
             this.action_install.Name = "action_install";
-            this.action_install.Size = new System.Drawing.Size(23, 23);
+            this.action_install.Size = new System.Drawing.Size(27, 27);
             this.action_install.TabIndex = 2;
             this.action_install.Text = "⭳";
             this.action_install.UseVisualStyleBackColor = true;
@@ -127,15 +135,16 @@
             // 
             // infoPanel_Description
             // 
-            this.infoPanel_Description.Location = new System.Drawing.Point(3, 44);
+            this.infoPanel_Description.Location = new System.Drawing.Point(3, 51);
             this.infoPanel_Description.Name = "infoPanel_Description";
-            this.infoPanel_Description.Size = new System.Drawing.Size(524, 397);
+            this.infoPanel_Description.Size = new System.Drawing.Size(611, 458);
             this.infoPanel_Description.TabIndex = 1;
             // 
             // infoPanel_Title
             // 
             this.infoPanel_Title.AutoSize = true;
-            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F,
+                System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
             this.infoPanel_Title.Location = new System.Drawing.Point(2, 1);
             this.infoPanel_Title.Name = "infoPanel_Title";
             this.infoPanel_Title.Size = new System.Drawing.Size(0, 31);
@@ -157,8 +166,9 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.infoPanel);
             this.splitContainer.Panel2MinSize = 160;
-            this.splitContainer.Size = new System.Drawing.Size(800, 450);
-            this.splitContainer.SplitterDistance = 268;
+            this.splitContainer.Size = new System.Drawing.Size(933, 519);
+            this.splitContainer.SplitterDistance = 312;
+            this.splitContainer.SplitterWidth = 5;
             this.splitContainer.TabIndex = 0;
             this.splitContainer.TabStop = false;
             // 
@@ -172,15 +182,17 @@
             this.optionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.optionsPanel.Location = new System.Drawing.Point(0, 0);
             this.optionsPanel.Name = "optionsPanel";
-            this.optionsPanel.Size = new System.Drawing.Size(268, 59);
+            this.optionsPanel.Size = new System.Drawing.Size(312, 68);
             this.optionsPanel.TabIndex = 0;
             // 
             // controls_upload
             // 
-            this.controls_upload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.controls_upload.Location = new System.Drawing.Point(242, 5);
+            this.controls_upload.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.controls_upload.Location = new System.Drawing.Point(282, 6);
             this.controls_upload.Name = "controls_upload";
-            this.controls_upload.Size = new System.Drawing.Size(23, 23);
+            this.controls_upload.Size = new System.Drawing.Size(27, 27);
             this.controls_upload.TabIndex = 4;
             this.controls_upload.Text = "↑";
             this.controls_upload.UseVisualStyleBackColor = true;
@@ -188,31 +200,35 @@
             // 
             // filterBox
             // 
-            this.filterBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.filterBox.Anchor =
+                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Top |
+                                                        System.Windows.Forms.AnchorStyles.Left) |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
             this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.filterBox.FormattingEnabled = true;
-            this.filterBox.Location = new System.Drawing.Point(58, 6);
+            this.filterBox.Location = new System.Drawing.Point(68, 7);
             this.filterBox.Name = "filterBox";
-            this.filterBox.Size = new System.Drawing.Size(178, 21);
+            this.filterBox.Size = new System.Drawing.Size(207, 23);
             this.filterBox.TabIndex = 3;
-            this.filterBox.SelectedIndexChanged += new System.EventHandler(this.updateSidebarV);
+            this.filterBox.SelectedIndexChanged += new System.EventHandler(this.UpdateSidebarV);
             // 
             // searchBox
             // 
-            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchBox.Location = new System.Drawing.Point(3, 33);
+            this.searchBox.Anchor =
+                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Bottom |
+                                                        System.Windows.Forms.AnchorStyles.Left) |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.searchBox.Location = new System.Drawing.Point(3, 38);
             this.searchBox.Name = "searchBox";
-            this.searchBox.Size = new System.Drawing.Size(262, 20);
+            this.searchBox.Size = new System.Drawing.Size(305, 23);
             this.searchBox.TabIndex = 2;
-            this.searchBox.TextChanged += new System.EventHandler(this.updateSidebarV);
+            this.searchBox.TextChanged += new System.EventHandler(this.UpdateSidebarV);
             // 
             // controls_settings
             // 
-            this.controls_settings.Location = new System.Drawing.Point(3, 5);
+            this.controls_settings.Location = new System.Drawing.Point(3, 6);
             this.controls_settings.Name = "controls_settings";
-            this.controls_settings.Size = new System.Drawing.Size(23, 23);
+            this.controls_settings.Size = new System.Drawing.Size(27, 27);
             this.controls_settings.TabIndex = 1;
             this.controls_settings.Text = "⚙";
             this.controls_settings.UseVisualStyleBackColor = true;
@@ -220,9 +236,9 @@
             // 
             // controls_reload
             // 
-            this.controls_reload.Location = new System.Drawing.Point(29, 5);
+            this.controls_reload.Location = new System.Drawing.Point(34, 6);
             this.controls_reload.Name = "controls_reload";
-            this.controls_reload.Size = new System.Drawing.Size(23, 23);
+            this.controls_reload.Size = new System.Drawing.Size(27, 27);
             this.controls_reload.TabIndex = 0;
             this.controls_reload.Text = "↻";
             this.controls_reload.UseVisualStyleBackColor = true;
@@ -241,12 +257,12 @@
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(933, 519);
             this.Controls.Add(this.splitContainer);
             this.HelpButton = true;
-            this.MinimumSize = new System.Drawing.Size(543, 238);
+            this.MinimumSize = new System.Drawing.Size(631, 269);
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.Text = "UpTool 2";
@@ -256,12 +272,11 @@
             this.infoPanel.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            ((System.ComponentModel.ISupportInitialize) (this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.optionsPanel.ResumeLayout(false);
             this.optionsPanel.PerformLayout();
             this.ResumeLayout(false);
-
         }
 
         #endregion

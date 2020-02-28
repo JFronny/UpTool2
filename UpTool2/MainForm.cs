@@ -1,34 +1,52 @@
 ﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using UpTool2.Properties;
-using System.IO;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.IO.Compression;
-using Microsoft.VisualBasic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using Microsoft.VisualBasic;
+using UpTool2.DataStructures;
+using UpTool2.Properties;
 using UpTool2.Tool;
-using UpTool2.Data;
-
 #if DEBUG
-
 using System.Threading;
 using System.Linq;
-
 #endif
 
 namespace UpTool2
 {
     public partial class MainForm : Form
     {
+        public MainForm()
+        {
+            GlobalVariables.ReloadElements = ReloadElements;
+            InitializeComponent();
+            filterBox.DataSource = Enum.GetValues(typeof(Status));
+            if (Program.Online)
+            {
+                RepoManagement.FetchRepos();
+            }
+            else
+            {
+                MessageBox.Show("Starting in offline mode!");
+                controls_reload.Enabled = false;
+                filterBox.Enabled = false;
+                filterBox.SelectedIndex = 2;
+            }
+            ReloadElements();
+            if (!Directory.Exists(PathTool.appsPath))
+                Directory.CreateDirectory(PathTool.appsPath);
+        }
+
         private void Action_install_Click(object sender, EventArgs e)
         {
 #if !DEBUG
             try
             {
 #endif
-            AppInstall.Install((App)action_install.Tag);
+            AppInstall.Install((App) action_install.Tag);
 #if !DEBUG
             }
             catch (Exception e1)
@@ -44,21 +62,25 @@ namespace UpTool2
         {
             try
             {
-                string app = ((App)action_remove.Tag).appPath;
+                string app = ((App) action_remove.Tag).appPath;
                 string tmp = PathTool.tempPath;
                 if (Directory.Exists(tmp))
                     Directory.Delete(tmp, true);
                 Directory.CreateDirectory(tmp);
                 ZipFile.ExtractToDirectory(Path.Combine(app, "package.zip"), tmp);
-                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"", WorkingDirectory = Path.Combine(app, "app") }).WaitForExit();
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "cmd.exe", Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"",
+                    WorkingDirectory = Path.Combine(app, "app")
+                }).WaitForExit();
                 Directory.Delete(tmp, true);
                 Directory.Delete(app, true);
-                if (GlobalVariables.relE)
-                    reloadElements();
+                if (GlobalVariables.RelE)
+                    ReloadElements();
             }
             catch (Exception e1)
             {
-                if (!GlobalVariables.relE)
+                if (!GlobalVariables.RelE)
                     throw;
                 MessageBox.Show(e1.ToString(), "Removal failed");
             }
@@ -70,14 +92,14 @@ namespace UpTool2
             try
             {
 #endif
-            if (searchPackageDialog.ShowDialog() == DialogResult.OK)
-            {
-                Guid ID = Guid.NewGuid();
-                while (GlobalVariables.apps.ContainsKey(ID) || Directory.Exists(PathTool.getAppPath(ID)))
-                    ID = Guid.NewGuid();
-                App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only", GlobalVariables.minimumVer, "", true, "", ID, Color.Red, Resources.C_64.ToBitmap(), false, "");
-                AppInstall.installZip(searchPackageDialog.FileName, appI);
-            }
+            if (searchPackageDialog.ShowDialog() != DialogResult.OK)
+                return;
+            Guid id = Guid.NewGuid();
+            while (GlobalVariables.Apps.ContainsKey(id) || Directory.Exists(PathTool.GetAppPath(id)))
+                id = Guid.NewGuid();
+            App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only",
+                GlobalVariables.minimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
+            AppInstall.InstallZip(searchPackageDialog.FileName, appI);
 #if !DEBUG
             }
             catch (Exception e1)
@@ -89,19 +111,16 @@ namespace UpTool2
 #endif
         }
 
-        private void reloadElements()
+        private void ReloadElements()
         {
             //remove
             toolTip.RemoveAll();
-            clearSelection();
+            ClearSelection();
             infoPanel_Title.Invalidate();
             infoPanel_Description.Invalidate();
             int F = sidebarPanel.Controls.Count;
-            for (int i = 0; i < F; i++)
-            {
-                sidebarPanel.Controls[0].Dispose();
-            }
-            GlobalVariables.apps.Clear();
+            for (int i = 0; i < F; i++) sidebarPanel.Controls[0].Dispose();
+            GlobalVariables.Apps.Clear();
             //add
             toolTip.SetToolTip(controls_settings, "Settings");
             toolTip.SetToolTip(controls_reload, "Refresh repositories");
@@ -111,60 +130,73 @@ namespace UpTool2
             toolTip.SetToolTip(action_remove, "Remove");
             toolTip.SetToolTip(action_update, "Update");
             toolTip.SetToolTip(action_run, "Run");
-            RepoManagement.getReposFromDisk();
+            RepoManagement.GetReposFromDisk();
             int availableUpdates = 0;
-            foreach (App app in GlobalVariables.apps.Values)
+            foreach (App app in GlobalVariables.Apps.Values)
             {
                 Panel sidebarIcon = new Panel();
                 sidebarIcon.Tag = app;
-                sidebarIcon.BackColor = app.color;
+                sidebarIcon.BackColor = app.Color;
                 sidebarIcon.Size = new Size(70, 70);
-                sidebarIcon.BackgroundImage = app.icon;
+                sidebarIcon.BackgroundImage = app.Icon;
                 sidebarIcon.BackgroundImageLayout = ImageLayout.Stretch;
-                bool updatable = (!app.local) && ((app.status & Status.Updatable) == Status.Updatable);
-                sidebarIcon.Click += (object sender, EventArgs e) =>
+                bool updatable = !app.Local && (app.status & Status.Updatable) == Status.Updatable;
+                sidebarIcon.Click += (sender, e) =>
                 {
-                    infoPanel_Title.Text = app.name;
-                    infoPanel_Title.ForeColor = app.local ? Color.Red : Color.Black;
-                    infoPanel_Description.Text = app.description;
+                    infoPanel_Title.Text = app.Name;
+                    infoPanel_Title.ForeColor = app.Local ? Color.Red : Color.Black;
+                    infoPanel_Description.Text = app.Description;
                     action_install.Tag = app;
-                    action_install.Enabled = !(app.local || Directory.Exists(app.appPath));
+                    action_install.Enabled = !(app.Local || Directory.Exists(app.appPath));
                     action_remove.Tag = app;
                     action_remove.Enabled = Directory.Exists(app.appPath);
                     action_update.Tag = app;
                     action_update.Enabled = updatable;
                     action_run.Tag = app;
-                    action_run.Enabled = (!app.local) && app.runnable && Directory.Exists(app.appPath);
+                    action_run.Enabled = !app.Local && app.Runnable && Directory.Exists(app.appPath);
                 };
                 if (updatable)
                     availableUpdates++;
-                toolTip.SetToolTip(sidebarIcon, app.name);
+                toolTip.SetToolTip(sidebarIcon, app.Name);
                 sidebarPanel.Controls.Add(sidebarIcon);
             }
-            updateSidebarV(null, null);
-            Text = $"UpTool2 {((availableUpdates == 0) ? "(All up-to-date)" : $"({availableUpdates.ToString()} Updates)")}";
+            UpdateSidebarV(null, null);
+            Text =
+                $"UpTool2 {(availableUpdates == 0 ? "(All up-to-date)" : $"({availableUpdates.ToString()} Updates)")}";
         }
 
         private void Action_run_Click(object sender, EventArgs e)
         {
             Console.WriteLine(new string('-', 10));
-            Console.WriteLine(((App)action_run.Tag).dataPath);
+            Console.WriteLine(((App) action_run.Tag).dataPath);
             Console.WriteLine("\\");
-            Console.WriteLine(((App)action_run.Tag).mainFile);
-            Console.WriteLine(((App)action_run.Tag).dataPath);
-            _ = Process.Start(
-                new ProcessStartInfo
-                {
-                    FileName = Path.Combine(((App)action_run.Tag).dataPath, ((App)action_run.Tag).mainFile),
-                    WorkingDirectory = ((App)action_run.Tag).dataPath
-                });
+            Console.WriteLine(((App) action_run.Tag).MainFile);
+            Console.WriteLine(((App) action_run.Tag).dataPath);
+            string path = Path.Combine(((App) action_run.Tag).dataPath, ((App) action_run.Tag).MainFile);
+            try
+            {
+                Process.Start(
+                    new ProcessStartInfo
+                    {
+                        FileName = path,
+                        WorkingDirectory = ((App) action_run.Tag).dataPath
+                    });
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show(e1.ToString()
+                    #if DEBUG
+                    + $"{Environment.NewLine}File was: {path}"
+                    #endif
+                    , "Failed to start!");
+            }
         }
 
         private void Action_update_Click(object sender, EventArgs e)
         {
             try
             {
-                GlobalVariables.relE = false;
+                GlobalVariables.RelE = false;
                 Action_remove_Click(sender, e);
                 Action_install_Click(sender, e);
             }
@@ -172,19 +204,19 @@ namespace UpTool2
             {
                 MessageBox.Show(e1.ToString(), "Install failed");
             }
-            reloadElements();
-            GlobalVariables.relE = true;
+            ReloadElements();
+            GlobalVariables.RelE = true;
         }
 
         private void Controls_reload_Click(object sender, EventArgs e)
         {
-            RepoManagement.fetchRepos();
-            reloadElements();
+            RepoManagement.FetchRepos();
+            ReloadElements();
         }
 
         private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForms().ShowDialog();
 
-        private void clearSelection()
+        private void ClearSelection()
         {
             action_install.Enabled = false;
             action_remove.Enabled = false;
@@ -194,18 +226,21 @@ namespace UpTool2
             infoPanel_Description.Text = "";
         }
 
-        private void updateSidebarV(object sender, EventArgs e)
+        private void UpdateSidebarV(object sender, EventArgs e)
         {
 #if DEBUG
             if (searchBox.Text == "!DEBUG:PRINT!")
             {
                 searchBox.Text = "!DEBUG:PRINT";
-                string _tmp_file = Path.GetTempFileName();
-                File.WriteAllText(_tmp_file, string.Join("\r\n\r\n", GlobalVariables.apps.Values.Select(app => app.ToString()).Concat(new string[] { "Assembly version: " + Assembly.GetExecutingAssembly().GetName().Version.ToString() }).ToArray()));
+                string tmpFile = Path.GetTempFileName();
+                File.WriteAllText(tmpFile,
+                    string.Join("\r\n\r\n",
+                        GlobalVariables.Apps.Values.Select(app => app.ToString()).Concat(new[]
+                            {"Assembly version: " + Assembly.GetExecutingAssembly().GetName().Version}).ToArray()));
                 new Thread(() =>
                 {
-                    Process.Start("notepad", _tmp_file).WaitForExit();
-                    File.Delete(_tmp_file);
+                    Process.Start("notepad", tmpFile).WaitForExit();
+                    File.Delete(tmpFile);
                 }).Start();
             }
             else
@@ -214,59 +249,30 @@ namespace UpTool2
                 Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
                 for (int i = 0; i < sidebarPanel.Controls.Count; i++)
                 {
-                    Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
-                    App app = (App)sidebarIcon.Tag;
-                    sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
+                    Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
+                    App app = (App) sidebarIcon.Tag;
+                    sidebarIcon.Visible = app.Name.Contains(searchBox.Text) &&
+                                          ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
                 }
-                clearSelection();
+                ClearSelection();
 #if DEBUG
             }
 #endif
         }
 
-        public MainForm()
-        {
-            GlobalVariables.reloadElements = reloadElements;
-            InitializeComponent();
-            filterBox.DataSource = Enum.GetValues(typeof(Status));
-            if (Program.online)
-                RepoManagement.fetchRepos();
-            else
-            {
-                MessageBox.Show("Starting in offline mode!");
-                controls_reload.Enabled = false;
-                filterBox.Enabled = false;
-                filterBox.SelectedIndex = 2;
-            }
-            reloadElements();
-            if (!Directory.Exists(PathTool.appsPath))
-                Directory.CreateDirectory(PathTool.appsPath);
-        }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Program.splash.Hide();
+            Program.Splash.Hide();
             BringToFront();
-        }
-
-        private struct _IMAGE_FILE_HEADER
-        {
-            public ushort Machine;
-            public ushort NumberOfSections;
-            public uint TimeDateStamp;
-            public uint PointerToSymbolTable;
-            public uint NumberOfSymbols;
-            public ushort SizeOfOptionalHeader;
-            public ushort Characteristics;
         }
 
         private static DateTime GetBuildDateTime(Assembly assembly)
         {
-            var path = assembly.GetName().CodeBase;
+            string path = assembly.GetName().CodeBase;
             if (File.Exists(path))
             {
-                var buffer = new byte[Math.Max(Marshal.SizeOf(typeof(_IMAGE_FILE_HEADER)), 4)];
-                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                byte[] buffer = new byte[Math.Max(Marshal.SizeOf(typeof(_IMAGE_FILE_HEADER)), 4)];
+                using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
                     fileStream.Position = 0x3C;
                     fileStream.Read(buffer, 0, 4);
@@ -274,12 +280,15 @@ namespace UpTool2
                     fileStream.Read(buffer, 0, 4); // "PE\0\0"
                     fileStream.Read(buffer, 0, buffer.Length);
                 }
-                var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                GCHandle pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
                 try
                 {
-                    var coffHeader = (_IMAGE_FILE_HEADER)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), typeof(_IMAGE_FILE_HEADER));
+                    _IMAGE_FILE_HEADER coffHeader =
+                        (_IMAGE_FILE_HEADER) Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(),
+                            typeof(_IMAGE_FILE_HEADER));
 
-                    return TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1) + new TimeSpan(coffHeader.TimeDateStamp * TimeSpan.TicksPerSecond));
+                    return TimeZone.CurrentTimeZone.ToLocalTime(
+                        new DateTime(1970, 1, 1) + new TimeSpan(coffHeader.TimeDateStamp * TimeSpan.TicksPerSecond));
                 }
                 finally
                 {
@@ -293,9 +302,20 @@ namespace UpTool2
         {
             DateTime buildTime = GetBuildDateTime(Assembly.GetExecutingAssembly());
             _ = MessageBox.Show($@"UpTool2 by CC24
-Version: {Assembly.GetExecutingAssembly().GetName().Version.ToString()}
-Build Date: {buildTime.ToString("dd.MM.yyyy")}", "UpTool2");
+Version: {Assembly.GetExecutingAssembly().GetName().Version}
+Build Date: {buildTime:dd.MM.yyyy}", "UpTool2");
             hlpevent.Handled = true;
+        }
+
+        private struct _IMAGE_FILE_HEADER
+        {
+            public ushort Machine;
+            public ushort NumberOfSections;
+            public uint TimeDateStamp;
+            public uint PointerToSymbolTable;
+            public uint NumberOfSymbols;
+            public ushort SizeOfOptionalHeader;
+            public ushort Characteristics;
         }
     }
 }

@@ -15,14 +15,13 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using UpTool2.Tool;
-using Shortcut = UpTool2.Tool.Shortcut;
 
 namespace UpTool2
 {
     internal static class Program
     {
-        public static Form splash;
-        public static bool online;
+        public static Form Splash;
+        public static bool Online;
 
         [STAThread]
         private static void Main()
@@ -30,36 +29,38 @@ namespace UpTool2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             ShowSplash();
-            string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
+            string appGuid = ((GuidAttribute) Assembly.GetExecutingAssembly()
+                .GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value;
             string mutexId = string.Format("Global\\{{{0}}}", appGuid);
-            var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
-            var securitySettings = new MutexSecurity();
+            MutexAccessRule allowEveryoneRule = new MutexAccessRule(
+                new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl,
+                AccessControlType.Allow);
+            MutexSecurity securitySettings = new MutexSecurity();
             securitySettings.AddAccessRule(allowEveryoneRule);
-            using (var mutex = new Mutex(false, mutexId, out bool createdNew, securitySettings))
-            {
-                var hasHandle = false;
+            using Mutex mutex = new Mutex(false, mutexId, out bool createdNew, securitySettings);
+            bool hasHandle = false;
 #if !DEBUG
                 try
                 {
 #endif
-                try
-                {
-                    hasHandle = mutex.WaitOne(5000, false);
-                    if (hasHandle == false)
-                        throw new TimeoutException("Timeout waiting for exclusive access");
-                }
-                catch (AbandonedMutexException)
-                {
+            try
+            {
+                hasHandle = mutex.WaitOne(5000, false);
+                if (hasHandle == false)
+                    throw new TimeoutException("Timeout waiting for exclusive access");
+            }
+            catch (AbandonedMutexException)
+            {
 #if DEBUG
-                    Console.WriteLine("Mutex abandoned");
+                Console.WriteLine("Mutex abandoned");
 #endif
-                    hasHandle = true;
-                }
-                if (!Directory.Exists(PathTool.dir))
-                    Directory.CreateDirectory(PathTool.dir);
-                FixXML();
-                string metaXML = XDocument.Load(PathTool.infoXML).Element("meta").Element("UpdateSource").Value;
-                online = Ping(metaXML);
+                hasHandle = true;
+            }
+            if (!Directory.Exists(PathTool.dir))
+                Directory.CreateDirectory(PathTool.dir);
+            FixXml();
+            string metaXml = XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value;
+            Online = Ping(metaXml);
 
 #if !DEBUG
                     if (Application.ExecutablePath != PathTool.GetProgPath("Install", "UpTool2.exe"))
@@ -80,10 +81,10 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                     if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk")))
                         Shortcut.Make(PathTool.GetProgPath("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
 #endif
-                if (!Directory.Exists(PathTool.GetProgPath("Apps")))
-                    Directory.CreateDirectory(PathTool.GetProgPath("Apps"));
-                if (!online || UpdateCheck(metaXML))
-                    Application.Run(new MainForm());
+            if (!Directory.Exists(PathTool.GetRelative("Apps")))
+                Directory.CreateDirectory(PathTool.GetRelative("Apps"));
+            if (!Online || UpdateCheck(metaXml))
+                Application.Run(new MainForm());
 #if !DEBUG
                 }
                 catch (Exception e1)
@@ -96,12 +97,11 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                         mutex.ReleaseMutex();
                 }
 #endif
-            }
         }
 
         private static void ShowSplash()
         {
-            splash = new Form
+            Splash = new Form
             {
                 StartPosition = FormStartPosition.CenterScreen,
                 FormBorderStyle = FormBorderStyle.None,
@@ -114,8 +114,8 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                 ForeColor = Color.Green,
                 TopMost = true
             };
-            splash.MaximumSize = splash.Size;
-            splash.MinimumSize = splash.Size;
+            Splash.MaximumSize = Splash.Size;
+            Splash.MinimumSize = Splash.Size;
             Label splashL = new Label
             {
                 AutoSize = false,
@@ -124,101 +124,111 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                 Text = "Loading",
                 Font = new Font(FontFamily.GenericSansSerif, 40)
             };
-            splash.Controls.Add(splashL);
-            splash.Show();
-            splash.BringToFront();
+            Splash.Controls.Add(splashL);
+            Splash.Show();
+            Splash.BringToFront();
         }
 
-        public static void FixXML(bool throwOnError = false)
+        public static void FixXml(bool throwOnError = false)
         {
             try
             {
-                if ((!File.Exists(PathTool.infoXML)) || XDocument.Load(PathTool.infoXML).Element("meta") == null)
-                    new XElement("meta").Save(PathTool.infoXML);
-                XDocument x = XDocument.Load(PathTool.infoXML);
+                if (!File.Exists(PathTool.InfoXml) || XDocument.Load(PathTool.InfoXml).Element("meta") == null)
+                    new XElement("meta").Save(PathTool.InfoXml);
+                XDocument x = XDocument.Load(PathTool.InfoXml);
                 XElement meta = x.Element("meta");
                 if (meta.Element("UpdateSource") == null)
                     meta.Add(new XElement("UpdateSource"));
-                if (new string[] { "", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
-                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml" }
+                if (new[]
+                    {
+                        "", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
+                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml"
+                    }
                     .Contains(meta.Element("UpdateSource").Value))
-                    meta.Element("UpdateSource").Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml";
+                    meta.Element("UpdateSource").Value =
+                        "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml";
                 if (meta.Element("Repos") == null)
                     meta.Add(new XElement("Repos"));
                 if (meta.Element("Repos").Elements("Repo").Count() == 0)
-                    meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml")));
+                    meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"),
+                        new XElement("Link",
+                            "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml")));
                 meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
-                    .Where(s => new string[] { null, "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml",
-                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"}.Contains(s.Value))
-                    .ToList().ForEach(s => s.Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml");
+                    .Where(s => new[]
+                    {
+                        null, "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml",
+                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"
+                    }.Contains(s.Value))
+                    .ToList().ForEach(s =>
+                        s.Value =
+                            "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml");
                 if (meta.Element("LocalRepo") == null)
                     meta.Add(new XElement("LocalRepo"));
-                x.Save(PathTool.infoXML);
+                x.Save(PathTool.InfoXml);
             }
             catch (XmlException)
             {
-                if (throwOnError)
-                    throw;
-                else
-                {
-                    MessageBox.Show("Something went wrong while trying to parse XML. Retrying...");
-                    File.Delete(PathTool.infoXML);
-                    FixXML();
-                }
+                if (throwOnError) throw;
+                MessageBox.Show("Something went wrong while trying to parse XML. Retrying...");
+                File.Delete(PathTool.InfoXml);
+                FixXml();
             }
         }
 
-        private static bool UpdateCheck(string metaXML)
+        private static bool UpdateCheck(string metaXml)
         {
-            XElement meta = XDocument.Load(metaXML).Element("meta");
-            if (Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(meta.Element("Version").Value))
-            {
-                installUpdate(meta);
-                return false;
-            }
-            return true;
+            XElement meta = XDocument.Load(metaXml).Element("meta");
+            if (Assembly.GetExecutingAssembly().GetName().Version >= Version.Parse(meta.Element("Version").Value))
+                return true;
+            InstallUpdate(meta);
+            return false;
         }
 
-        private static void installUpdate(XElement meta)
+        private static void InstallUpdate(XElement meta)
         {
             byte[] dl;
             using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value))
             {
                 if (dlg.ShowDialog() != DialogResult.OK)
                     throw new Exception("Failed to update");
-                dl = dlg.result;
+                dl = dlg.Result;
             }
             using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
             {
-                string pkghash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
-                if (pkghash != meta.Element("Hash").Value.ToUpper())
-                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
+                string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
+                if (pkgHash != meta.Element("Hash").Value.ToUpper())
+                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkgHash +
+                                        "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
             }
 
-            if (Directory.Exists(PathTool.GetProgPath("Install", "tmp")))
-                Directory.Delete(PathTool.GetProgPath("Install", "tmp"), true);
-            Directory.CreateDirectory(PathTool.GetProgPath("Install", "tmp"));
+            if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))
+                Directory.Delete(PathTool.GetRelative("Install", "tmp"), true);
+            Directory.CreateDirectory(PathTool.GetRelative("Install", "tmp"));
             using (MemoryStream ms = new MemoryStream(dl))
             using (ZipArchive ar = new ZipArchive(ms))
             {
                 ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
                 {
-                    s.ExtractToFile(PathTool.GetProgPath("Install", "tmp", s.Name), true);
+                    s.ExtractToFile(PathTool.GetRelative("Install", "tmp", s.Name), true);
                 });
             }
-            splash.Hide();
-            Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = PathTool.GetProgPath("Install") });
+            Splash.Hide();
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = PathTool.GetRelative("Install")
+            });
         }
 
-        public static bool Ping(string url)
+        private static bool Ping(string url)
         {
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
                 request.Timeout = 3000;
                 request.AllowAutoRedirect = false;
                 request.Method = "HEAD";
-                using var response = request.GetResponse();
+                using WebResponse response = request.GetResponse();
                 return true;
             }
             catch

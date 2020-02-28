@@ -1,5 +1,8 @@
-﻿namespace UpTool2.Data
+﻿using System;
+
+namespace UpTool2.DataStructures
 {
+    [Flags]
     public enum Status
     {
         Not_Installed = 1,

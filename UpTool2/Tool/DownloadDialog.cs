@@ -6,19 +6,19 @@ namespace UpTool2.Tool
 {
     public partial class DownloadDialog : Form
     {
-        private bool close;
-        private readonly WebClient client;
-        public byte[] result;
+        private readonly WebClient _client;
+        private bool _close;
+        public byte[] Result;
 
         public DownloadDialog(string uri)
         {
             InitializeComponent();
             try
             {
-                client = new WebClient();
-                client.DownloadProgressChanged += progressChanged;
-                client.DownloadDataCompleted += done;
-                client.DownloadDataAsync(new Uri(uri), client);
+                _client = new WebClient();
+                _client.DownloadProgressChanged += ProgressChanged;
+                _client.DownloadDataCompleted += Done;
+                _client.DownloadDataAsync(new Uri(uri), _client);
             }
             catch
             {
@@ -27,16 +27,17 @@ namespace UpTool2.Tool
             }
         }
 
-        private void done(object sender, DownloadDataCompletedEventArgs e)
+        private void Done(object sender, DownloadDataCompletedEventArgs e)
         {
             DialogResult = DialogResult.OK;
-            close = true;
-            result = e.Result;
+            _close = true;
+            Result = e.Result;
             Close();
         }
 
-        private void progressChanged(object sender, DownloadProgressChangedEventArgs e) => progressBar.Value = e.ProgressPercentage;
+        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e) =>
+            progressBar.Value = e.ProgressPercentage;
 
-        private void DownloadDialog_FormClosing(object sender, FormClosingEventArgs e) => e.Cancel = !close;
+        private void DownloadDialog_FormClosing(object sender, FormClosingEventArgs e) => e.Cancel = !_close;
     }
 }

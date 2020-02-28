@@ -16,7 +16,7 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
-                client.Dispose();
+                _client.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -57,7 +57,6 @@
             this.Text = "Downloading...";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DownloadDialog_FormClosing);
             this.ResumeLayout(false);
-
         }
 
         #endregion
