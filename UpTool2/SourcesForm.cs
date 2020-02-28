@@ -14,7 +14,7 @@ namespace UpTool2
         public SettingsForms()
         {
             InitializeComponent();
-            Program.FixXML(PathTool.infoXML);
+            Program.FixXML();
             doc = XDocument.Load(PathTool.infoXML);
             meta = doc.Element("meta");
             repos = meta.Element("Repos");

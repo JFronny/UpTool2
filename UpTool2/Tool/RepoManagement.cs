@@ -17,7 +17,7 @@ namespace UpTool2.Tool
     {
         public static void fetchRepos()
         {
-            Program.FixXML(PathTool.infoXML);
+            Program.FixXML();
             XElement meta = XDocument.Load(PathTool.infoXML).Element("meta");
             List<XElement> tmp_apps_list = new List<XElement>();
             List<string> repArr = meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link").Value).Distinct().ToList();

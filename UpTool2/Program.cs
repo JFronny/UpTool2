@@ -55,7 +55,9 @@ namespace UpTool2
 #endif
                     hasHandle = true;
                 }
-                FixXML(PathTool.infoXML);
+                if (!Directory.Exists(PathTool.dir))
+                    Directory.CreateDirectory(PathTool.dir);
+                FixXML();
                 string metaXML = XDocument.Load(PathTool.infoXML).Element("meta").Element("UpdateSource").Value;
                 online = Ping(metaXML);
 
@@ -127,31 +129,31 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
             splash.BringToFront();
         }
 
-        public static void FixXML(string xml, bool throwOnError = false)
+        public static void FixXML(bool throwOnError = false)
         {
             try
             {
-                if ((!File.Exists(xml)) || XDocument.Load(xml).Element("meta") == null)
-                    new XElement("meta").Save(xml);
-                XDocument x = XDocument.Load(xml);
+                if ((!File.Exists(PathTool.infoXML)) || XDocument.Load(PathTool.infoXML).Element("meta") == null)
+                    new XElement("meta").Save(PathTool.infoXML);
+                XDocument x = XDocument.Load(PathTool.infoXML);
                 XElement meta = x.Element("meta");
                 if (meta.Element("UpdateSource") == null)
                     meta.Add(new XElement("UpdateSource"));
-                if (new string[] { null, "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
+                if (new string[] { "", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
                         "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml" }
                     .Contains(meta.Element("UpdateSource").Value))
                     meta.Element("UpdateSource").Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml";
                 if (meta.Element("Repos") == null)
                     meta.Add(new XElement("Repos"));
                 if (meta.Element("Repos").Elements("Repo").Count() == 0)
-                    meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml")));
+                    meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml")));
                 meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
                     .Where(s => new string[] { null, "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml",
                         "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"}.Contains(s.Value))
                     .ToList().ForEach(s => s.Value = "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Repo.xml");
                 if (meta.Element("LocalRepo") == null)
                     meta.Add(new XElement("LocalRepo"));
-                x.Save(xml);
+                x.Save(PathTool.infoXML);
             }
             catch (XmlException)
             {
@@ -159,8 +161,9 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                     throw;
                 else
                 {
-                    File.Delete(xml);
-                    FixXML(xml);
+                    MessageBox.Show("Something went wrong while trying to parse XML. Retrying...");
+                    File.Delete(PathTool.infoXML);
+                    FixXML();
                 }
             }
         }
