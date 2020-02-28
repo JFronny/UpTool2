@@ -77,5 +77,5 @@ jobs:
         git config --local user.name "GitHub Action"
         git remote add origin https://JFronny:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4
         git commit -m "Add changes" -a
-        git push -u origin master
+        git push
         echo "All done"
