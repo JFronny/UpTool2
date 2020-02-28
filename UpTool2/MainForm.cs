@@ -51,7 +51,7 @@ namespace UpTool2
             }
             catch (Exception e1)
             {
-                if (!GlobalVariables.relE)
+                if (!GlobalVariables.RelE)
                     throw;
                 MessageBox.Show(e1.ToString(), "Install failed");
             }
@@ -104,7 +104,7 @@ namespace UpTool2
             }
             catch (Exception e1)
             {
-                if (!GlobalVariables.relE)
+                if (!GlobalVariables.RelE)
                     throw;
                 MessageBox.Show(e1.ToString(), "Install failed");
             }

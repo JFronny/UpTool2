@@ -15,6 +15,9 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using UpTool2.Tool;
+#if !DEBUG
+using Shortcut = UpTool2.Tool.Shortcut;
+#endif
 
 namespace UpTool2
 {
@@ -63,9 +66,9 @@ namespace UpTool2
             Online = Ping(metaXml);
 
 #if !DEBUG
-                    if (Application.ExecutablePath != PathTool.GetProgPath("Install", "UpTool2.exe"))
+                    if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.exe"))
                     {
-                        if ((!online))
+                        if (!Online)
                             throw new WebException("Could fetch Metadata (are you online?)");
                         if (MessageBox.Show(@"Thank you for downloading UpTool2.
 To prevent inconsistent behavior you will need to install this before running.
@@ -73,13 +76,13 @@ Files will be placed in %appdata%\UpTool2 and %appdata%\Microsoft\Windows\Start 
 Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Yes)
                             throw new Exception("Exiting...");
                         MessageBox.Show("Installing an Update. Please restart from your start menu!");
-                        installUpdate(XDocument.Load(metaXML).Element("meta"));
-                        Shortcut.Make(PathTool.GetProgPath("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
+                        InstallUpdate(XDocument.Load(metaXml).Element("meta"));
+                        Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
                         mutex.ReleaseMutex();
                         Environment.Exit(0);
                     }
                     if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk")))
-                        Shortcut.Make(PathTool.GetProgPath("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
+                        Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
 #endif
             if (!Directory.Exists(PathTool.GetRelative("Apps")))
                 Directory.CreateDirectory(PathTool.GetRelative("Apps"));
