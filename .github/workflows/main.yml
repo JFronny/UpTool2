@@ -45,7 +45,9 @@ jobs:
       run: |
         echo "Cloning"
         cd ..
-        git clone https://gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4 MetaXML
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git clone https://JFronny:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4 MetaXML
         cd MetaXML
         echo "Building XML"
         cat Meta.xml
@@ -72,10 +74,6 @@ jobs:
             Write-Host "Remove UTF-8 BOM successfully"
         }
         echo "Pushing"
-        git remote rm origin
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git remote add origin https://JFronny:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4
         git commit -m "Add changes" -a
         git push
         echo "All done"
