@@ -9,6 +9,7 @@
     <RootNamespace>UpTool2</RootNamespace>
     <AssemblyName>UpTool2</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>preview</LangVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>false</Deterministic>
@@ -53,12 +54,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.cs" />
-    <Compile Include="AppInstall.cs" />
-    <Compile Include="DownloadDialog.cs">
+    <Compile Include="DataStructures\App.cs" />
+    <Compile Include="Tool\AppInstall.cs" />
+    <Compile Include="Tool\DownloadDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DownloadDialog.Designer.cs">
+    <Compile Include="Tool\DownloadDialog.Designer.cs">
       <DependentUpon>DownloadDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalVariables.cs" />
@@ -70,16 +71,17 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RepoManagement.cs" />
-    <Compile Include="Shortcut.cs" />
+    <Compile Include="Tool\PathTool.cs" />
+    <Compile Include="Tool\RepoManagement.cs" />
+    <Compile Include="Tool\Shortcut.cs" />
     <Compile Include="SourcesForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="SourcesForm.Designer.cs">
       <DependentUpon>SourcesForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Status.cs" />
-    <EmbeddedResource Include="DownloadDialog.resx">
+    <Compile Include="DataStructures\Status.cs" />
+    <EmbeddedResource Include="Tool\DownloadDialog.resx">
       <DependentUpon>DownloadDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">

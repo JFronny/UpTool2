@@ -4,8 +4,11 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using UpTool2.Tool;
+using static System.Environment;
+using Version = System.Version;
 
-namespace UpTool2
+namespace UpTool2.Data
 {
     public struct App : IEquatable<App>
     {
@@ -39,7 +42,7 @@ namespace UpTool2
         public Status status
         {
             get {
-                string xml = GlobalVariables.getInfoPath(ID);
+                string xml = PathTool.getInfoPath(ID);
                 if (File.Exists(xml))
                 {
                     if (Version.TryParse(XDocument.Load(xml).Element("app").Element("Version").Value, out Version ver) && ver >= version)
@@ -53,13 +56,31 @@ namespace UpTool2
         }
 
         public override bool Equals(object obj) => obj is App app && Equals(app);
+
         public bool Equals(App other) => ID.Equals(other.ID);
+
         public override int GetHashCode() => 1213502048 + EqualityComparer<Guid>.Default.GetHashCode(ID);
-        public override string ToString() => "Name: " + name + "\r\nDescription:\r\n" + string.Join("\r\n", description.Split('\n').Select(s => { if (s.EndsWith("\r")) s.Remove(s.Length - 1, 1); return ">   " + s; })) + "\r\nVersion: " + version + "\r\nFile: " + file + "\r\nLocal: " + local.ToString() + "\r\nHash: " + hash + "\r\nID: " + ID.ToString() + "\r\nColor: " + color.ToKnownColor().ToString() + "\r\nRunnable: " + runnable + "\r\nMainFile: " + mainFile + "\r\nStatus: " + status.ToString() + "\r\nObject Hash Code: " + GetHashCode();
+
+        public override string ToString() => $@"Name: {name}
+Description:
+{string.Join(NewLine, description.Split('\n').Select(s => { if (s.EndsWith("\r")) s.Remove(s.Length - 1, 1); return ">   " + s; }))}
+Version: {version}
+File: {file}
+Local: {local.ToString()}
+Hash: {hash}
+ID: {ID.ToString()}
+Color: {color.ToKnownColor().ToString()}
+Runnable: {runnable}
+MainFile: {mainFile}
+Status: {status.ToString()}
+Object Hash Code: {GetHashCode()}";
+
         public static bool operator ==(App left, App right) => left.Equals(right);
+
         public static bool operator !=(App left, App right) => !(left == right);
-        public string appPath => GlobalVariables.getAppPath(this);
-        public string dataPath => GlobalVariables.getDataPath(this);
-        public string infoPath => GlobalVariables.getInfoPath(this);
+
+        public string appPath => PathTool.getAppPath(this.ID);
+        public string dataPath => PathTool.getDataPath(this.ID);
+        public string infoPath => PathTool.getInfoPath(this.ID);
     }
 }

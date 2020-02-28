@@ -8,9 +8,14 @@ using System.IO.Compression;
 using Microsoft.VisualBasic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using UpTool2.Tool;
+using UpTool2.Data;
+
 #if DEBUG
+
 using System.Threading;
 using System.Linq;
+
 #endif
 
 namespace UpTool2
@@ -23,7 +28,7 @@ namespace UpTool2
             try
             {
 #endif
-                AppInstall.Install((App)action_install.Tag);
+            AppInstall.Install((App)action_install.Tag);
 #if !DEBUG
             }
             catch (Exception e1)
@@ -34,17 +39,18 @@ namespace UpTool2
             }
 #endif
         }
+
         private void Action_remove_Click(object sender, EventArgs e)
         {
             try
             {
-                string app = GlobalVariables.dir + @"\Apps\" + ((App)action_remove.Tag).ID.ToString();
-                string tmp = GlobalVariables.dir + @"\tmp";
+                string app = ((App)action_remove.Tag).appPath;
+                string tmp = PathTool.tempPath;
                 if (Directory.Exists(tmp))
                     Directory.Delete(tmp, true);
                 Directory.CreateDirectory(tmp);
-                ZipFile.ExtractToDirectory(app + @"\package.zip", tmp);
-                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = "/C \"" + tmp + "\\Remove.bat\"", WorkingDirectory = app + @"\app" }).WaitForExit();
+                ZipFile.ExtractToDirectory(Path.Combine(app, "package.zip"), tmp);
+                Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"", WorkingDirectory = Path.Combine(app, "app") }).WaitForExit();
                 Directory.Delete(tmp, true);
                 Directory.Delete(app, true);
                 if (GlobalVariables.relE)
@@ -57,20 +63,21 @@ namespace UpTool2
                 MessageBox.Show(e1.ToString(), "Removal failed");
             }
         }
+
         private void controls_upload_Click(object sender, EventArgs e)
         {
 #if !DEBUG
             try
             {
 #endif
-                if (searchPackageDialog.ShowDialog() == DialogResult.OK)
-                {
-                    Guid ID = Guid.NewGuid();
-                    while (GlobalVariables.apps.ContainsKey(ID) || Directory.Exists(GlobalVariables.getAppPath(ID)))
-                        ID = Guid.NewGuid();
-                    App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only", GlobalVariables.minimumVer, "", true, "", ID, Color.Red, Resources.C_64.ToBitmap(), false, "");
-                    AppInstall.installZip(searchPackageDialog.FileName, appI);
-                }
+            if (searchPackageDialog.ShowDialog() == DialogResult.OK)
+            {
+                Guid ID = Guid.NewGuid();
+                while (GlobalVariables.apps.ContainsKey(ID) || Directory.Exists(PathTool.getAppPath(ID)))
+                    ID = Guid.NewGuid();
+                App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only", GlobalVariables.minimumVer, "", true, "", ID, Color.Red, Resources.C_64.ToBitmap(), false, "");
+                AppInstall.installZip(searchPackageDialog.FileName, appI);
+            }
 #if !DEBUG
             }
             catch (Exception e1)
@@ -81,7 +88,8 @@ namespace UpTool2
             }
 #endif
         }
-        void reloadElements()
+
+        private void reloadElements()
         {
             //remove
             toolTip.RemoveAll();
@@ -134,22 +142,24 @@ namespace UpTool2
                 sidebarPanel.Controls.Add(sidebarIcon);
             }
             updateSidebarV(null, null);
-            Text = "UpTool2 " + ((availableUpdates == 0) ? "(All up-to-date)" : "(" + availableUpdates.ToString() + " Updates)");
+            Text = $"UpTool2 {((availableUpdates == 0) ? "(All up-to-date)" : $"({availableUpdates.ToString()} Updates)")}";
         }
+
         private void Action_run_Click(object sender, EventArgs e)
         {
             Console.WriteLine(new string('-', 10));
-            Console.WriteLine(GlobalVariables.getDataPath((App)action_run.Tag));
+            Console.WriteLine(((App)action_run.Tag).dataPath);
             Console.WriteLine("\\");
             Console.WriteLine(((App)action_run.Tag).mainFile);
-            Console.WriteLine(GlobalVariables.getDataPath((App)action_run.Tag));
+            Console.WriteLine(((App)action_run.Tag).dataPath);
             _ = Process.Start(
                 new ProcessStartInfo
                 {
-                    FileName = GlobalVariables.getDataPath((App)action_run.Tag) + "\\" + ((App)action_run.Tag).mainFile,
-                    WorkingDirectory = GlobalVariables.getDataPath((App)action_run.Tag)
+                    FileName = Path.Combine(((App)action_run.Tag).dataPath, ((App)action_run.Tag).mainFile),
+                    WorkingDirectory = ((App)action_run.Tag).dataPath
                 });
         }
+
         private void Action_update_Click(object sender, EventArgs e)
         {
             try
@@ -165,13 +175,16 @@ namespace UpTool2
             reloadElements();
             GlobalVariables.relE = true;
         }
+
         private void Controls_reload_Click(object sender, EventArgs e)
         {
             RepoManagement.fetchRepos();
             reloadElements();
         }
+
         private void Controls_settings_Click(object sender, EventArgs e) => new SettingsForms().ShowDialog();
-        void clearSelection()
+
+        private void clearSelection()
         {
             action_install.Enabled = false;
             action_remove.Enabled = false;
@@ -180,6 +193,7 @@ namespace UpTool2
             infoPanel_Title.Text = "";
             infoPanel_Description.Text = "";
         }
+
         private void updateSidebarV(object sender, EventArgs e)
         {
 #if DEBUG
@@ -188,7 +202,8 @@ namespace UpTool2
                 searchBox.Text = "!DEBUG:PRINT";
                 string _tmp_file = Path.GetTempFileName();
                 File.WriteAllText(_tmp_file, string.Join("\r\n\r\n", GlobalVariables.apps.Values.Select(app => app.ToString()).Concat(new string[] { "Assembly version: " + Assembly.GetExecutingAssembly().GetName().Version.ToString() }).ToArray()));
-                new Thread(() => {
+                new Thread(() =>
+                {
                     Process.Start("notepad", _tmp_file).WaitForExit();
                     File.Delete(_tmp_file);
                 }).Start();
@@ -196,18 +211,19 @@ namespace UpTool2
             else
             {
 #endif
-            Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
-            for (int i = 0; i < sidebarPanel.Controls.Count; i++)
-            {
-                Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
-                App app = (App)sidebarIcon.Tag;
-                sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
-            }
-            clearSelection();
+                Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
+                for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+                {
+                    Panel sidebarIcon = (Panel)sidebarPanel.Controls[i];
+                    App app = (App)sidebarIcon.Tag;
+                    sidebarIcon.Visible = app.name.Contains(searchBox.Text) && ((int)app.status & (int)(Program.online ? status : Status.Installed)) != 0;
+                }
+                clearSelection();
 #if DEBUG
             }
 #endif
         }
+
         public MainForm()
         {
             GlobalVariables.reloadElements = reloadElements;
@@ -223,16 +239,17 @@ namespace UpTool2
                 filterBox.SelectedIndex = 2;
             }
             reloadElements();
-            if (!Directory.Exists(GlobalVariables.appsPath))
-                Directory.CreateDirectory(GlobalVariables.appsPath);
+            if (!Directory.Exists(PathTool.appsPath))
+                Directory.CreateDirectory(PathTool.appsPath);
         }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             Program.splash.Hide();
             BringToFront();
         }
 
-        struct _IMAGE_FILE_HEADER
+        private struct _IMAGE_FILE_HEADER
         {
             public ushort Machine;
             public ushort NumberOfSections;
@@ -243,7 +260,7 @@ namespace UpTool2
             public ushort Characteristics;
         }
 
-        static DateTime GetBuildDateTime(Assembly assembly)
+        private static DateTime GetBuildDateTime(Assembly assembly)
         {
             var path = assembly.GetName().CodeBase;
             if (File.Exists(path))
@@ -275,7 +292,10 @@ namespace UpTool2
         private void MainForm_HelpRequested(object sender, HelpEventArgs hlpevent)
         {
             DateTime buildTime = GetBuildDateTime(Assembly.GetExecutingAssembly());
-            MessageBox.Show("UpTool2 by CC24\r\nVersion: " + Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\r\nBuild Date: " + buildTime.ToString("dd.MM.yyyy"), "UpTool2");
+            _ = MessageBox.Show($@"UpTool2 by CC24
+Version: {Assembly.GetExecutingAssembly().GetName().Version.ToString()}
+Build Date: {buildTime.ToString("dd.MM.yyyy")}", "UpTool2");
+            hlpevent.Handled = true;
         }
     }
 }

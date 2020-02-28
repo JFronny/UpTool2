@@ -1,4 +1,4 @@
-﻿namespace UpTool2
+﻿namespace UpTool2.Tool
 {
     partial class DownloadDialog
     {
@@ -16,6 +16,7 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
+                client.Dispose();
             }
             base.Dispose(disposing);
         }

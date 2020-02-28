@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,20 +12,20 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using System.Drawing;
-using System.Linq;
 using System.Xml;
-using System.IO.Compression;
+using System.Xml.Linq;
+using UpTool2.Tool;
+using Shortcut = UpTool2.Tool.Shortcut;
 
 namespace UpTool2
 {
-    static class Program
+    internal static class Program
     {
         public static Form splash;
         public static bool online;
+
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -52,26 +55,31 @@ namespace UpTool2
 #endif
                     hasHandle = true;
                 }
-                string xml = GlobalVariables.dir + @"\info.xml";
-                FixXML(xml);
-                string metaXML = XDocument.Load(xml).Element("meta").Element("UpdateSource").Value;
+                FixXML(PathTool.infoXML);
+                string metaXML = XDocument.Load(PathTool.infoXML).Element("meta").Element("UpdateSource").Value;
                 online = Ping(metaXML);
+
 #if !DEBUG
-                    if (Application.ExecutablePath != GlobalVariables.dir + @"\Install\UpTool2.exe")
+                    if (Application.ExecutablePath != PathTool.GetProgPath("Install", "UpTool2.exe"))
                     {
-                        if ((!online) || MessageBox.Show("Thank you for downloading UpTool2.\r\nTo prevent inconsistent behavior you will need to install this before running.\r\nFiles will be placed in %appdata%\\UpTool2 and %appdata%\\Microsoft\\Windows\\Start Menu\\Programs\r\nDo you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                        if ((!online))
                             throw new WebException("Could fetch Metadata (are you online?)");
+                        if (MessageBox.Show(@"Thank you for downloading UpTool2.
+To prevent inconsistent behavior you will need to install this before running.
+Files will be placed in %appdata%\UpTool2 and %appdata%\Microsoft\Windows\Start Menu\Programs
+Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                            throw new Exception("Exiting...");
                         MessageBox.Show("Installing an Update. Please restart from your start menu!");
                         installUpdate(XDocument.Load(metaXML).Element("meta"));
-                        Shortcut.Make(GlobalVariables.dir + @"\Install\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
+                        Shortcut.Make(PathTool.GetProgPath("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
                         mutex.ReleaseMutex();
                         Environment.Exit(0);
                     }
-                    if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk"))
-                        Shortcut.Make(GlobalVariables.dir + @"\Install\UpTool2.exe", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\UpTool2.lnk");
+                    if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk")))
+                        Shortcut.Make(PathTool.GetProgPath("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
 #endif
-                if (!Directory.Exists(GlobalVariables.dir + @"\Apps"))
-                    Directory.CreateDirectory(GlobalVariables.dir + @"\Apps");
+                if (!Directory.Exists(PathTool.GetProgPath("Apps")))
+                    Directory.CreateDirectory(PathTool.GetProgPath("Apps"));
                 if (!online || UpdateCheck(metaXML))
                     Application.Run(new MainForm());
 #if !DEBUG
@@ -89,7 +97,7 @@ namespace UpTool2
             }
         }
 
-        static void ShowSplash()
+        private static void ShowSplash()
         {
             splash = new Form
             {
@@ -119,7 +127,7 @@ namespace UpTool2
             splash.BringToFront();
         }
 
-        static void FixXML(string xml, bool throwOnError = false)
+        public static void FixXML(string xml, bool throwOnError = false)
         {
             try
             {
@@ -136,7 +144,7 @@ namespace UpTool2
                 if (meta.Element("Repos") == null)
                     meta.Add(new XElement("Repos"));
                 if (meta.Element("Repos").Elements("Repo").Count() == 0)
-                    meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml")));
+                    meta.Element("Repos").Add(new XElement("Repo", new XElement("Name", "UpTool2 official Repo"), new XElement("Link", "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml")));
                 meta.Element("Repos").Elements("Repo").Select(s => s.Element("Link"))
                     .Where(s => new string[] { null, "https://github.com/JFronny/UpTool2/releases/download/Repo/Repo.xml",
                         "https://raw.githubusercontent.com/JFronny/UpTool2/master/Repo.xml"}.Contains(s.Value))
@@ -157,7 +165,7 @@ namespace UpTool2
             }
         }
 
-        static bool UpdateCheck(string metaXML)
+        private static bool UpdateCheck(string metaXML)
         {
             XElement meta = XDocument.Load(metaXML).Element("meta");
             if (Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(meta.Element("Version").Value))
@@ -168,7 +176,7 @@ namespace UpTool2
             return true;
         }
 
-        static void installUpdate(XElement meta)
+        private static void installUpdate(XElement meta)
         {
             byte[] dl;
             using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value))
@@ -183,19 +191,20 @@ namespace UpTool2
                 if (pkghash != meta.Element("Hash").Value.ToUpper())
                     throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkghash + "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
             }
-            if (Directory.Exists(GlobalVariables.dir + @"\Install\tmp"))
-                Directory.Delete(GlobalVariables.dir + @"\Install\tmp", true);
-            Directory.CreateDirectory(GlobalVariables.dir + @"\Install\tmp");
+
+            if (Directory.Exists(PathTool.GetProgPath("Install", "tmp")))
+                Directory.Delete(PathTool.GetProgPath("Install", "tmp"), true);
+            Directory.CreateDirectory(PathTool.GetProgPath("Install", "tmp"));
             using (MemoryStream ms = new MemoryStream(dl))
             using (ZipArchive ar = new ZipArchive(ms))
             {
                 ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
                 {
-                    s.ExtractToFile(GlobalVariables.dir + @"\Install\tmp\" + s.Name, true);
+                    s.ExtractToFile(PathTool.GetProgPath("Install", "tmp", s.Name), true);
                 });
             }
             splash.Hide();
-            Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = GlobalVariables.dir + @"\Install" });
+            Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = PathTool.GetProgPath("Install") });
         }
 
         public static bool Ping(string url)
@@ -206,11 +215,8 @@ namespace UpTool2
                 request.Timeout = 3000;
                 request.AllowAutoRedirect = false;
                 request.Method = "HEAD";
-
-                using (var response = request.GetResponse())
-                {
-                    return true;
-                }
+                using var response = request.GetResponse();
+                return true;
             }
             catch
             {

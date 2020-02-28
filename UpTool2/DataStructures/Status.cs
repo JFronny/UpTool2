@@ -1,4 +1,4 @@
-﻿namespace UpTool2
+﻿namespace UpTool2.Data
 {
     public enum Status
     {
