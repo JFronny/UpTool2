@@ -31,7 +31,7 @@ Downloading software from online repos since 2019
         - Name
         - Link
     - Local Repo
-      - [__APP](~/#App layout)
+      - [__APP](https://github.com/JFronny/UpTool2#app-layout)
   - Install
     - __ZIP CONTENTS
     - tmp
@@ -40,7 +40,7 @@ Downloading software from online repos since 2019
 - repo
   - __APPLINK
   - __REPOLINK
-  - [__APP](~/#App layout)
+  - [__APP](https://github.com/JFronny/UpTool2#app-layout)
 ## App layout
 - app
   - Name
