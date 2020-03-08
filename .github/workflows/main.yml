@@ -25,8 +25,8 @@ jobs:
         .\7z a $Env:GITHUB_WORKSPACE\Release.zip $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
         cd $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2.exe").GetName().version.ToString())
-        cd "$Env:GITHUB_WORKSPACE\UpTool build tool\bin\Release"
-        $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\pkgtool.exe").GetName().version.ToString())
+        cd "$Env:GITHUB_WORKSPACE\UpTool build tool\bin\Release\netcoreapp3.1"
+        $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\pkgtool.dll").GetName().version.ToString())
         cd $Env:GITHUB_WORKSPACE
         echo "::set-output name=vers::$asmver"
         echo "::set-output name=pkgvers::$pkgtoolver"
