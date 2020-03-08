@@ -190,7 +190,7 @@
             this.controls_upload.Anchor =
                 ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
                                                        System.Windows.Forms.AnchorStyles.Right)));
-            this.controls_upload.Location = new System.Drawing.Point(282, 6);
+            this.controls_upload.Location = new System.Drawing.Point(283, 6);
             this.controls_upload.Name = "controls_upload";
             this.controls_upload.Size = new System.Drawing.Size(27, 27);
             this.controls_upload.TabIndex = 4;
@@ -208,7 +208,7 @@
             this.filterBox.FormattingEnabled = true;
             this.filterBox.Location = new System.Drawing.Point(68, 7);
             this.filterBox.Name = "filterBox";
-            this.filterBox.Size = new System.Drawing.Size(207, 23);
+            this.filterBox.Size = new System.Drawing.Size(208, 23);
             this.filterBox.TabIndex = 3;
             this.filterBox.SelectedIndexChanged += new System.EventHandler(this.UpdateSidebarV);
             // 
@@ -220,7 +220,7 @@
                                                        System.Windows.Forms.AnchorStyles.Right)));
             this.searchBox.Location = new System.Drawing.Point(3, 38);
             this.searchBox.Name = "searchBox";
-            this.searchBox.Size = new System.Drawing.Size(305, 23);
+            this.searchBox.Size = new System.Drawing.Size(306, 23);
             this.searchBox.TabIndex = 2;
             this.searchBox.TextChanged += new System.EventHandler(this.UpdateSidebarV);
             // 
