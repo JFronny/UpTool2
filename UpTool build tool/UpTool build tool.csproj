@@ -10,7 +10,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>"$(TargetPath)" build --noLogo --noShortcuts --binDir "$(TargetDir)\""</PostBuildEvent>
+    <PostBuildEvent>.\pkgtool.exe build --noLogo --noShortcuts --binDir .</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20104.2" />
