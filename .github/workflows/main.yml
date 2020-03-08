@@ -19,8 +19,11 @@ jobs:
         .\7z a $Env:GITHUB_WORKSPACE\Release.zip $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
         cd $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2.exe").GetName().version.ToString())
+        cd "$Env:GITHUB_WORKSPACE\UpTool build tool\bin\Release"
+        $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\pkgtool.exe").GetName().version.ToString())
         cd $Env:GITHUB_WORKSPACE
         echo "::set-output name=vers::$asmver"
+        echo "::set-output name=pkgvers::$pkgtoolver"
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1.0.0
@@ -60,6 +63,11 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         $xml = New-Object XML
+        $xml.load($(gi .\Repo.xml).FullName)
+        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).Hash = $(Get-FileHash .\Tools.zip).Hash
+        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).Version = "${{ steps.base_init.outputs.pkgvers }}"
+        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).File = "${{ steps.upload_tool_asset.outputs.browser_download_url }}"
+        $xml.save($(gi .\Repo.xml).FullName)
         $xml.load($(gi .\Meta.xml).Fullname)
         $xml.meta.Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
         $xml.meta.Version = "${{ steps.base_init.outputs.vers }}"
