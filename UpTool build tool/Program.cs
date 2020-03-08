@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Diagnostics;
 
 namespace UpTool_build_tool
 {
@@ -27,6 +28,7 @@ namespace UpTool_build_tool
 
         private static void Build(string binDir, string mainBin, string packageFile, string tempPath, bool noLogo, bool noShortcuts)
         {
+            Stopwatch watch = Stopwatch.StartNew();
             if (!noLogo)
             {
                 Console.WriteLine("-------------------------------");
@@ -72,6 +74,9 @@ namespace UpTool_build_tool
             ZipFile.CreateFromDirectory(tempPath, packageFile);
             Console.WriteLine("Cleaning up temp path...");
             Directory.Delete(tempPath, true);
+            watch.Stop();
+            Console.WriteLine($"Completed package creation in {watch.Elapsed}");
+            Console.WriteLine($"Output file: {Path.GetFullPath(packageFile)}");
         }
     }
 }
