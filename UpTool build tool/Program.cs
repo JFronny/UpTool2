@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 
 namespace UpTool_build_tool
 {
@@ -12,6 +13,8 @@ namespace UpTool_build_tool
             Console.WriteLine("-------------------------------");
             Console.WriteLine("| UpTool2 package build tools |");
             Console.WriteLine("-------------------------------");
+            Console.WriteLine();
+            Console.WriteLine($"Using version {Assembly.GetExecutingAssembly().GetName().Version}");
             Console.WriteLine();
             if (args == null || args.Length == 0)
                 args = new[] { "help" };
