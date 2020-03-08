@@ -70,7 +70,7 @@ jobs:
         git config --local user.name "GitHub Action"
         $xml = New-Object XML
         $xml.load($(gi .\Repo.xml).FullName)
-        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).Hash = $(Get-FileHash .\Tools.zip).Hash
+        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Tools.zip).Hash
         $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).Version = "${{ steps.base_init.outputs.pkgvers }}"
         $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).File = "${{ steps.upload_tool_asset.outputs.browser_download_url }}"
         $xml.save($(gi .\Repo.xml).FullName)
