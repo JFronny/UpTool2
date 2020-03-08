@@ -43,24 +43,17 @@ jobs:
     - name: Fix files
       id: final
       run: |
-        echo "Cloning"
         cd ..
         git clone https://JFronny:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4 MetaXML
         cd MetaXML
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        echo "Building XML"
-        cat Meta.xml
         $xml = New-Object XML
         $xml.load($(gi .\Meta.xml).Fullname)
-        echo $xml.meta
         $xml.meta.Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
         $xml.meta.Version = "${{ steps.base_init.outputs.vers }}"
         $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
-        echo $xml.meta
         $xml.save($(gi .\Meta.xml).Fullname)
-        cat Meta.xml
-        echo "Removing UTF-8 BOM"
         $FilePath=$(pwd).Path + "\Meta.xml"
         [System.IO.FileInfo] $file = Get-Item -Path $FilePath
         $sequenceBOM = New-Object System.Byte[] 3
@@ -73,7 +66,7 @@ jobs:
             [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
             Write-Host "Remove UTF-8 BOM successfully"
         }
-        echo "Pushing"
+        Write-Host "Pushing"
         git commit -m "Add changes" -a
         git push
-        echo "All done"
+        Write-Host "Completed"
