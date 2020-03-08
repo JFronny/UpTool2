@@ -24,7 +24,6 @@ namespace UpTool_build_tool
                     string targetFileName = args[2];
                     string packageFile = args.Length > 3 ? args[3] : Path.Combine(targetDir, "package.zip");
                     string tempPath = Path.Combine(args.Length > 4 ? args[4] : Path.GetTempPath(), "UpTool2Pkg");
-                    string quote = "\"";
                     Console.WriteLine("Removing previous files...");
                     if (File.Exists(packageFile))
                         File.Delete(packageFile);
