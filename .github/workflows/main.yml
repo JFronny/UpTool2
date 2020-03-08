@@ -13,7 +13,7 @@ jobs:
       id: base_init
       run: |
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-        .\MSBuild.exe $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Release -m
+        .\MSBuild.exe -noLogo -verbosity:m $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Release
         cp "$Env:GITHUB_WORKSPACE\UpTool build tool\bin\Release\package.zip" $Env:GITHUB_WORKSPACE\Tools.zip
         cd "C:\Program Files\7-Zip\"
         .\7z a $Env:GITHUB_WORKSPACE\Release.zip $Env:GITHUB_WORKSPACE\UpTool2\bin\Release
