@@ -48,15 +48,12 @@ jobs:
         cd MetaXML
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        Write-Host "Building XML"
         $xml = New-Object XML
         $xml.load($(gi .\Meta.xml).Fullname)
         $xml.meta.Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
         $xml.meta.Version = "${{ steps.base_init.outputs.vers }}"
         $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
         $xml.save($(gi .\Meta.xml).Fullname)
-        cat Meta.xml
-        Write-Host "Removing UTF-8 BOM"
         $FilePath=$(pwd).Path + "\Meta.xml"
         [System.IO.FileInfo] $file = Get-Item -Path $FilePath
         $sequenceBOM = New-Object System.Byte[] 3
@@ -72,4 +69,4 @@ jobs:
         Write-Host "Pushing"
         git commit -m "Add changes" -a
         git push
-        Write-Host "All done"
+        Write-Host "Completed"
