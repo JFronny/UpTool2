@@ -12,6 +12,8 @@ jobs:
     - name: Build
       id: base_init
       run: |
+        cd $Env:GITHUB_WORKSPACE
+        nuget restore
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
         .\MSBuild.exe -noLogo -verbosity:m $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Release
         cp "$Env:GITHUB_WORKSPACE\UpTool build tool\bin\Release\package.zip" $Env:GITHUB_WORKSPACE\Tools.zip
