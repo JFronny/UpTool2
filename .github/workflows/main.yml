@@ -72,8 +72,8 @@ jobs:
         $app.appendChild($xml.CreateElement("ID")).InnerText = "0e35d154-d0d3-45e0-b080-62f521263a44"
         $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_tool_asset.outputs.browser_download_url }}"
         $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Tools.zip).Hash
-        echo NULL > app.xml
-        $xml.save($(gi .\app.xml).Fullname)
+        echo NULL > tools.xml
+        $xml.save($(gi .\tools.xml).Fullname)
         [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
         [System.XML.XMLElement]$app=$xml.CreateElement("meta")
         $xml.appendChild($app)
@@ -89,8 +89,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./app.xml
-        asset_name: app.xml
+        asset_path: ./tools.xml
+        asset_name: tools.xml
         asset_content_type: text/xml
     - name: Upload Meta XML
       id: upload_meta_xml
