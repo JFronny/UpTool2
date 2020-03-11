@@ -60,38 +60,45 @@ jobs:
         asset_path: ./Tools.zip
         asset_name: Tools.zip
         asset_content_type: application/zip
-    - name: Fix files
-      id: final
+    - name: Create PackageTool XML
+      id: package_tool_xml
       run: |
-        cd ..
-        git clone https://JFronny:${{ secrets.GIST }}@gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4 MetaXML
-        cd MetaXML
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        $xml = New-Object XML
-        $xml.load($(gi .\Repo.xml).FullName)
-        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Tools.zip).Hash
-        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).Version = "${{ steps.base_init.outputs.pkgvers }}"
-        $($xml.repo.app | ? { [string]$_.Name -eq "UpTool2 package tools" }).File = "${{ steps.upload_tool_asset.outputs.browser_download_url }}"
-        $xml.save($(gi .\Repo.xml).FullName)
-        $xml.load($(gi .\Meta.xml).Fullname)
-        $xml.meta.Hash = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
-        $xml.meta.Version = "${{ steps.base_init.outputs.vers }}"
-        $xml.meta.File = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
-        $xml.save($(gi .\Meta.xml).Fullname)
-        $FilePath=$(pwd).Path + "\Meta.xml"
-        [System.IO.FileInfo] $file = Get-Item -Path $FilePath
-        $sequenceBOM = New-Object System.Byte[] 3
-        $reader = $file.OpenRead()
-        $bytesRead = $reader.Read($sequenceBOM, 0, 3)
-        $reader.Dispose()
-        if ($bytesRead -eq 3 -and $sequenceBOM[0] -eq 239 -and $sequenceBOM[1] -eq 187 -and $sequenceBOM[2] -eq 191)
-        {
-            $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
-            [System.IO.File]::WriteAllLines($FilePath, (Get-Content $FilePath), $utf8NoBomEncoding)
-            Write-Host "Remove UTF-8 BOM successfully"
-        }
-        Write-Host "Pushing"
-        git commit -m "Add changes" -a
-        git push
-        Write-Host "Completed"
+        [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
+        [System.XML.XMLElement]$app=$xml.CreateElement("app")
+        $xml.appendChild($app)
+        $app.appendChild($xml.CreateElement("Name")).InnerText = "UpTool2 package tools"
+        $app.appendChild($xml.CreateElement("Description")).InnerText = "Tools for automating package creation"
+        $app.appendChild($xml.CreateElement("Version")).InnerText = "${{ steps.base_init.outputs.pkgvers }}"
+        $app.appendChild($xml.CreateElement("ID")).InnerText = "0e35d154-d0d3-45e0-b080-62f521263a44"
+        $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_tool_asset.outputs.browser_download_url }}"
+        $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Tools.zip).Hash
+        echo NULL > app.xml
+        $xml.save($(gi .\app.xml).Fullname)
+        [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
+        [System.XML.XMLElement]$app=$xml.CreateElement("meta")
+        $xml.appendChild($app)
+        $app.appendChild($xml.CreateElement("Version")).InnerText = "${{ steps.base_init.outputs.vers }}"
+        $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
+        $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
+        echo NULL > meta.xml
+        $xml.save($(gi .\meta.xml).Fullname)
+    - name: Upload Tool XML
+      id: upload_tool_xml
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./app.xml
+        asset_name: app.xml
+        asset_content_type: text/xml
+    - name: Upload Meta XML
+      id: upload_meta_xml
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./meta.xml
+        asset_name: meta.xml
+        asset_content_type: text/xml
