@@ -57,7 +57,6 @@ namespace UpTool_build_tool
                 .Where(s => new[] { ".xml", ".pdb" }.Contains(Path.GetExtension(s)))
                 .ToList().ForEach(File.Delete);
             Console.WriteLine("Creating batch scripts...");
-            string programName = Path.GetFileNameWithoutExtension(mainBin);
             if (noShortcuts)
             {
                 File.WriteAllText(Path.Combine(tempPath, "Install.bat"), "@echo off\r\necho INSTALL\r\ntimeout /t 1");
@@ -65,6 +64,8 @@ namespace UpTool_build_tool
             }
             else
             {
+                mainBin = string.IsNullOrWhiteSpace(mainBin) ? Directory.GetFiles(binDir, "*.exe")[0] : mainBin;
+                string programName = Path.GetFileNameWithoutExtension(mainBin);
                 File.WriteAllText(Path.Combine(tempPath, "Install.bat"),
                     $"@echo off\r\necho INSTALL\r\npowershell \"$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\{programName}.lnk');$s.TargetPath='%cd%\\{programName}.exe';$s.Save()\"\r\ntimeout /t 1");
                 File.WriteAllText(Path.Combine(tempPath, "Remove.bat"),
