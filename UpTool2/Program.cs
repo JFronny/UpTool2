@@ -144,12 +144,14 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                     meta.Add(new XElement("UpdateSource"));
                 if (new[]
                     {
-                        "", "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
-                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml"
+                        "",
+                        "https://raw.githubusercontent.com/CreepyCrafter24/UpTool2/master/Meta.xml",
+                        "https://raw.githubusercontent.com/JFronny/UpTool2/master/Meta.xml",
+                        "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml"
                     }
                     .Contains(meta.Element("UpdateSource").Value))
                     meta.Element("UpdateSource").Value =
-                        "https://gist.githubusercontent.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4/raw/Meta.xml";
+                        "https://github.com/JFronny/UpTool2/releases/latest/download/meta.xml";
                 if (meta.Element("Repos") == null)
                     meta.Add(new XElement("Repos"));
                 if (meta.Element("Repos").Elements("Repo").Count() == 0)
