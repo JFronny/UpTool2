@@ -60,7 +60,7 @@ jobs:
         asset_path: ./Tools.zip
         asset_name: Tools.zip
         asset_content_type: application/zip
-    - name: Create PackageTool XML
+    - name: Create XML
       id: package_tool_xml
       run: |
         [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
@@ -82,16 +82,6 @@ jobs:
         $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
         echo NULL > meta.xml
         $xml.save($(gi .\meta.xml).Fullname)
-    - name: Upload Tool XML
-      id: upload_tool_xml
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./tools.xml
-        asset_name: tools.xml
-        asset_content_type: text/xml
     - name: Upload Meta XML
       id: upload_meta_xml
       uses: actions/upload-release-asset@v1.0.2
@@ -101,4 +91,14 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./meta.xml
         asset_name: meta.xml
+        asset_content_type: text/xml
+    - name: Upload Tool XML
+      id: upload_tool_xml
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tools.xml
+        asset_name: tools.xml
         asset_content_type: text/xml
