@@ -8,6 +8,19 @@ Downloading software from online repos since 2019
 [![Discord](https://img.shields.io/discord/466965965658128384)](https://discordapp.com/invite/UjhHBqt)
 
 [Default Repo](https://gist.github.com/JFronny/f1ccbba3d8a2f5862592bb29fdb612c4)
+## How to automate UpTool2 deployments
+Add this:
+`<Deterministic>false</Deterministic>`
+to your csproj
+
+Add this:
+```if exist "$(SolutionDir)Data\pkgtool.exe" ($(SolutionDir)Data\pkgtool.exe build --noLogo --binDir .) else if exist "%appdata%\UpTool2\Apps\0e35d154-d0d3-45e0-b080-62f521263a44\app\pkgtool.exe" ("%appdata%\UpTool2\Apps\0e35d154-d0d3-45e0-b080-62f521263a44\app\pkgtool.exe" build --noLogo --binDir .) else echo Cound not find Package build tools, skipping```
+as a PostBuild event
+
+Change your AssemblyVersion in AssemblyInfo.cs:
+`[assembly: AssemblyVersion("1.0.*")]`
+
+Add the [build action](https://github.com/JFronny/CC-Clicker/blob/master/.github/workflows/main.yml) and customize it
 ## Folder layout
 - %APPDATA%\UpTool2
   - Apps
