@@ -57,20 +57,35 @@ namespace UpTool_build_tool
                 .Where(s => new[] { ".xml", ".pdb" }.Contains(Path.GetExtension(s)))
                 .ToList().ForEach(File.Delete);
             Console.WriteLine("Creating batch scripts...");
-            if (noShortcuts)
+            string installBat = "@echo off\r\necho INSTALL";
+            string removeBat = "@echo off\r\necho REMOVE";
+            if (string.IsNullOrWhiteSpace(mainBin))
             {
-                File.WriteAllText(Path.Combine(tempPath, "Install.bat"), "@echo off\r\necho INSTALL\r\ntimeout /t 1");
-                File.WriteAllText(Path.Combine(tempPath, "Remove.bat"), "@echo off\r\necho REMOVE\r\ntimeout /t 1");
+                string[] tmp = Directory.GetFiles(binDir, "*.exe");
+                if (tmp.Length > 0)
+                    mainBin = Directory.GetFiles(binDir, "*.exe")[0];
+                if (tmp.Length > 1)
+                {
+                    Console.WriteLine("Detected multiple EXEs. This is not recommended as all processes running in the app folder will need to be terminated for uninstall to succeed");
+                    Console.WriteLine("Please consider removing unnecessary EXEs or notify me that anyone is actually using this.");
+                }
             }
-            else
+            if (!noShortcuts)
             {
-                mainBin = string.IsNullOrWhiteSpace(mainBin) ? Directory.GetFiles(binDir, "*.exe")[0] : mainBin;
-                string programName = Path.GetFileNameWithoutExtension(mainBin);
-                File.WriteAllText(Path.Combine(tempPath, "Install.bat"),
-                    $"@echo off\r\necho INSTALL\r\npowershell \"$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\{programName}.lnk');$s.TargetPath='%cd%\\{programName}.exe';$s.Save()\"\r\ntimeout /t 1");
-                File.WriteAllText(Path.Combine(tempPath, "Remove.bat"),
-                    $"@echo off\r\necho REMOVE\r\ndel \"%appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\{programName}.lnk\"\r\ntaskkill /f /im \"{programName}.exe\"\r\ntimeout /t 1");
+                installBat += "\r\n";
+                installBat += @"powershell ""$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk');$s.TargetPath='%cd%\{programName}.exe';$s.Save()""";
+                removeBat += "\r\n";
+                removeBat += @"del ""%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk""";
             }
+            if (!string.IsNullOrWhiteSpace(mainBin))
+            {
+                removeBat += "\r\n";
+                removeBat += $@"taskkill /f /im ""{Path.GetFileNameWithoutExtension(mainBin)}.exe""";
+            }
+            installBat += "\r\ntimeout /t 1";
+            removeBat += "\r\ntimeout /t 1";
+            File.WriteAllText(Path.Combine(tempPath, "Install.bat"), installBat);
+            File.WriteAllText(Path.Combine(tempPath, "Remove.bat"), removeBat);
             Console.WriteLine("Packaging...");
             ZipFile.CreateFromDirectory(tempPath, packageFile);
             Console.WriteLine("Cleaning up temp path...");
