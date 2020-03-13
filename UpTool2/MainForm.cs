@@ -189,7 +189,7 @@ namespace UpTool2
 #if DEBUG
                                 + $"{Environment.NewLine}File was: {path}"
 #endif
-                    , "Failed to start!");
+                    + "Failed to start!");
             }
         }
 
