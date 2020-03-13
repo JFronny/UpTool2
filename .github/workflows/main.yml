@@ -22,15 +22,14 @@ jobs:
         .\MSBuild.exe -noLogo -verbosity:m $Env:GITHUB_WORKSPACE\UpTool2.sln -p:Configuration=Release
         cp "$Env:GITHUB_WORKSPACE\UpTool build tool\bin\Release\netcoreapp3.1\package.zip" $Env:GITHUB_WORKSPACE\Tools.zip
         cd "C:\Program Files\7-Zip\"
-        echo "7zip"
         .\7z a $Env:GITHUB_WORKSPACE\Release.zip $Env:GITHUB_WORKSPACE\UpTool2\bin\Release\netcoreapp3.1
         echo "UpTool version"
         cd $Env:GITHUB_WORKSPACE\UpTool2\bin\Release\netcoreapp3.1
+        echo "Reflection"
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2.dll").GetName().version.ToString())
         echo "pkgtool version"
         cd "$Env:GITHUB_WORKSPACE\UpTool build tool\bin\Release\netcoreapp3.1"
         $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\pkgtool.dll").GetName().version.ToString())
-        echo "Output"
         cd $Env:GITHUB_WORKSPACE
         echo "::set-output name=vers::$asmver"
         echo "::set-output name=pkgvers::$pkgtoolver"
