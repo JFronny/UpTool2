@@ -168,11 +168,6 @@ namespace UpTool2
 
         private void Action_run_Click(object sender, EventArgs e)
         {
-            Console.WriteLine(new string('-', 10));
-            Console.WriteLine(((App) action_run.Tag).dataPath);
-            Console.WriteLine("\\");
-            Console.WriteLine(((App) action_run.Tag).MainFile);
-            Console.WriteLine(((App) action_run.Tag).dataPath);
             string path = Path.Combine(((App) action_run.Tag).dataPath, ((App) action_run.Tag).MainFile);
             try
             {

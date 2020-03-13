@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using CC_Functions.Misc;
 using UpTool2.DataStructures;
 using UpTool2.Properties;
 
@@ -31,7 +32,7 @@ namespace UpTool2.Tool
                     try
                     {
 #endif
-                    XDocument repo = XDocument.Load(repArr[i]);
+                    XDocument repo = XDocument.Load(new Uri(repArr[i]).Unshorten().AbsoluteUri);
                     repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value)
                         .Where(s => !repArr.Contains(s)));
                     XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app =>
@@ -40,7 +41,7 @@ namespace UpTool2.Tool
                                 .Where(a => a.Element("ID").Value == app.Element("ID").Value).Any(a =>
                                     GetVer(a.Element("Version")) >= app.Element("Version").GetVer())).ToArray()
                         .Concat(repo.Element("repo").Elements("applink")
-                            .Select(s => XDocument.Load(s.Value).Element("app"))).ToArray();
+                            .Select(s => XDocument.Load(new Uri(s.Value).Unshorten().AbsoluteUri).Element("app"))).ToArray();
                     for (int i1 = 0; i1 < tmp_apparray.Length; i1++)
                     {
                         XElement app = tmp_apparray[i1];
@@ -62,7 +63,7 @@ namespace UpTool2.Tool
                             try
                             {
                                 //Scale Image and save as Base64
-                                Image src = Image.FromStream(client.OpenRead(app.Element("Icon").Value));
+                                Image src = Image.FromStream(client.OpenRead(new Uri(app.Element("Icon").Value).Unshorten()));
                                 Bitmap dest = new Bitmap(70, 70);
                                 dest.SetResolution(src.HorizontalResolution, src.VerticalResolution);
                                 using (Graphics g = Graphics.FromImage(dest))
@@ -142,10 +143,6 @@ namespace UpTool2.Tool
                         ? app.Element("MainFile") == null ? "" : app.Element("MainFile").Value
                         : locIn.Element("MainFile").Value
                 ));
-#if DEBUG
-                Console.WriteLine(locIn.Element("MainFile") == null ? "NULL" : locIn.Element("MainFile").Value);
-                Console.WriteLine(GlobalVariables.Apps[id].MainFile);
-#endif
             });
             Directory.GetDirectories(PathTool.appsPath)
                 .Where(s => Guid.TryParse(Path.GetFileName(s), out Guid guid) &&

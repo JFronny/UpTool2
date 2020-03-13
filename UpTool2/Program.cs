@@ -53,7 +53,7 @@ namespace UpTool2
             catch (AbandonedMutexException)
             {
 #if DEBUG
-                Console.WriteLine("Mutex abandoned");
+                Debug.WriteLine("Mutex abandoned");
 #endif
                 hasHandle = true;
             }
