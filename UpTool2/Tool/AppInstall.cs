@@ -87,6 +87,9 @@ Online: {appI.Hash.ToUpper()}");
             }
         }
 
+        //Use
+        //PowerShell -Command "Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('Hello World')"
+        //for message boxes
         private static void CompleteInstall(App app) =>
             CompleteInstall(app.appPath, app.Name, app.Description, app.Version, app.MainFile);
 

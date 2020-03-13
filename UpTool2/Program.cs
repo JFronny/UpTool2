@@ -7,14 +7,13 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.AccessControl;
 using System.Security.Cryptography;
-using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using UpTool2.Tool;
+
 #if !DEBUG
 using Shortcut = UpTool2.Tool.Shortcut;
 #endif
@@ -32,25 +31,24 @@ namespace UpTool2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             ShowSplash();
-            string appGuid = ((GuidAttribute) Assembly.GetExecutingAssembly()
-                .GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value;
-            string mutexId = string.Format("Global\\{{{0}}}", appGuid);
-            MutexAccessRule allowEveryoneRule = new MutexAccessRule(
-                new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl,
-                AccessControlType.Allow);
-            MutexSecurity securitySettings = new MutexSecurity();
-            securitySettings.AddAccessRule(allowEveryoneRule);
-            using Mutex mutex = new Mutex(false, mutexId, out bool createdNew, securitySettings);
+            using Mutex mutex = new Mutex(false,
+                $"Global\\{{{((GuidAttribute) Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value}}}",
+                out bool _);
             bool hasHandle = false;
 #if !DEBUG
-                try
-                {
+            try
+            {
 #endif
             try
             {
                 hasHandle = mutex.WaitOne(5000, false);
                 if (hasHandle == false)
-                    throw new TimeoutException("Timeout waiting for exclusive access");
+                {
+                    Process[] processes = Process.GetProcessesByName("UpTool2");
+                    if (processes.Length > 0)
+                        WindowHelper.BringProcessToFront(Process.GetProcessesByName("UpTool2")[0]);
+                    Environment.Exit(0);
+                }
             }
             catch (AbandonedMutexException)
             {
@@ -66,39 +64,42 @@ namespace UpTool2
             Online = Ping(metaXml);
 
 #if !DEBUG
-                    if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.exe"))
-                    {
-                        if (!Online)
-                            throw new WebException("Could fetch Metadata (are you online?)");
-                        if (MessageBox.Show(@"Thank you for downloading UpTool2.
+                if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.exe"))
+                {
+                    if (!Online)
+                        throw new WebException("Could fetch Metadata (are you online?)");
+                    if (MessageBox.Show(@"Thank you for downloading UpTool2.
 To prevent inconsistent behavior you will need to install this before running.
 Files will be placed in %appdata%\UpTool2 and %appdata%\Microsoft\Windows\Start Menu\Programs
 Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Yes)
-                            throw new Exception("Exiting...");
-                        MessageBox.Show("Installing an Update. Please restart from your start menu!");
-                        InstallUpdate(XDocument.Load(metaXml).Element("meta"));
-                        Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
-                        mutex.ReleaseMutex();
-                        Environment.Exit(0);
-                    }
-                    if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk")))
-                        Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
+                        throw new Exception("Exiting...");
+                    MessageBox.Show("Installing an Update. Please restart from your start menu!");
+                    InstallUpdate(XDocument.Load(metaXml).Element("meta"));
+                    Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
+                    mutex.ReleaseMutex();
+                    Environment.Exit(0);
+                }
+                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs),
+                    "UpTool2.lnk")))
+                    Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
 #endif
             if (!Directory.Exists(PathTool.GetRelative("Apps")))
                 Directory.CreateDirectory(PathTool.GetRelative("Apps"));
             if (!Online || UpdateCheck(metaXml))
                 Application.Run(new MainForm());
 #if !DEBUG
-                }
-                catch (Exception e1)
-                {
-                    MessageBox.Show(e1.ToString());
-                }
-                finally
-                {
-                    if (hasHandle)
-                        mutex.ReleaseMutex();
-                }
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show(e1.ToString());
+            }
+            finally
+            {
+                if (hasHandle)
+                    mutex.ReleaseMutex();
+            }
 #endif
         }
 
@@ -210,8 +211,8 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                 Directory.Delete(PathTool.GetRelative("Install", "tmp"), true);
             Directory.CreateDirectory(PathTool.GetRelative("Install", "tmp"));
             using (MemoryStream ms = new MemoryStream(dl))
-            using (ZipArchive ar = new ZipArchive(ms))
             {
+                using ZipArchive ar = new ZipArchive(ms);
                 ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
                 {
                     s.ExtractToFile(PathTool.GetRelative("Install", "tmp", s.Name), true);
@@ -231,8 +232,7 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
             {
                 HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
                 request.Timeout = 3000;
-                request.AllowAutoRedirect = false;
-                request.Method = "HEAD";
+                request.AllowAutoRedirect = true;
                 using WebResponse response = request.GetResponse();
                 return true;
             }

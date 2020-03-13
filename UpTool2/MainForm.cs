@@ -6,13 +6,13 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
 using UpTool2.DataStructures;
 using UpTool2.Properties;
 using UpTool2.Tool;
 #if DEBUG
 using System.Threading;
 using System.Linq;
+
 #endif
 
 namespace UpTool2
@@ -91,13 +91,14 @@ namespace UpTool2
 #if !DEBUG
             try
             {
+
 #endif
             if (searchPackageDialog.ShowDialog() != DialogResult.OK)
                 return;
             Guid id = Guid.NewGuid();
             while (GlobalVariables.Apps.ContainsKey(id) || Directory.Exists(PathTool.GetAppPath(id)))
                 id = Guid.NewGuid();
-            App appI = new App(Interaction.InputBox("Name:"), "Locally installed package, removal only",
+            App appI = new App(AppNameDialog.Show(), "Locally installed package, removal only",
                 GlobalVariables.minimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
             AppInstall.InstallZip(searchPackageDialog.FileName, appI);
 #if !DEBUG
@@ -184,10 +185,10 @@ namespace UpTool2
             }
             catch (Exception e1)
             {
-                MessageBox.Show(e1.ToString()
-                    #if DEBUG
-                    + $"{Environment.NewLine}File was: {path}"
-                    #endif
+                MessageBox.Show(e1
+#if DEBUG
+                                + $"{Environment.NewLine}File was: {path}"
+#endif
                     , "Failed to start!");
             }
         }

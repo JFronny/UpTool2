@@ -13,6 +13,7 @@
     <PostBuildEvent>.\pkgtool.exe build --noLogo --noShortcuts --binDir .</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CC-Functions.Misc" Version="1.0.7.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20104.2" />
   </ItemGroup>
 </Project>

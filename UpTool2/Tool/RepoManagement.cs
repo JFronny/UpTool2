@@ -37,7 +37,8 @@ namespace UpTool2.Tool
                     XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app =>
                             !tmpAppsList.Any(a => a.Element("ID").Value == app.Element("ID").Value) ||
                             !tmpAppsList
-                                .Where(a => a.Element("ID").Value == app.Element("ID").Value).Any(a => GetVer(a.Element("Version")) >= app.Element("Version").GetVer())).ToArray()
+                                .Where(a => a.Element("ID").Value == app.Element("ID").Value).Any(a =>
+                                    GetVer(a.Element("Version")) >= app.Element("Version").GetVer())).ToArray()
                         .Concat(repo.Element("repo").Elements("applink")
                             .Select(s => XDocument.Load(s.Value).Element("app"))).ToArray();
                     for (int i1 = 0; i1 < tmp_apparray.Length; i1++)
@@ -99,7 +100,8 @@ namespace UpTool2.Tool
                     i++;
                 }
             }
-            tmpAppsList.Sort((x, y) => string.Compare(x.Element("Name").Value, y.Element("Name").Value, StringComparison.Ordinal));
+            tmpAppsList.Sort((x, y) =>
+                string.Compare(x.Element("Name").Value, y.Element("Name").Value, StringComparison.Ordinal));
             if (meta.Element("LocalRepo") == null)
                 meta.Add(new XElement("LocalRepo"));
             XElement repos = meta.Element("LocalRepo");
@@ -146,7 +148,8 @@ namespace UpTool2.Tool
 #endif
             });
             Directory.GetDirectories(PathTool.appsPath)
-                .Where(s => Guid.TryParse(Path.GetFileName(s), out Guid guid) && !GlobalVariables.Apps.ContainsKey(guid)).ToList().ForEach(s =>
+                .Where(s => Guid.TryParse(Path.GetFileName(s), out Guid guid) &&
+                            !GlobalVariables.Apps.ContainsKey(guid)).ToList().ForEach(s =>
                 {
                     Guid tmp = Guid.Parse(Path.GetFileName(s));
                     try
