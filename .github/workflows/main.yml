@@ -18,6 +18,15 @@ jobs:
         & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\*
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2\\bin\\Release\\netcoreapp3.1\\UpTool2.dll").GetName().version.ToString())
         $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool build tool\\bin\\Release\\netcoreapp3.1\\pkgtool.dll").GetName().version.ToString())
+        cd Installer
+        dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
+        dotnet publish -r win-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
+        & "C:\Program Files\7-Zip\7z" a ..\Installer.zip .\bin\Release\netcoreapp3.1\Installer.exe
+        & "C:\Program Files\7-Zip\7z" a ..\Installer.zip .\bin\Release\netcoreapp3.1\Installer.dll
+        & "C:\Program Files\7-Zip\7z" a ..\Installer.zip .\bin\Release\netcoreapp3.1\Installer.runtimeconfig.json
+        cp .\bin\Release\netcoreapp3.1\win-x64\publish\Installer.exe ..\Installer-x64.exe
+        cp .\bin\Release\netcoreapp3.1\win-x86\publish\Installer.exe ..\Installer-x86.exe
+        cd $Env:GITHUB_WORKSPACE
         echo "::set-output name=vers::$asmver"
         echo "::set-output name=pkgvers::$pkgtoolver"
     - name: Create Release
@@ -49,6 +58,33 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./Tools.zip
         asset_name: Tools.zip
+        asset_content_type: application/zip
+    - name: Upload x86 Installer
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Installer-x86.zip
+        asset_name: Installer-x86.zip
+        asset_content_type: application/zip
+    - name: Upload x64 Installer
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Installer-x64.zip
+        asset_name: Installer-x64.zip
+        asset_content_type: application/zip
+    - name: Upload generic Installer
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Installer-generic.zip
+        asset_name: Installer-generic.zip
         asset_content_type: application/zip
     - name: Create XML
       id: package_tool_xml
