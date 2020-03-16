@@ -20,7 +20,7 @@ jobs:
         nuget restore
         dotnet build --verbosity:m -p:Configuration=Release
         cp ".\UpTool build tool\bin\Release\netcoreapp3.1\package.zip" $Env:GITHUB_WORKSPACE\Tools.zip
-        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\*
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2\\bin\\Release\\netcoreapp3.1\\UpTool2.dll").GetName().version.ToString())
         $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool build tool\\bin\\Release\\netcoreapp3.1\\pkgtool.dll").GetName().version.ToString())
         echo "::set-output name=vers::$asmver"
