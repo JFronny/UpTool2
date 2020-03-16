@@ -14,10 +14,6 @@ using System.Xml;
 using System.Xml.Linq;
 using UpTool2.Tool;
 
-#if !DEBUG
-using Shortcut = UpTool2.Tool.Shortcut;
-#endif
-
 namespace UpTool2
 {
     internal static class Program
@@ -39,53 +35,33 @@ namespace UpTool2
             try
             {
 #endif
-            try
-            {
-                hasHandle = mutex.WaitOne(5000, false);
-                if (hasHandle == false)
+                try
                 {
-                    Console.WriteLine("Mutex property of other process, quitting");
-                    Process[] processes = Process.GetProcessesByName("UpTool2");
-                    if (processes.Length > 0)
-                        WindowHelper.BringProcessToFront(Process.GetProcessesByName("UpTool2")[0]);
-                    Environment.Exit(0);
+                    hasHandle = mutex.WaitOne(5000, false);
+                    if (hasHandle == false)
+                    {
+                        Console.WriteLine("Mutex property of other process, quitting");
+                        Process[] processes = Process.GetProcessesByName("UpTool2");
+                        if (processes.Length > 0)
+                            WindowHelper.BringProcessToFront(Process.GetProcessesByName("UpTool2")[0]);
+                        Environment.Exit(0);
+                    }
                 }
-            }
-            catch (AbandonedMutexException)
-            {
+                catch (AbandonedMutexException)
+                {
 #if DEBUG
-                Debug.WriteLine("Mutex abandoned");
+                    Debug.WriteLine("Mutex abandoned");
 #endif
-                hasHandle = true;
-            }
-            if (!Directory.Exists(PathTool.dir))
-                Directory.CreateDirectory(PathTool.dir);
-            FixXml();
-            string metaXml = XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value;
-            Online = Ping(metaXml);
-
-#if !DEBUG
-                if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.dll"))
-                {
-                    if (!Online)
-                        throw new WebException("Could fetch Metadata (are you online?)");
-                    if (MessageBox.Show(@"Thank you for downloading UpTool2.
-To prevent inconsistent behavior you will need to install this before running.
-Files will be placed in %appdata%\UpTool2 and %appdata%\Microsoft\Windows\Start Menu\Programs
-Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Yes)
-                        throw new Exception("Exiting...");
-                    MessageBox.Show("Installing an Update. Please restart from your start menu!");
-                    InstallUpdate(XDocument.Load(metaXml).Element("meta"));
-                    Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
-                    mutex.ReleaseMutex();
-                    Environment.Exit(0);
+                    hasHandle = true;
                 }
-                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs),
-                    "UpTool2.lnk")))
-                    Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
-#endif
+                if (!Directory.Exists(PathTool.dir))
+                    Directory.CreateDirectory(PathTool.dir);
+                FixXml();
+                string metaXml = XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value;
+                Online = Ping(metaXml);
+                if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.dll"))
+                    MessageBox.Show(
+                        $"WARNING!{Environment.NewLine}Running from outside the install directory is not recommended!");
                 if (!Directory.Exists(PathTool.GetRelative("Apps")))
                     Directory.CreateDirectory(PathTool.GetRelative("Apps"));
                 if (!Online || UpdateCheck(metaXml))
@@ -187,12 +163,6 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
             XElement meta = XDocument.Load(metaXml).Element("meta");
             if (Assembly.GetExecutingAssembly().GetName().Version >= Version.Parse(meta.Element("Version").Value))
                 return true;
-            InstallUpdate(meta);
-            return false;
-        }
-
-        private static void InstallUpdate(XElement meta)
-        {
             byte[] dl;
             using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value))
             {
@@ -207,24 +177,24 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                     throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkgHash +
                                         "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
             }
-
             if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))
                 Directory.Delete(PathTool.GetRelative("Install", "tmp"), true);
             Directory.CreateDirectory(PathTool.GetRelative("Install", "tmp"));
             using (MemoryStream ms = new MemoryStream(dl))
             {
                 using ZipArchive ar = new ZipArchive(ms);
-                ar.Entries.Where(s => !string.IsNullOrEmpty(s.Name)).ToList().ForEach(s =>
-                {
-                    s.ExtractToFile(PathTool.GetRelative("Install", "tmp", s.Name), true);
-                });
+                ar.ExtractToDirectory(PathTool.GetRelative("Install", "tmp"), true);
             }
             Splash.Hide();
             Process.Start(new ProcessStartInfo
             {
-                FileName = "cmd.exe", Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .", CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = PathTool.GetRelative("Install")
+                FileName = "cmd.exe",
+                Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .",
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                WorkingDirectory = PathTool.GetRelative("Install")
             });
+            return false;
         }
 
         private static bool Ping(string url)

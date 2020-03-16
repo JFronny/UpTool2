@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using UpTool2.DataStructures;
 using UpTool2.Properties;
 using UpTool2.Tool;
+
 #if DEBUG
 using System.Threading;
 using System.Linq;
@@ -46,7 +47,7 @@ namespace UpTool2
             try
             {
 #endif
-            AppInstall.Install((App) action_install.Tag);
+                AppInstall.Install((App) action_install.Tag);
 #if !DEBUG
             }
             catch (Exception e1)
@@ -91,16 +92,15 @@ namespace UpTool2
 #if !DEBUG
             try
             {
-
 #endif
-            if (searchPackageDialog.ShowDialog() != DialogResult.OK)
-                return;
-            Guid id = Guid.NewGuid();
-            while (GlobalVariables.Apps.ContainsKey(id) || Directory.Exists(PathTool.GetAppPath(id)))
-                id = Guid.NewGuid();
-            App appI = new App(AppNameDialog.Show(), "Locally installed package, removal only",
-                GlobalVariables.minimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
-            AppInstall.InstallZip(searchPackageDialog.FileName, appI);
+                if (searchPackageDialog.ShowDialog() != DialogResult.OK)
+                    return;
+                Guid id = Guid.NewGuid();
+                while (GlobalVariables.Apps.ContainsKey(id) || Directory.Exists(PathTool.GetAppPath(id)))
+                    id = Guid.NewGuid();
+                App appI = new App(AppNameDialog.Show(), "Locally installed package, removal only",
+                    GlobalVariables.minimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
+                AppInstall.InstallZip(searchPackageDialog.FileName, appI);
 #if !DEBUG
             }
             catch (Exception e1)
@@ -184,7 +184,7 @@ namespace UpTool2
 #if DEBUG
                                 + $"{Environment.NewLine}File was: {path}"
 #endif
-                    + "Failed to start!");
+                                + "Failed to start!");
             }
         }
 
@@ -242,15 +242,15 @@ namespace UpTool2
             else
             {
 #endif
-                Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
-                for (int i = 0; i < sidebarPanel.Controls.Count; i++)
-                {
-                    Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
-                    App app = (App) sidebarIcon.Tag;
-                    sidebarIcon.Visible = app.Name.Contains(searchBox.Text) &&
-                                          ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
-                }
-                ClearSelection();
+            Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
+            for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+            {
+                Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
+                App app = (App) sidebarIcon.Tag;
+                sidebarIcon.Visible = app.Name.Contains(searchBox.Text) &&
+                                      ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
+            }
+            ClearSelection();
 #if DEBUG
             }
 #endif

@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace UpTool2.Tool
+namespace Installer
 {
     internal static class Shortcut
     {

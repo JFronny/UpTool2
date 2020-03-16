@@ -19,28 +19,28 @@ namespace UpTool2.Tool
             try
             {
 #endif
-            app = appI.appPath;
-            tmp = PathTool.tempPath;
-            if (Directory.Exists(tmp))
-                Directory.Delete(tmp, true);
-            Directory.CreateDirectory(tmp);
-            if (Directory.Exists(app))
-                Directory.Delete(app, true);
-            Directory.CreateDirectory(app);
-            using DownloadDialog dlg = new DownloadDialog(appI.File);
-            if (dlg.ShowDialog() != DialogResult.OK)
-                throw new Exception("Download failed");
-            using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
-            {
-                string pkgHash = BitConverter.ToString(sha256.ComputeHash(dlg.Result)).Replace("-", string.Empty)
-                    .ToUpper();
-                if (pkgHash != appI.Hash.ToUpper())
-                    throw new Exception($@"The hash is not equal to the one stored in the repo:
+                app = appI.appPath;
+                tmp = PathTool.tempPath;
+                if (Directory.Exists(tmp))
+                    Directory.Delete(tmp, true);
+                Directory.CreateDirectory(tmp);
+                if (Directory.Exists(app))
+                    Directory.Delete(app, true);
+                Directory.CreateDirectory(app);
+                using DownloadDialog dlg = new DownloadDialog(appI.File);
+                if (dlg.ShowDialog() != DialogResult.OK)
+                    throw new Exception("Download failed");
+                using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+                {
+                    string pkgHash = BitConverter.ToString(sha256.ComputeHash(dlg.Result)).Replace("-", string.Empty)
+                        .ToUpper();
+                    if (pkgHash != appI.Hash.ToUpper())
+                        throw new Exception($@"The hash is not equal to the one stored in the repo:
 Package: {pkgHash}
 Online: {appI.Hash.ToUpper()}");
-            }
-            File.WriteAllBytes(Path.Combine(app, "package.zip"), dlg.Result);
-            CompleteInstall(appI);
+                }
+                File.WriteAllBytes(Path.Combine(app, "package.zip"), dlg.Result);
+                CompleteInstall(appI);
 #if !DEBUG
             }
             catch
@@ -52,8 +52,8 @@ Online: {appI.Hash.ToUpper()}");
             finally
             {
 #endif
-            if (tmp != "" && Directory.Exists(tmp))
-                Directory.Delete(tmp, true);
+                if (tmp != "" && Directory.Exists(tmp))
+                    Directory.Delete(tmp, true);
 #if !DEBUG
             }
 #endif
@@ -97,8 +97,6 @@ Online: {appI.Hash.ToUpper()}");
             string mainFile)
         {
 #if !DEBUG
-            try
-            {
 #endif
             string tmp = PathTool.tempPath;
             ZipFile.ExtractToDirectory(Path.Combine(appPath, "package.zip"), tmp);
@@ -117,8 +115,6 @@ Online: {appI.Hash.ToUpper()}");
             if (GlobalVariables.RelE)
                 GlobalVariables.ReloadElements.Invoke();
 #if !DEBUG
-            }
-            catch { throw; }
 #endif
         }
     }

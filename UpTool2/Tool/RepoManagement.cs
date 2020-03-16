@@ -32,65 +32,68 @@ namespace UpTool2.Tool
                     try
                     {
 #endif
-                    XDocument repo = XDocument.Load(new Uri(repArr[i]).Unshorten().AbsoluteUri);
-                    repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value)
-                        .Where(s => !repArr.Contains(s)));
-                    XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app =>
-                            !tmpAppsList.Any(a => a.Element("ID").Value == app.Element("ID").Value) ||
-                            !tmpAppsList
-                                .Where(a => a.Element("ID").Value == app.Element("ID").Value).Any(a =>
-                                    GetVer(a.Element("Version")) >= app.Element("Version").GetVer())).ToArray()
-                        .Concat(repo.Element("repo").Elements("applink")
-                            .Select(s => XDocument.Load(new Uri(s.Value).Unshorten().AbsoluteUri).Element("app"))).ToArray();
-                    for (int i1 = 0; i1 < tmp_apparray.Length; i1++)
-                    {
-                        XElement app = tmp_apparray[i1];
-                        //"Sanity check"
-                        Version.Parse(app.Element("Version").Value);
-                        Guid.Parse(app.Element("ID").Value);
-                        //Create XElement
-                        tmpAppsList.Add(new XElement("App",
-                            new XElement("Name", app.Element("Name").Value),
-                            new XElement("Description", app.Element("Description").Value),
-                            new XElement("Version", app.Element("Version").Value),
-                            new XElement("ID", app.Element("ID").Value),
-                            new XElement("File", app.Element("File").Value),
-                            new XElement("Hash", app.Element("Hash").Value)
-                        ));
-                        if (app.Element("MainFile") != null)
-                            tmpAppsList.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
-                        if (app.Element("Icon") != null)
-                            try
-                            {
-                                //Scale Image and save as Base64
-                                Image src = Image.FromStream(client.OpenRead(new Uri(app.Element("Icon").Value).Unshorten()));
-                                Bitmap dest = new Bitmap(70, 70);
-                                dest.SetResolution(src.HorizontalResolution, src.VerticalResolution);
-                                using (Graphics g = Graphics.FromImage(dest))
+                        XDocument repo = XDocument.Load(new Uri(repArr[i]).Unshorten().AbsoluteUri);
+                        repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value)
+                            .Where(s => !repArr.Contains(s)));
+                        XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app =>
+                                !tmpAppsList.Any(a => a.Element("ID").Value == app.Element("ID").Value) ||
+                                !tmpAppsList
+                                    .Where(a => a.Element("ID").Value == app.Element("ID").Value).Any(a =>
+                                        GetVer(a.Element("Version")) >= app.Element("Version").GetVer())).ToArray()
+                            .Concat(repo.Element("repo").Elements("applink")
+                                .Select(s => XDocument.Load(new Uri(s.Value).Unshorten().AbsoluteUri).Element("app")))
+                            .ToArray();
+                        for (int i1 = 0; i1 < tmp_apparray.Length; i1++)
+                        {
+                            XElement app = tmp_apparray[i1];
+                            //"Sanity check"
+                            Version.Parse(app.Element("Version").Value);
+                            Guid.Parse(app.Element("ID").Value);
+                            //Create XElement
+                            tmpAppsList.Add(new XElement("App",
+                                new XElement("Name", app.Element("Name").Value),
+                                new XElement("Description", app.Element("Description").Value),
+                                new XElement("Version", app.Element("Version").Value),
+                                new XElement("ID", app.Element("ID").Value),
+                                new XElement("File", app.Element("File").Value),
+                                new XElement("Hash", app.Element("Hash").Value)
+                            ));
+                            if (app.Element("MainFile") != null)
+                                tmpAppsList.Last().Add(new XElement("MainFile", app.Element("MainFile").Value));
+                            if (app.Element("Icon") != null)
+                                try
                                 {
-                                    g.CompositingMode = CompositingMode.SourceCopy;
-                                    g.CompositingQuality = CompositingQuality.HighQuality;
-                                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                    g.SmoothingMode = SmoothingMode.HighQuality;
-                                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                    using ImageAttributes wrapMode = new ImageAttributes();
-                                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                                    g.DrawImage(src, new Rectangle(0, 0, 70, 70), 0, 0, src.Width, src.Height,
-                                        GraphicsUnit.Pixel, wrapMode);
+                                    //Scale Image and save as Base64
+                                    Image src = Image.FromStream(
+                                        client.OpenRead(new Uri(app.Element("Icon").Value).Unshorten()));
+                                    Bitmap dest = new Bitmap(70, 70);
+                                    dest.SetResolution(src.HorizontalResolution, src.VerticalResolution);
+                                    using (Graphics g = Graphics.FromImage(dest))
+                                    {
+                                        g.CompositingMode = CompositingMode.SourceCopy;
+                                        g.CompositingQuality = CompositingQuality.HighQuality;
+                                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                        g.SmoothingMode = SmoothingMode.HighQuality;
+                                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                                        using ImageAttributes wrapMode = new ImageAttributes();
+                                        wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                                        g.DrawImage(src, new Rectangle(0, 0, 70, 70), 0, 0, src.Width, src.Height,
+                                            GraphicsUnit.Pixel, wrapMode);
+                                    }
+                                    using MemoryStream ms = new MemoryStream();
+                                    dest.Save(ms, ImageFormat.Png);
+                                    tmpAppsList.Last()
+                                        .Add(new XElement("Icon", Convert.ToBase64String(ms.ToArray())));
                                 }
-                                using MemoryStream ms = new MemoryStream();
-                                dest.Save(ms, ImageFormat.Png);
-                                tmpAppsList.Last()
-                                    .Add(new XElement("Icon", Convert.ToBase64String(ms.ToArray())));
-                            }
-                            catch
-                            {
-                            }
+                                catch
+                                {
+                                }
 
-                        if (tmpAppsList.Count(a => a.Element("ID").Value == app.Element("ID").Value) > 1)
-                            tmpAppsList.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse().Skip(1)
-                                .ToList().ForEach(a => tmpAppsList.Remove(a));
-                    }
+                            if (tmpAppsList.Count(a => a.Element("ID").Value == app.Element("ID").Value) > 1)
+                                tmpAppsList.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse()
+                                    .Skip(1)
+                                    .ToList().ForEach(a => tmpAppsList.Remove(a));
+                        }
 #if !DEBUG
                     }
                     catch (Exception e)
