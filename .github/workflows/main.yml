@@ -9,10 +9,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2.0.0
-    - name: Setup NuGet
-      uses: nuget/setup-nuget@v1.0.2
-      with:
-        nuget-version: latest
     - name: Build
       id: base_init
       run: |
