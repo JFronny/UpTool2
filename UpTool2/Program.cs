@@ -65,7 +65,7 @@ namespace UpTool2
             Online = Ping(metaXml);
 
 #if !DEBUG
-                if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.exe"))
+                if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.dll"))
                 {
                     if (!Online)
                         throw new WebException("Could fetch Metadata (are you online?)");
