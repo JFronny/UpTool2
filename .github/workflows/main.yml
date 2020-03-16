@@ -17,7 +17,6 @@ jobs:
       id: base_init
       run: |
         cd $Env:GITHUB_WORKSPACE
-        nuget restore
         dotnet build --verbosity:m -p:Configuration=Release
         cp ".\UpTool build tool\bin\Release\netcoreapp3.1\package.zip" $Env:GITHUB_WORKSPACE\Tools.zip
         & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\*
