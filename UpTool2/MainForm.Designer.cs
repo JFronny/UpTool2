@@ -1,6 +1,6 @@
 ﻿namespace UpTool2
 {
-    partial class MainForm
+    sealed partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -143,8 +143,7 @@
             // infoPanel_Title
             // 
             this.infoPanel_Title.AutoSize = true;
-            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F,
-                System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
+            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F);
             this.infoPanel_Title.Location = new System.Drawing.Point(2, 1);
             this.infoPanel_Title.Name = "infoPanel_Title";
             this.infoPanel_Title.Size = new System.Drawing.Size(0, 31);
@@ -190,7 +189,7 @@
             this.controls_upload.Anchor =
                 ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
                                                        System.Windows.Forms.AnchorStyles.Right)));
-            this.controls_upload.Location = new System.Drawing.Point(283, 6);
+            this.controls_upload.Location = new System.Drawing.Point(284, 6);
             this.controls_upload.Name = "controls_upload";
             this.controls_upload.Size = new System.Drawing.Size(27, 27);
             this.controls_upload.TabIndex = 4;
@@ -208,7 +207,7 @@
             this.filterBox.FormattingEnabled = true;
             this.filterBox.Location = new System.Drawing.Point(68, 7);
             this.filterBox.Name = "filterBox";
-            this.filterBox.Size = new System.Drawing.Size(208, 23);
+            this.filterBox.Size = new System.Drawing.Size(209, 23);
             this.filterBox.TabIndex = 3;
             this.filterBox.SelectedIndexChanged += new System.EventHandler(this.UpdateSidebarV);
             // 
@@ -220,7 +219,7 @@
                                                        System.Windows.Forms.AnchorStyles.Right)));
             this.searchBox.Location = new System.Drawing.Point(3, 38);
             this.searchBox.Name = "searchBox";
-            this.searchBox.Size = new System.Drawing.Size(306, 23);
+            this.searchBox.Size = new System.Drawing.Size(307, 23);
             this.searchBox.TabIndex = 2;
             this.searchBox.TextChanged += new System.EventHandler(this.UpdateSidebarV);
             // 
@@ -267,7 +266,6 @@
             this.ShowIcon = false;
             this.Text = "UpTool 2";
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.MainForm_HelpRequested);
             this.infoPanel.ResumeLayout(false);
             this.infoPanel.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);

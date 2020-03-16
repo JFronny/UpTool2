@@ -4,26 +4,26 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using UpTool2.DataStructures;
 using UpTool2.Properties;
 using UpTool2.Tool;
-
 #if DEBUG
 using System.Threading;
 using System.Linq;
-
 #endif
 
 namespace UpTool2
 {
-    public partial class MainForm : Form
+    public sealed partial class MainForm : Form
     {
+        HelpEventHandler help;
         public MainForm()
         {
             GlobalVariables.ReloadElements = ReloadElements;
             InitializeComponent();
+            help = MainForm_HelpRequested;
+            HelpRequested += help;
             filterBox.DataSource = Enum.GetValues(typeof(Status));
             if (Program.Online)
             {
@@ -154,7 +154,7 @@ namespace UpTool2
                     action_update.Tag = app;
                     action_update.Enabled = updatable;
                     action_run.Tag = app;
-                    action_run.Enabled = !app.Local && app.Runnable && Directory.Exists(app.appPath);
+                    action_run.Enabled = (app.status & Status.Installed) == Status.Installed && !app.Local && app.Runnable && Directory.Exists(app.appPath);
                 };
                 if (updatable)
                     availableUpdates++;
@@ -264,54 +264,48 @@ namespace UpTool2
 
         private static DateTime GetBuildDateTime(Assembly assembly)
         {
-            string path = assembly.GetName().CodeBase;
-            if (File.Exists(path))
-            {
-                byte[] buffer = new byte[Math.Max(Marshal.SizeOf(typeof(_IMAGE_FILE_HEADER)), 4)];
-                using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    fileStream.Position = 0x3C;
-                    fileStream.Read(buffer, 0, 4);
-                    fileStream.Position = BitConverter.ToUInt32(buffer, 0); // COFF header offset
-                    fileStream.Read(buffer, 0, 4); // "PE\0\0"
-                    fileStream.Read(buffer, 0, buffer.Length);
-                }
-                GCHandle pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                try
-                {
-                    _IMAGE_FILE_HEADER coffHeader =
-                        (_IMAGE_FILE_HEADER) Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(),
-                            typeof(_IMAGE_FILE_HEADER));
+            string location = assembly.Location;
+            const int headerOffset = 60;
+            const int linkerTimestampOffset = 8;
+            byte[] buffer = new byte[2048];
+            Stream? stream = null;
 
-                    return TimeZone.CurrentTimeZone.ToLocalTime(
-                        new DateTime(1970, 1, 1) + new TimeSpan(coffHeader.TimeDateStamp * TimeSpan.TicksPerSecond));
-                }
-                finally
+            try
+            {
+                stream = new FileStream(location, FileMode.Open, FileAccess.Read);
+                stream.Read(buffer, 0, 2048);
+            }
+            finally
+            {
+                if (stream != null)
                 {
-                    pinnedBuffer.Free();
+                    stream.Close();
                 }
             }
-            return new DateTime();
+
+            int i = BitConverter.ToInt32(buffer, headerOffset);
+            int secondsSince1970 = BitConverter.ToInt32(buffer, i + linkerTimestampOffset);
+            DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
+            dt = dt.AddSeconds(secondsSince1970);
+            dt = TimeZoneInfo.ConvertTimeToUtc(dt);
+            return dt;
         }
 
         private void MainForm_HelpRequested(object sender, HelpEventArgs hlpevent)
         {
-            DateTime buildTime = GetBuildDateTime(Assembly.GetExecutingAssembly());
-            _ = MessageBox.Show($@"UpTool2 by CC24
+            HelpRequested -= help;
+            try
+            {
+                DateTime buildTime = GetBuildDateTime(Assembly.GetExecutingAssembly());
+                MessageBox.Show($@"UpTool2 by CC24
 Version: {Assembly.GetExecutingAssembly().GetName().Version}
 Build Date: {buildTime:dd.MM.yyyy}", "UpTool2");
-            hlpevent.Handled = true;
-        }
-
-        private struct _IMAGE_FILE_HEADER
-        {
-            public ushort Machine;
-            public ushort NumberOfSections;
-            public uint TimeDateStamp;
-            public uint PointerToSymbolTable;
-            public uint NumberOfSymbols;
-            public ushort SizeOfOptionalHeader;
-            public ushort Characteristics;
+            }
+            finally
+            {
+                HelpRequested += help;
+                hlpevent.Handled = true;
+            }
         }
     }
 }
