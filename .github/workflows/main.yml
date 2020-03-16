@@ -18,15 +18,6 @@ jobs:
         & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\*
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2\\bin\\Release\\netcoreapp3.1\\UpTool2.dll").GetName().version.ToString())
         $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool build tool\\bin\\Release\\netcoreapp3.1\\pkgtool.dll").GetName().version.ToString())
-        cd Installer
-        dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
-        dotnet publish -r win-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
-        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.exe
-        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.dll
-        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.runtimeconfig.json
-        cp .\bin\Release\netcoreapp3.1\win-x64\publish\Installer.exe ..\Installer-x64.exe
-        cp .\bin\Release\netcoreapp3.1\win-x86\publish\Installer.exe ..\Installer-x86.exe
-        cd $Env:GITHUB_WORKSPACE
         echo "::set-output name=vers::$asmver"
         echo "::set-output name=pkgvers::$pkgtoolver"
     - name: Create Release
@@ -59,6 +50,56 @@ jobs:
         asset_path: ./Tools.zip
         asset_name: Tools.zip
         asset_content_type: application/zip
+    - name: Create XML
+      run: |
+        [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
+        [System.XML.XMLElement]$app=$xml.CreateElement("app")
+        $xml.appendChild($app)
+        $app.appendChild($xml.CreateElement("Name")).InnerText = "UpTool2 package tools"
+        $app.appendChild($xml.CreateElement("Description")).InnerText = "Tools for automating package creation"
+        $app.appendChild($xml.CreateElement("Version")).InnerText = "${{ steps.base_init.outputs.pkgvers }}"
+        $app.appendChild($xml.CreateElement("ID")).InnerText = "0e35d154-d0d3-45e0-b080-62f521263a44"
+        $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_tool_asset.outputs.browser_download_url }}"
+        $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Tools.zip).Hash
+        echo NULL > tools.xml
+        $xml.save($(gi .\tools.xml).Fullname)
+        [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
+        [System.XML.XMLElement]$app=$xml.CreateElement("meta")
+        $xml.appendChild($app)
+        $app.appendChild($xml.CreateElement("Version")).InnerText = "${{ steps.base_init.outputs.vers }}"
+        $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
+        $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
+        echo NULL > meta.xml
+        $xml.save($(gi .\meta.xml).Fullname)
+    - name: Upload Meta XML
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./meta.xml
+        asset_name: meta.xml
+        asset_content_type: text/xml
+    - name: Upload Tool XML
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tools.xml
+        asset_name: tools.xml
+        asset_content_type: text/xml
+    - name: Build non-generic installers
+      run: |
+        cd $Env:GITHUB_WORKSPACE\Installer
+        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.exe
+        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.dll
+        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.runtimeconfig.json
+        dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
+        dotnet publish -r win-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
+        cp .\bin\Release\netcoreapp3.1\win-x64\publish\Installer.exe ..\Installer-x64.exe
+        cp .\bin\Release\netcoreapp3.1\win-x86\publish\Installer.exe ..\Installer-x86.exe
+        cd $Env:GITHUB_WORKSPACE
     - name: Upload x86 Installer
       uses: actions/upload-release-asset@v1.0.2
       env:
@@ -86,45 +127,3 @@ jobs:
         asset_path: ./Installer-generic.zip
         asset_name: Installer-generic.zip
         asset_content_type: application/zip
-    - name: Create XML
-      id: package_tool_xml
-      run: |
-        [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
-        [System.XML.XMLElement]$app=$xml.CreateElement("app")
-        $xml.appendChild($app)
-        $app.appendChild($xml.CreateElement("Name")).InnerText = "UpTool2 package tools"
-        $app.appendChild($xml.CreateElement("Description")).InnerText = "Tools for automating package creation"
-        $app.appendChild($xml.CreateElement("Version")).InnerText = "${{ steps.base_init.outputs.pkgvers }}"
-        $app.appendChild($xml.CreateElement("ID")).InnerText = "0e35d154-d0d3-45e0-b080-62f521263a44"
-        $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_tool_asset.outputs.browser_download_url }}"
-        $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Tools.zip).Hash
-        echo NULL > tools.xml
-        $xml.save($(gi .\tools.xml).Fullname)
-        [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
-        [System.XML.XMLElement]$app=$xml.CreateElement("meta")
-        $xml.appendChild($app)
-        $app.appendChild($xml.CreateElement("Version")).InnerText = "${{ steps.base_init.outputs.vers }}"
-        $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
-        $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
-        echo NULL > meta.xml
-        $xml.save($(gi .\meta.xml).Fullname)
-    - name: Upload Meta XML
-      id: upload_meta_xml
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./meta.xml
-        asset_name: meta.xml
-        asset_content_type: text/xml
-    - name: Upload Tool XML
-      id: upload_tool_xml
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./tools.xml
-        asset_name: tools.xml
-        asset_content_type: text/xml
