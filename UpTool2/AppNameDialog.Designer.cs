@@ -33,16 +33,19 @@ namespace UpTool2
             this.nameBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // textBox1
+            // nameBox
             // 
-            this.nameBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.nameBox.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top |
+                                                         System.Windows.Forms.AnchorStyles.Bottom) |
+                                                        System.Windows.Forms.AnchorStyles.Left) |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
             this.nameBox.Location = new System.Drawing.Point(12, 12);
-            this.nameBox.Name = "textBox1";
+            this.nameBox.Name = "nameBox";
             this.nameBox.Size = new System.Drawing.Size(375, 23);
             this.nameBox.TabIndex = 0;
-            this.nameBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.nameBox.TextChanged += new System.EventHandler(this.nameBox_TextChanged);
+            this.nameBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.nameBox_KeyDown);
             // 
             // AppNameDialog
             // 
@@ -50,6 +53,7 @@ namespace UpTool2
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(399, 41);
             this.Controls.Add(this.nameBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "AppNameDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
@@ -58,7 +62,6 @@ namespace UpTool2
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AppNameDialog_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
