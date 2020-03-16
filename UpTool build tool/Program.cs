@@ -65,18 +65,19 @@ namespace UpTool_build_tool
                             "Please consider removing unnecessary EXEs or notify me that anyone is actually using this.");
                     }
                 }
+                string programName = Path.GetFileNameWithoutExtension(mainBin);
                 if (!noShortcuts)
                 {
                     installBat += "\r\n";
                     installBat +=
-                        @"powershell ""$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk');$s.TargetPath='%cd%\{programName}.exe';$s.Save()""";
+                        $@"powershell ""$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk');$s.TargetPath='%cd%\{programName}.exe';$s.Save()""";
                     removeBat += "\r\n";
-                    removeBat += @"del ""%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk""";
+                    removeBat += $@"del ""%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk""";
                 }
                 if (!string.IsNullOrWhiteSpace(mainBin))
                 {
                     removeBat += "\r\n";
-                    removeBat += $@"taskkill /f /im ""{Path.GetFileNameWithoutExtension(mainBin)}.exe""";
+                    removeBat += $@"taskkill /f /im ""{programName}.exe""";
                 }
                 installBat += "\r\ntimeout /t 1";
                 removeBat += "\r\ntimeout /t 1";

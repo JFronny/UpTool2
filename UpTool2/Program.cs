@@ -44,6 +44,7 @@ namespace UpTool2
                 hasHandle = mutex.WaitOne(5000, false);
                 if (hasHandle == false)
                 {
+                    Console.WriteLine("Mutex property of other process, quitting");
                     Process[] processes = Process.GetProcessesByName("UpTool2");
                     if (processes.Length > 0)
                         WindowHelper.BringProcessToFront(Process.GetProcessesByName("UpTool2")[0]);
@@ -85,10 +86,10 @@ Do you want to continue?", "UpTool2", MessageBoxButtons.YesNo) != DialogResult.Y
                     Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
 #endif
-            if (!Directory.Exists(PathTool.GetRelative("Apps")))
-                Directory.CreateDirectory(PathTool.GetRelative("Apps"));
-            if (!Online || UpdateCheck(metaXml))
-                Application.Run(new MainForm());
+                if (!Directory.Exists(PathTool.GetRelative("Apps")))
+                    Directory.CreateDirectory(PathTool.GetRelative("Apps"));
+                if (!Online || UpdateCheck(metaXml))
+                    Application.Run(new MainForm());
 #if !DEBUG
             }
             catch (Exception e1)
