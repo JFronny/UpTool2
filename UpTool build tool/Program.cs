@@ -70,7 +70,7 @@ namespace UpTool_build_tool
                 {
                     installBat += "\r\n";
                     installBat +=
-                        $@"powershell ""$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk');$s.TargetPath='%cd%\{mainBin}.exe';$s.Save()""";
+                        $@"powershell ""$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk');$s.TargetPath='%cd%\{mainBin}';$s.Save()""";
                     removeBat += "\r\n";
                     removeBat += $@"del ""%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk""";
                 }
