@@ -36,6 +36,7 @@ namespace UpTool2
                 filterBox.Enabled = false;
                 filterBox.SelectedIndex = 2;
             }
+            Program.SetSplash(8, "Reloading data");
             ReloadElements();
             if (!Directory.Exists(PathTool.appsPath))
                 Directory.CreateDirectory(PathTool.appsPath);
@@ -258,8 +259,15 @@ namespace UpTool2
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Program.Splash.Hide();
-            BringToFront();
+            if (Program.Splash.IsDisposed)
+            {
+                Close();
+            }
+            else
+            {
+                Program.Splash.Invoke((Action)Program.Splash.Hide);
+                BringToFront();
+            }
         }
 
         private static DateTime GetBuildDateTime(Assembly assembly)
@@ -297,7 +305,7 @@ namespace UpTool2
             try
             {
                 DateTime buildTime = GetBuildDateTime(Assembly.GetExecutingAssembly());
-                MessageBox.Show($@"UpTool2 by CC24
+                MessageBox.Show($@"UpTool2 by JFronny
 Version: {Assembly.GetExecutingAssembly().GetName().Version}
 Build Date: {buildTime:dd.MM.yyyy}", "UpTool2");
             }

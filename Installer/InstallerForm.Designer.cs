@@ -23,12 +23,13 @@
         #region Windows Form Designer generated code
 
         /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(InstallerForm));
+            System.ComponentModel.ComponentResourceManager resources =
+                new System.ComponentModel.ComponentResourceManager(typeof(InstallerForm));
             this.install = new System.Windows.Forms.Button();
             this.installLabel = new System.Windows.Forms.Label();
             this.progress = new System.Windows.Forms.ProgressBar();
@@ -38,8 +39,10 @@
             // 
             // install
             // 
-            this.install.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.install.Anchor =
+                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Bottom |
+                                                        System.Windows.Forms.AnchorStyles.Left) |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
             this.install.Location = new System.Drawing.Point(12, 92);
             this.install.Name = "install";
             this.install.Size = new System.Drawing.Size(539, 27);
@@ -59,8 +62,10 @@
             // 
             // progress
             // 
-            this.progress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progress.Anchor =
+                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Bottom |
+                                                        System.Windows.Forms.AnchorStyles.Left) |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
             this.progress.Location = new System.Drawing.Point(12, 92);
             this.progress.Maximum = 6;
             this.progress.Name = "progress";
@@ -79,8 +84,10 @@
             // 
             // log
             // 
-            this.log.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.log.Location = new System.Drawing.Point(524, 4);
+            this.log.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
+                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.log.Location = new System.Drawing.Point(524, 3);
             this.log.Name = "log";
             this.log.Size = new System.Drawing.Size(36, 23);
             this.log.TabIndex = 4;
@@ -93,7 +100,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(563, 131);
+            this.ClientSize = new System.Drawing.Size(563, 132);
             this.Controls.Add(this.log);
             this.Controls.Add(this.processLabel);
             this.Controls.Add(this.progress);
@@ -105,7 +112,6 @@
             this.Text = "UpTool2 Installer";
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
