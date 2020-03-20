@@ -72,8 +72,11 @@ namespace UpTool2
                 ZipFile.ExtractToDirectory(Path.Combine(app, "package.zip"), tmp);
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = "cmd.exe", Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"",
-                    WorkingDirectory = Path.Combine(app, "app")
+                    FileName = "cmd.exe",
+                    Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"",
+                    WorkingDirectory = Path.Combine(app, "app"),
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
                 }).WaitForExit();
                 Directory.Delete(tmp, true);
                 Directory.Delete(app, true);

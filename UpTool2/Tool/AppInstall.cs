@@ -108,8 +108,10 @@ Online: {appI.Hash.ToUpper()}");
             el.Save(Path.Combine(appPath, "info.xml"));
             Process.Start(new ProcessStartInfo
             {
-                FileName = "cmd.exe", Arguments = $"/C \"{Path.Combine(tmp, "Install.bat")}\"",
-                WorkingDirectory = Path.Combine(appPath, "app"), CreateNoWindow = true,
+                FileName = "cmd.exe",
+                Arguments = $"/C \"{Path.Combine(tmp, "Install.bat")}\"",
+                WorkingDirectory = Path.Combine(appPath, "app"),
+                CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
             }).WaitForExit();
             if (GlobalVariables.RelE)

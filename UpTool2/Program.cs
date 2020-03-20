@@ -65,8 +65,7 @@ namespace UpTool2
                 string metaXml = XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value;
                 Online = Ping(metaXml);
                 if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.dll"))
-                    MessageBox.Show(
-                        $"WARNING!{Environment.NewLine}Running from outside the install directory is not recommended!");
+                    Splash.Invoke((Action)(() => MessageBox.Show(Splash, $"WARNING!{Environment.NewLine}Running from outside the install directory is not recommended!")));
                 if (!Directory.Exists(PathTool.GetRelative("Apps")))
                     Directory.CreateDirectory(PathTool.GetRelative("Apps"));
                 if (!Online)
@@ -79,7 +78,7 @@ namespace UpTool2
             {
                 try
                 {
-                    Splash.Hide();
+                    Splash.Invoke((Action)Splash.Hide);
                 }
                 catch
                 {

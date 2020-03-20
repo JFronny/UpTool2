@@ -1,4 +1,6 @@
-﻿namespace UpTool2.Tool
+﻿using System.Drawing;
+
+namespace UpTool2.Tool
 {
     partial class DownloadDialog
     {
@@ -34,17 +36,18 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(12, 12);
+            this.progressBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.progressBar.Location = new System.Drawing.Point(0, 0);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(281, 23);
+            this.progressBar.Size = new System.Drawing.Size(346, 30);
             this.progressBar.Step = 1;
             this.progressBar.TabIndex = 0;
             // 
             // DownloadDialog
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(305, 46);
+            this.ClientSize = new System.Drawing.Size(346, 30);
             this.ControlBox = false;
             this.Controls.Add(this.progressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -57,6 +60,7 @@
             this.Text = "Downloading...";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DownloadDialog_FormClosing);
             this.ResumeLayout(false);
+
         }
 
         #endregion
