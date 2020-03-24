@@ -85,6 +85,13 @@ namespace UpToolCLI
                 show.AddOption(new Option<string>(new[] {"--identifier", "-i"}, "Something to identify the app"));
                 rootCommand.AddCommand(show);
 
+                Command start = new Command("start", "Starts an app")
+                {
+                    Handler = CommandHandler.Create<string>(Show)
+                };
+                start.AddOption(new Option<string>(new[] {"--identifier", "-i"}, "Something to identify the app"));
+                rootCommand.AddCommand(start);
+
                 return rootCommand.InvokeAsync(args).Result;
             }
             finally
@@ -255,6 +262,25 @@ namespace UpToolCLI
                     Console.WriteLine($"Installing {tmp.Name}");
                     AppInstall.Install(tmp, true);
                 }
+            }
+            Console.WriteLine("Done!");
+        }
+
+        private static void Start(string identifier, bool waitForExit)
+        {
+            RepoManagement.GetReposFromDisk();
+            App[] apps = AppExtras.FindApps(identifier);
+            if (apps.Length == 0)
+            {
+                Console.WriteLine("Package not found.");
+            }
+            else
+            {
+                App tmp = apps.First();
+                Console.WriteLine($"Starting {tmp.Name}");
+                System.Diagnostics.Process tmp1 = AppExtras.RunApp(tmp);
+                if (waitForExit)
+                    tmp1.WaitForExit();
             }
             Console.WriteLine("Done!");
         }

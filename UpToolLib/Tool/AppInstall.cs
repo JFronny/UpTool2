@@ -116,7 +116,7 @@ Online: {appI.Hash.ToUpper()}");
             }
             else
             {
-                CopyAll(Path.Combine(tmp, "Data"), Path.Combine(appPath, "app", "Data"));
+                CopyAll(Path.Combine(tmp, "Data"), Path.Combine(appPath, "app"));
                 Directory.Delete(Path.Combine(tmp, "Data"), true);
             }
             XElement el = new XElement("app", new XElement("Name", name), new XElement("Description", description),
