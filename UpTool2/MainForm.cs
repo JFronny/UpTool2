@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
 using System.Reflection;
 using System.Windows.Forms;
 using UpTool2.Properties;
-using UpTool2.Tool;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
+using System.Linq;
 
 #if DEBUG
 using System.Threading;
-using System.Linq;
+using System.Diagnostics;
 #endif
 
 namespace UpTool2
