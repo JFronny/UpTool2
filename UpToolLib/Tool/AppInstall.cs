@@ -3,14 +3,18 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
-using System.Windows.Forms;
 using System.Xml.Linq;
-using UpTool2.DataStructures;
+using UpToolLib.DataStructures;
 
-namespace UpTool2.Tool
+namespace UpToolLib.Tool
 {
-    internal static class AppInstall
+    public static class AppInstall
     {
+        /// <summary>
+        /// Install an application
+        /// </summary>
+        /// <param name="appI">The app to install</param>
+        /// <param name="download">A method to download files. Input: app file, Outputs: whether the download was successful and the data</param>
         public static void Install(App appI)
         {
             string app = "";
@@ -27,19 +31,19 @@ namespace UpTool2.Tool
                 if (Directory.Exists(app))
                     Directory.Delete(app, true);
                 Directory.CreateDirectory(app);
-                using DownloadDialog dlg = new DownloadDialog(appI.File);
-                if (dlg.ShowDialog() != DialogResult.OK)
+                (bool dlSuccess, byte[] dlData) = ExternalFunctionalityManager.instance.Download(new Uri(appI.File));
+                if (!dlSuccess)
                     throw new Exception("Download failed");
                 using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
                 {
-                    string pkgHash = BitConverter.ToString(sha256.ComputeHash(dlg.Result)).Replace("-", string.Empty)
+                    string pkgHash = BitConverter.ToString(sha256.ComputeHash(dlData)).Replace("-", string.Empty)
                         .ToUpper();
                     if (pkgHash != appI.Hash.ToUpper())
                         throw new Exception($@"The hash is not equal to the one stored in the repo:
 Package: {pkgHash}
 Online: {appI.Hash.ToUpper()}");
                 }
-                File.WriteAllBytes(Path.Combine(app, "package.zip"), dlg.Result);
+                File.WriteAllBytes(Path.Combine(app, "package.zip"), dlData);
                 CompleteInstall(appI);
 #if !DEBUG
             }
@@ -110,8 +114,6 @@ Online: {appI.Hash.ToUpper()}");
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
             }).WaitForExit();
-            if (GlobalVariables.RelE)
-                GlobalVariables.ReloadElements.Invoke();
         }
     }
 }

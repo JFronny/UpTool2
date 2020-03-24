@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UpTool2.DataStructures
+namespace UpToolLib.DataStructures
 {
     [Flags]
     public enum Status

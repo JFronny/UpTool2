@@ -2,9 +2,9 @@
 using System.IO;
 using System.Linq;
 
-namespace UpTool2.Tool
+namespace UpToolLib.Tool
 {
-    internal static class PathTool
+    public static class PathTool
     {
         public static string dir =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UpTool2");

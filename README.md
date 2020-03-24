@@ -16,7 +16,7 @@ Now you can add this\
 as a PostBuild event to automatically run pkgtool. Customize this if you need to.\
 For GitHub actions I wrote [this](https://github.com/JFronny/CC-Clicker/blob/master/.github/workflows/main.yml).\
 If you copy it, make sure to replace the descriptions and ID under the `Fenerate XML` step\
-You can also add something like this to your Readme: [![UpTool2](https://img.shields.io/badge/dynamic/xml?color=informational&label=UpTool2&query=%2F%2Fapp%2FVersion&url=https%3A%2F%2Fgithub.com%2FJFronny%2FCC-Clicker%2Freleases%2Fdownload%2F1.0.7380.28108%2Fapp.xml&style=flat)](https://jfronny.github.io/home/uptool)\
+You can also add something like this to your Readme: [![UpTool2](https://img.shields.io/github/v/tag/JFronny/CC-Clicker?color=informational&label=UpTool2)](https://jfronny.github.io/home/uptool)\
 (Look at the source for the MD Code)
 ## Folder layout
 - %APPDATA%\UpTool2

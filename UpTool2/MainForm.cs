@@ -5,9 +5,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Windows.Forms;
-using UpTool2.DataStructures;
 using UpTool2.Properties;
 using UpTool2.Tool;
+using UpToolLib;
+using UpToolLib.DataStructures;
+using UpToolLib.Tool;
+
 #if DEBUG
 using System.Threading;
 using System.Linq;
@@ -17,13 +20,12 @@ namespace UpTool2
 {
     public sealed partial class MainForm : Form
     {
-        HelpEventHandler help;
+        private readonly HelpEventHandler _help;
         public MainForm()
         {
-            GlobalVariables.ReloadElements = ReloadElements;
             InitializeComponent();
-            help = MainForm_HelpRequested;
-            HelpRequested += help;
+            _help = MainForm_HelpRequested;
+            HelpRequested += _help;
             filterBox.DataSource = Enum.GetValues(typeof(Status));
             if (Program.Online)
             {
@@ -52,13 +54,12 @@ namespace UpTool2
                 {
 #endif
                     AppInstall.Install((App) action_install.Tag);
+                    ReloadElements();
                     trying = false;
 #if !DEBUG
                 }
                 catch (Exception e1)
                 {
-                    if (!GlobalVariables.RelE)
-                        throw;
                     trying = MessageBox.Show(e1.ToString(), "Install failed", MessageBoxButtons.RetryCancel) ==
                              DialogResult.Retry;
                 }
@@ -70,29 +71,11 @@ namespace UpTool2
         {
             try
             {
-                string app = ((App) action_remove.Tag).appPath;
-                string tmp = PathTool.tempPath;
-                if (Directory.Exists(tmp))
-                    Directory.Delete(tmp, true);
-                Directory.CreateDirectory(tmp);
-                ZipFile.ExtractToDirectory(Path.Combine(app, "package.zip"), tmp);
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "cmd.exe",
-                    Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"",
-                    WorkingDirectory = Path.Combine(app, "app"),
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                }).WaitForExit();
-                Directory.Delete(tmp, true);
-                Directory.Delete(app, true);
-                if (GlobalVariables.RelE)
-                    ReloadElements();
+                AppExtras.Remove((App) action_remove.Tag, true);
+                ReloadElements();
             }
             catch (Exception e1)
             {
-                if (!GlobalVariables.RelE)
-                    throw;
                 MessageBox.Show(e1.ToString(), "Removal failed");
             }
         }
@@ -115,8 +98,6 @@ namespace UpTool2
             }
             catch (Exception e1)
             {
-                if (!GlobalVariables.RelE)
-                    throw;
                 MessageBox.Show(e1.ToString(), "Install failed");
             }
 #endif
@@ -145,13 +126,15 @@ namespace UpTool2
             int availableUpdates = 0;
             foreach (App app in GlobalVariables.Apps.Values)
             {
-                Panel sidebarIcon = new Panel();
-                sidebarIcon.Tag = app;
-                sidebarIcon.BackColor = app.Color;
-                sidebarIcon.Size = new Size(70, 70);
-                sidebarIcon.BackgroundImage = app.Icon;
-                sidebarIcon.BackgroundImageLayout = ImageLayout.Stretch;
-                bool updatable = !app.Local && (app.status & Status.Updatable) == Status.Updatable;
+                Panel sidebarIcon = new Panel
+                {
+                    Tag = app,
+                    BackColor = app.Color,
+                    Size = new Size(70, 70),
+                    BackgroundImage = (Bitmap) app.Icon,
+                    BackgroundImageLayout = ImageLayout.Stretch
+                };
+                bool updateable = !app.Local && (app.status & Status.Updatable) == Status.Updatable;
                 sidebarIcon.Click += (sender, e) =>
                 {
                     infoPanel_Title.Text = app.Name;
@@ -162,39 +145,29 @@ namespace UpTool2
                     action_remove.Tag = app;
                     action_remove.Enabled = Directory.Exists(app.appPath);
                     action_update.Tag = app;
-                    action_update.Enabled = updatable;
+                    action_update.Enabled = updateable;
                     action_run.Tag = app;
                     action_run.Enabled = (app.status & Status.Installed) == Status.Installed && !app.Local && app.Runnable && Directory.Exists(app.appPath);
                 };
-                if (updatable)
+                if (updateable)
                     availableUpdates++;
                 toolTip.SetToolTip(sidebarIcon, app.Name);
                 sidebarPanel.Controls.Add(sidebarIcon);
             }
             UpdateSidebarV(null, null);
             Text =
-                $"UpTool2 {(availableUpdates == 0 ? "(All up-to-date)" : $"({availableUpdates.ToString()} Updates)")}";
+                $"UpTool2 {(availableUpdates == 0 ? "(All up-to-date)" : $"({availableUpdates} Updates)")}";
         }
 
         private void Action_run_Click(object sender, EventArgs e)
         {
-            string path = Path.Combine(((App) action_run.Tag).dataPath, ((App) action_run.Tag).MainFile);
             try
             {
-                Process.Start(
-                    new ProcessStartInfo
-                    {
-                        FileName = path,
-                        WorkingDirectory = ((App) action_run.Tag).dataPath
-                    });
+                AppExtras.RunApp((App) action_run.Tag);
             }
             catch (Exception e1)
             {
-                MessageBox.Show(e1
-#if DEBUG
-                                + $"{Environment.NewLine}File was: {path}"
-#endif
-                                + "Failed to start!");
+                MessageBox.Show($"{e1}Failed to start!");
             }
         }
 
@@ -202,16 +175,13 @@ namespace UpTool2
         {
             try
             {
-                GlobalVariables.RelE = false;
-                Action_remove_Click(sender, e);
-                Action_install_Click(sender, e);
+                AppExtras.Update((App) action_install.Tag);
             }
             catch (Exception e1)
             {
                 MessageBox.Show(e1.ToString(), "Install failed");
             }
             ReloadElements();
-            GlobalVariables.RelE = true;
         }
 
         private void Controls_reload_Click(object sender, EventArgs e)
@@ -252,15 +222,15 @@ namespace UpTool2
             else
             {
 #endif
-            Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
-            for (int i = 0; i < sidebarPanel.Controls.Count; i++)
-            {
-                Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
-                App app = (App) sidebarIcon.Tag;
-                sidebarIcon.Visible = app.Name.Contains(searchBox.Text) &&
-                                      ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
-            }
-            ClearSelection();
+                App[] apps = AppExtras.FindApps(searchBox.Text);
+                Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
+                for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+                {
+                    Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
+                    App app = (App) sidebarIcon.Tag;
+                    sidebarIcon.Visible = apps.Contains(app) && ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
+                }
+                ClearSelection();
 #if DEBUG
             }
 #endif
@@ -310,7 +280,7 @@ namespace UpTool2
 
         private void MainForm_HelpRequested(object sender, HelpEventArgs hlpevent)
         {
-            HelpRequested -= help;
+            HelpRequested -= _help;
             try
             {
                 DateTime buildTime = GetBuildDateTime(Assembly.GetExecutingAssembly());
@@ -320,7 +290,7 @@ Build Date: {buildTime:dd.MM.yyyy}", "UpTool2");
             }
             finally
             {
-                HelpRequested += help;
+                HelpRequested += _help;
                 hlpevent.Handled = true;
             }
         }
