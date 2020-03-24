@@ -5,6 +5,10 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <AssemblyName>uptool</AssemblyName>
     </PropertyGroup>
+    
+    <PropertyGroup>
+        <ApplicationIcon>..\UpTool2.ico</ApplicationIcon>
+    </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />

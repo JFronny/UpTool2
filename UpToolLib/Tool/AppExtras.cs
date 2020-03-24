@@ -18,10 +18,10 @@ namespace UpToolLib.Tool
                     WorkingDirectory = app.dataPath
                 });
 
-        public static void Update(App app)
+        public static void Update(App app, bool overwrite)
         {
-            Remove(app, false);
-            AppInstall.Install(app);
+            Remove(app, overwrite);
+            AppInstall.Install(app, overwrite);
         }
 
         public static void Remove(App app, bool deleteAll)
@@ -30,22 +30,25 @@ namespace UpToolLib.Tool
             if (Directory.Exists(tmp))
                 Directory.Delete(tmp, true);
             Directory.CreateDirectory(tmp);
-            ZipFile.ExtractToDirectory(Path.Combine(app.appPath, "package.zip"), tmp);
-            Process.Start(new ProcessStartInfo
+            if (File.Exists(Path.Combine(app.appPath, "package.zip")))
             {
-                FileName = "cmd.exe",
-                Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"",
-                WorkingDirectory = Path.Combine(app.appPath, "app"),
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden
-            }).WaitForExit();
-            if (!deleteAll) CheckDirecory(Path.Combine(tmp, "Data"), app.dataPath);
-            Directory.Delete(tmp, true);
+                ZipFile.ExtractToDirectory(Path.Combine(app.appPath, "package.zip"), tmp);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"",
+                    WorkingDirectory = Path.Combine(app.appPath, "app"),
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                }).WaitForExit();
+                if (!deleteAll) CheckDirecory(Path.Combine(tmp, "Data"), app.dataPath);
+                Directory.Delete(tmp, true);
+            }
             if (File.Exists(app.infoPath))
                 File.Delete(app.infoPath);
             if (File.Exists(Path.Combine(app.appPath, "package.zip")))
                 File.Delete(Path.Combine(app.appPath, "package.zip"));
-            if (deleteAll || Directory.GetFiles(app.dataPath).Length + Directory.GetDirectories(app.dataPath).Length == 0)
+            if (deleteAll || (Directory.Exists(app.dataPath) && Directory.GetFiles(app.dataPath).Length + Directory.GetDirectories(app.dataPath).Length == 0))
                 Directory.Delete(app.appPath, true);
         }
 

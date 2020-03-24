@@ -22,23 +22,26 @@ namespace UpToolCLI
 
             Command install = new Command("install", "Install a package")
             {
-                Handler = CommandHandler.Create<string>(Install)
+                Handler = CommandHandler.Create<string, bool>(Install)
             };
             install.AddOption(new Option<string>(new[] { "--identifier", "-i" }, "Something to identify the app"));
+            install.AddOption(new Option<bool>(new[] { "--force", "-f" }, "Overwrites older files"));
             rootCommand.AddCommand(install);
 
             Command upgrade = new Command("upgrade", "Upgrade a package")
             {
-                Handler = CommandHandler.Create<string>(Upgrade)
+                Handler = CommandHandler.Create<string, bool>(Upgrade)
             };
             upgrade.AddOption(new Option<string>(new[] { "--identifier", "-i" }, "Something to identify the app"));
+            upgrade.AddOption(new Option<bool>(new[] { "--force", "-f" }, "Overwrites older files"));
             rootCommand.AddCommand(upgrade);
 
             Command reinstall = new Command("reinstall", "Reinstall a package")
             {
-                Handler = CommandHandler.Create<string>(Reinstall)
+                Handler = CommandHandler.Create<string, bool>(Reinstall)
             };
             reinstall.AddOption(new Option<string>(new[] { "--identifier", "-i" }, "Something to identify the app"));
+            reinstall.AddOption(new Option<bool>(new[] { "--force", "-f" }, "Overwrites older files"));
             rootCommand.AddCommand(reinstall);
 
             Command remove = new Command("remove", "Remove a package")
@@ -109,8 +112,9 @@ namespace UpToolCLI
             foreach (KeyValuePair<Guid, App> app in GlobalVariables.Apps.Where(s => (s.Value.status & Status.Updatable) == Status.Updatable))
             {
                 Console.WriteLine($"Updating {app.Value.Name}");
-                AppExtras.Update(app.Value);
+                AppExtras.Update(app.Value, false);
             }
+            Console.WriteLine("Done!");
         }
 
         private static void Show(string identifier)
@@ -132,7 +136,7 @@ namespace UpToolCLI
                 Console.WriteLine($"{apps[i].Name} ({apps[i].Id}");
         }
 
-        private static void Upgrade(string identifier)
+        private static void Upgrade(string identifier, bool force)
         {
             RepoManagement.GetReposFromDisk();
             App[] apps = AppExtras.FindApps(identifier);
@@ -144,14 +148,15 @@ namespace UpToolCLI
                 if ((tmp.status & Status.Updatable) == Status.Updatable)
                 {
                     Console.WriteLine($"Upgrading {tmp.Name}");
-                    AppExtras.Update(tmp);
+                    AppExtras.Update(tmp, force);
                 }
                 else
                     Console.WriteLine("Package is up-to-date");
             }
+            Console.WriteLine("Done!");
         }
 
-        private static void Reinstall(string identifier)
+        private static void Reinstall(string identifier, bool force)
         {
             RepoManagement.GetReposFromDisk();
             App[] apps = AppExtras.FindApps(identifier);
@@ -161,8 +166,9 @@ namespace UpToolCLI
             {
                 App tmp = apps.First();
                 Console.WriteLine($"Reinstalling {tmp.Name}");
-                AppExtras.Update(tmp);
+                AppExtras.Update(tmp, force);
             }
+            Console.WriteLine("Done!");
         }
 
         private static void Remove(string identifier)
@@ -182,6 +188,7 @@ namespace UpToolCLI
                 else
                     Console.WriteLine("Package is not installed");
             }
+            Console.WriteLine("Done!");
         }
 
         private static void Purge(string identifier)
@@ -201,9 +208,10 @@ namespace UpToolCLI
                 else
                     Console.WriteLine("Package is not installed");
             }
+            Console.WriteLine("Done!");
         }
 
-        private static void Install(string identifier)
+        private static void Install(string identifier, bool force)
         {
             RepoManagement.GetReposFromDisk();
             App[] apps = AppExtras.FindApps(identifier);
@@ -217,9 +225,10 @@ namespace UpToolCLI
                 else
                 {
                     Console.WriteLine($"Installing {tmp.Name}");
-                    AppInstall.Install(tmp);
+                    AppInstall.Install(tmp, true);
                 }
             }
+            Console.WriteLine("Done!");
         }
     }
 }

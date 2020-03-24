@@ -51,7 +51,7 @@ namespace UpTool2
                 try
                 {
 #endif
-                    AppInstall.Install((App) action_install.Tag);
+                    AppInstall.Install((App) action_install.Tag, true);
                     ReloadElements();
                     trying = false;
 #if !DEBUG
@@ -91,7 +91,7 @@ namespace UpTool2
                     id = Guid.NewGuid();
                 App appI = new App(AppNameDialog.Show(), "Locally installed package, removal only",
                     GlobalVariables.minimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
-                AppInstall.InstallZip(searchPackageDialog.FileName, appI);
+                AppInstall.InstallZip(searchPackageDialog.FileName, appI, true);
 #if !DEBUG
             }
             catch (Exception e1)
@@ -173,7 +173,7 @@ namespace UpTool2
         {
             try
             {
-                AppExtras.Update((App) action_install.Tag);
+                AppExtras.Update((App) action_install.Tag, false);
             }
             catch (Exception e1)
             {
