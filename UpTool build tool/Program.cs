@@ -18,15 +18,17 @@ namespace UpTool_build_tool
             build.AddOption(new Option<string>("--binDir", "Directory to package"));
             build.AddOption(new Option<string>("--mainBin", "The applications main binary"));
             build.AddOption(new Option<string>("--packageFile", "Directory to package"));
+            build.AddOption(new Option<string>("--postInstall", () => "", "Command(s) to run after installing the package"));
+            build.AddOption(new Option<string>("--postRemove", () => "", "Command(s) to run after removing the package"));
+            build.AddOption(new Option<bool>("--noLogo", "Disables the logo"));
             build.AddOption(new Option<bool>("--noShortcuts",
                 "When this is enabled the scripts will not generate a start-menu item"));
-            build.AddOption(new Option<bool>("--noLogo", "Disables the logo"));
-            build.Handler = CommandHandler.Create<string, string, string, bool, bool>(Build);
+            build.Handler = CommandHandler.Create<string, string, string, string, string, bool, bool>(Build);
             rootCommand.AddCommand(build);
             return rootCommand.InvokeAsync(args).Result;
         }
 
-        private static void Build(string binDir, string mainBin, string packageFile, bool noLogo, bool noShortcuts)
+        private static void Build(string binDir, string mainBin, string packageFile, string postInstall, string postRemove, bool noLogo, bool noShortcuts)
         {
             Stopwatch watch = Stopwatch.StartNew();
             if (!noLogo)
@@ -79,8 +81,8 @@ namespace UpTool_build_tool
                     removeBat += "\r\n";
                     removeBat += $@"taskkill /f /im ""{Path.GetFileName(mainBin)}""";
                 }
-                installBat += "\r\ntimeout /t 1";
-                removeBat += "\r\ntimeout /t 1";
+                installBat += $"\r\n{postInstall}";
+                removeBat += $"\r\n{postRemove}";
                 using (Stream s = archive.CreateEntry("Install.bat").Open())
                 {
                     using StreamWriter writer = new StreamWriter(s);

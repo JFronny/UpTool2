@@ -30,16 +30,15 @@ namespace UpTool2
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AppNameDialog));
             this.nameBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // nameBox
             // 
-            this.nameBox.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top |
-                                                         System.Windows.Forms.AnchorStyles.Bottom) |
-                                                        System.Windows.Forms.AnchorStyles.Left) |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.nameBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.nameBox.Location = new System.Drawing.Point(12, 12);
             this.nameBox.Name = "nameBox";
             this.nameBox.Size = new System.Drawing.Size(375, 23);
@@ -54,6 +53,7 @@ namespace UpTool2
             this.ClientSize = new System.Drawing.Size(399, 41);
             this.Controls.Add(this.nameBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AppNameDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
@@ -62,6 +62,7 @@ namespace UpTool2
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AppNameDialog_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion

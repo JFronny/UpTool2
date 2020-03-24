@@ -90,14 +90,10 @@ Online: {appI.Hash.ToUpper()}");
         //Use
         //PowerShell -Command "Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('Hello World')"
         //for message boxes
-        private static void CompleteInstall(App app) =>
-            CompleteInstall(app.appPath, app.Name, app.Description, app.Version, app.MainFile);
+        private static void CompleteInstall(App app) => CompleteInstall(app.appPath, app.Name, app.Description, app.Version, app.MainFile);
 
-        private static void CompleteInstall(string appPath, string name, string description, Version version,
-            string mainFile)
+        private static void CompleteInstall(string appPath, string name, string description, Version version, string mainFile)
         {
-#if !DEBUG
-#endif
             string tmp = PathTool.tempPath;
             ZipFile.ExtractToDirectory(Path.Combine(appPath, "package.zip"), tmp);
             Directory.Move(Path.Combine(tmp, "Data"), Path.Combine(appPath, "app"));
@@ -116,8 +112,6 @@ Online: {appI.Hash.ToUpper()}");
             }).WaitForExit();
             if (GlobalVariables.RelE)
                 GlobalVariables.ReloadElements.Invoke();
-#if !DEBUG
-#endif
         }
     }
 }

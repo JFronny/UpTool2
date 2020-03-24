@@ -13,11 +13,12 @@
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>UpTool2.Program</StartupObject>
+    <ApplicationIcon>..\UpTool2.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CC-Functions.Misc" Version="1.0.7.1" />
+    <PackageReference Include="CC-Functions.Misc" Version="1.1.7384.27745" />
   </ItemGroup>
 </Project>

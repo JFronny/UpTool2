@@ -31,6 +31,7 @@ namespace UpTool2.Tool
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DownloadDialog));
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
@@ -51,6 +52,7 @@ namespace UpTool2.Tool
             this.ControlBox = false;
             this.Controls.Add(this.progressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "DownloadDialog";

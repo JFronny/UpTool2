@@ -44,20 +44,26 @@ namespace UpTool2
 
         private void Action_install_Click(object sender, EventArgs e)
         {
-#if !DEBUG
-            try
+            bool trying = true;
+            while (trying)
             {
-#endif
-                AppInstall.Install((App) action_install.Tag);
 #if !DEBUG
-            }
-            catch (Exception e1)
-            {
-                if (!GlobalVariables.RelE)
-                    throw;
-                MessageBox.Show(e1.ToString(), "Install failed");
-            }
+                try
+                {
 #endif
+                    AppInstall.Install((App) action_install.Tag);
+                    trying = false;
+#if !DEBUG
+                }
+                catch (Exception e1)
+                {
+                    if (!GlobalVariables.RelE)
+                        throw;
+                    trying = MessageBox.Show(e1.ToString(), "Install failed", MessageBoxButtons.RetryCancel) ==
+                             DialogResult.Retry;
+                }
+#endif
+            }
         }
 
         private void Action_remove_Click(object sender, EventArgs e)

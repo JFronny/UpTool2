@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.sidebarPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.infoPanel = new System.Windows.Forms.Panel();
             this.action_run = new System.Windows.Forms.Button();
@@ -47,7 +48,7 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.searchPackageDialog = new System.Windows.Forms.OpenFileDialog();
             this.infoPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize) (this.splitContainer)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
@@ -80,9 +81,7 @@
             // 
             // action_run
             // 
-            this.action_run.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.action_run.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_run.Location = new System.Drawing.Point(491, 6);
             this.action_run.Name = "action_run";
             this.action_run.Size = new System.Drawing.Size(27, 27);
@@ -93,9 +92,7 @@
             // 
             // action_remove
             // 
-            this.action_remove.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.action_remove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_remove.Enabled = false;
             this.action_remove.Location = new System.Drawing.Point(523, 6);
             this.action_remove.Name = "action_remove";
@@ -107,9 +104,7 @@
             // 
             // action_update
             // 
-            this.action_update.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.action_update.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_update.Enabled = false;
             this.action_update.Location = new System.Drawing.Point(554, 6);
             this.action_update.Name = "action_update";
@@ -121,9 +116,7 @@
             // 
             // action_install
             // 
-            this.action_install.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.action_install.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_install.Enabled = false;
             this.action_install.Location = new System.Drawing.Point(586, 6);
             this.action_install.Name = "action_install";
@@ -143,7 +136,7 @@
             // infoPanel_Title
             // 
             this.infoPanel_Title.AutoSize = true;
-            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F);
+            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.infoPanel_Title.Location = new System.Drawing.Point(2, 1);
             this.infoPanel_Title.Name = "infoPanel_Title";
             this.infoPanel_Title.Size = new System.Drawing.Size(0, 31);
@@ -186,9 +179,7 @@
             // 
             // controls_upload
             // 
-            this.controls_upload.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.controls_upload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.controls_upload.Location = new System.Drawing.Point(284, 6);
             this.controls_upload.Name = "controls_upload";
             this.controls_upload.Size = new System.Drawing.Size(27, 27);
@@ -199,10 +190,8 @@
             // 
             // filterBox
             // 
-            this.filterBox.Anchor =
-                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Top |
-                                                        System.Windows.Forms.AnchorStyles.Left) |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.filterBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.filterBox.FormattingEnabled = true;
             this.filterBox.Location = new System.Drawing.Point(68, 7);
@@ -213,10 +202,8 @@
             // 
             // searchBox
             // 
-            this.searchBox.Anchor =
-                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Bottom |
-                                                        System.Windows.Forms.AnchorStyles.Left) |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.searchBox.Location = new System.Drawing.Point(3, 38);
             this.searchBox.Name = "searchBox";
             this.searchBox.Size = new System.Drawing.Size(307, 23);
@@ -261,6 +248,7 @@
             this.ClientSize = new System.Drawing.Size(933, 519);
             this.Controls.Add(this.splitContainer);
             this.HelpButton = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(631, 269);
             this.Name = "MainForm";
             this.ShowIcon = false;
@@ -270,11 +258,12 @@
             this.infoPanel.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize) (this.splitContainer)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.optionsPanel.ResumeLayout(false);
             this.optionsPanel.PerformLayout();
             this.ResumeLayout(false);
+
         }
 
         #endregion
