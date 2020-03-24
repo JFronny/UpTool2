@@ -11,7 +11,7 @@ namespace UpToolLib.Tool
     public static class AppInstall
     {
         /// <summary>
-        /// Install an application
+        ///     Install an application
         /// </summary>
         /// <param name="appI">The app to install</param>
         /// <param name="force">Set to true to overwrite all old data</param>
@@ -102,14 +102,18 @@ Online: {appI.Hash.ToUpper()}");
         //Use
         //PowerShell -Command "Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('Hello World')"
         //for message boxes
-        private static void CompleteInstall(App app, bool force) => CompleteInstall(app.appPath, app.Name, app.Description, app.Version, app.MainFile, force);
+        private static void CompleteInstall(App app, bool force) => CompleteInstall(app.appPath, app.Name,
+            app.Description, app.Version, app.MainFile, force);
 
-        private static void CompleteInstall(string appPath, string name, string description, Version version, string mainFile, bool force)
+        private static void CompleteInstall(string appPath, string name, string description, Version version,
+            string mainFile, bool force)
         {
             string tmp = PathTool.tempPath;
             ZipFile.ExtractToDirectory(Path.Combine(appPath, "package.zip"), tmp);
             if (force)
+            {
                 Directory.Move(Path.Combine(tmp, "Data"), Path.Combine(appPath, "app"));
+            }
             else
             {
                 CopyAll(Path.Combine(tmp, "Data"), Path.Combine(appPath, "app", "Data"));
@@ -129,14 +133,16 @@ Online: {appI.Hash.ToUpper()}");
                 WindowStyle = ProcessWindowStyle.Hidden
             }).WaitForExit();
         }
-        
+
         private static void CopyAll(string source, string target)
         {
-            if (string.Equals(Path.GetFullPath(source), Path.GetFullPath(target), StringComparison.CurrentCultureIgnoreCase))
+            if (string.Equals(Path.GetFullPath(source), Path.GetFullPath(target),
+                StringComparison.CurrentCultureIgnoreCase))
                 return;
             if (!Directory.Exists(target))
                 Directory.CreateDirectory(target);
-            foreach (string file in Directory.GetFiles(source)) File.Copy(file, Path.Combine(target, Path.GetFileName(file)), true);
+            foreach (string file in Directory.GetFiles(source))
+                File.Copy(file, Path.Combine(target, Path.GetFileName(file)), true);
             foreach (string dir in Directory.GetDirectories(source))
                 CopyAll(dir, Path.Combine(target, Path.GetFileName(dir)));
         }

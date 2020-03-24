@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading;
@@ -54,7 +55,10 @@ namespace Installer
                 Step(5, "Creating shortcut");
                 Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
-                Step(6, "Done!");
+                Step(6, "Creating PATH entry");
+                if (!PATH.Content.Contains(PATH.GetName(PathTool.GetRelative("Install"))))
+                    PATH.Append(PathTool.GetRelative("Install"));
+                Step(7, "Done!");
             }
             catch (Exception ex)
             {

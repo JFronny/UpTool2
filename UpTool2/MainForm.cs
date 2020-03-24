@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using UpTool2.Properties;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
-using System.Linq;
 
 #if DEBUG
 using System.Threading;
@@ -19,6 +19,7 @@ namespace UpTool2
     public sealed partial class MainForm : Form
     {
         private readonly HelpEventHandler _help;
+
         public MainForm()
         {
             InitializeComponent();
@@ -145,7 +146,8 @@ namespace UpTool2
                     action_update.Tag = app;
                     action_update.Enabled = updateable;
                     action_run.Tag = app;
-                    action_run.Enabled = (app.status & Status.Installed) == Status.Installed && !app.Local && app.Runnable && Directory.Exists(app.appPath);
+                    action_run.Enabled = (app.status & Status.Installed) == Status.Installed && !app.Local &&
+                                         app.Runnable && Directory.Exists(app.appPath);
                 };
                 if (updateable)
                     availableUpdates++;
@@ -220,15 +222,16 @@ namespace UpTool2
             else
             {
 #endif
-                App[] apps = AppExtras.FindApps(searchBox.Text);
-                Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
-                for (int i = 0; i < sidebarPanel.Controls.Count; i++)
-                {
-                    Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
-                    App app = (App) sidebarIcon.Tag;
-                    sidebarIcon.Visible = apps.Contains(app) && ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
-                }
-                ClearSelection();
+            App[] apps = AppExtras.FindApps(searchBox.Text);
+            Enum.TryParse(filterBox.SelectedValue.ToString(), out Status status);
+            for (int i = 0; i < sidebarPanel.Controls.Count; i++)
+            {
+                Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
+                App app = (App) sidebarIcon.Tag;
+                sidebarIcon.Visible = apps.Contains(app) &&
+                                      ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
+            }
+            ClearSelection();
 #if DEBUG
             }
 #endif
@@ -242,7 +245,7 @@ namespace UpTool2
             }
             else
             {
-                Program.Splash.Invoke((Action)Program.Splash.Hide);
+                Program.Splash.Invoke((Action) Program.Splash.Hide);
                 BringToFront();
             }
         }
@@ -262,10 +265,7 @@ namespace UpTool2
             }
             finally
             {
-                if (stream != null)
-                {
-                    stream.Close();
-                }
+                if (stream != null) stream.Close();
             }
 
             int i = BitConverter.ToInt32(buffer, headerOffset);

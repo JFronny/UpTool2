@@ -1,9 +1,9 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Threading;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using UpToolLib.DataStructures;
 
 namespace UpToolCLI
@@ -25,7 +25,8 @@ namespace UpToolCLI
             };
             client.DownloadProgressChanged += (sender, e) =>
             {
-                Console.Write($"{new string('=', e.ProgressPercentage / 10)}[{e.ProgressPercentage}]{new string('-', 10 - e.ProgressPercentage / 10)}");
+                Console.Write(
+                    $"{new string('=', e.ProgressPercentage / 10)}[{e.ProgressPercentage}]{new string('-', 10 - (e.ProgressPercentage / 10))}");
                 Console.CursorLeft = 0;
             };
             client.DownloadDataAsync(link);

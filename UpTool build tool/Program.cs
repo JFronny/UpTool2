@@ -18,8 +18,10 @@ namespace UpTool_build_tool
             build.AddOption(new Option<string>("--binDir", "Directory to package"));
             build.AddOption(new Option<string>("--mainBin", "The applications main binary"));
             build.AddOption(new Option<string>("--packageFile", "Directory to package"));
-            build.AddOption(new Option<string>("--postInstall", () => "", "Command(s) to run after installing the package"));
-            build.AddOption(new Option<string>("--postRemove", () => "", "Command(s) to run after removing the package"));
+            build.AddOption(new Option<string>("--postInstall", () => "",
+                "Command(s) to run after installing the package"));
+            build.AddOption(
+                new Option<string>("--postRemove", () => "", "Command(s) to run after removing the package"));
             build.AddOption(new Option<bool>("--noLogo", "Disables the logo"));
             build.AddOption(new Option<bool>("--noShortcuts",
                 "When this is enabled the scripts will not generate a start-menu item"));
@@ -28,7 +30,8 @@ namespace UpTool_build_tool
             return rootCommand.InvokeAsync(args).Result;
         }
 
-        private static void Build(string binDir, string mainBin, string packageFile, string postInstall, string postRemove, bool noLogo, bool noShortcuts)
+        private static void Build(string binDir, string mainBin, string packageFile, string postInstall,
+            string postRemove, bool noLogo, bool noShortcuts)
         {
             Stopwatch watch = Stopwatch.StartNew();
             if (!noLogo)

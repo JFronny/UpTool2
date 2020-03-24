@@ -7,12 +7,11 @@ using System.Net;
 using System.Windows.Forms;
 using UpTool2.Properties;
 using UpTool2.Tool;
-using UpToolLib;
 using UpToolLib.DataStructures;
 
 namespace UpTool2
 {
-    class UTLibFunctions : IExternalFunctionality
+    internal class UTLibFunctions : IExternalFunctionality
     {
         public Tuple<bool, byte[]> Download(Uri link)
         {
@@ -45,11 +44,17 @@ namespace UpTool2
             return Convert.ToBase64String(ms.ToArray());
         }
 
-        public bool YesNoDialog(string text, bool _) => MessageBox.Show(text, "", MessageBoxButtons.YesNo) == DialogResult.Yes;
+        public bool YesNoDialog(string text, bool _) =>
+            MessageBox.Show(text, "", MessageBoxButtons.YesNo) == DialogResult.Yes;
+
         public void OKDialog(string text) => MessageBox.Show(text);
         public object GetDefaultIcon() => Resources.C_64.ToBitmap();
-        public object ImageFromB64(string b64) => (Bitmap) new ImageConverter().ConvertFrom(Convert.FromBase64String(b64));
 
-        public void Log(string text) { }
+        public object ImageFromB64(string b64) =>
+            (Bitmap) new ImageConverter().ConvertFrom(Convert.FromBase64String(b64));
+
+        public void Log(string text)
+        {
+        }
     }
 }

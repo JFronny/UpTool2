@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Xml.Linq;
 using CC_Functions.Misc;
 using UpToolLib.DataStructures;
@@ -63,7 +62,9 @@ namespace UpToolLib.Tool
                             try
                             {
                                 tmpAppsList.Last()
-                                    .Add(new XElement("Icon", ExternalFunctionalityManager.instance.FetchImageB64(new Uri(app.Element("Icon").Value).Unshorten())));
+                                    .Add(new XElement("Icon",
+                                        ExternalFunctionalityManager.instance.FetchImageB64(
+                                            new Uri(app.Element("Icon").Value).Unshorten())));
                             }
                             catch
                             {
@@ -78,7 +79,8 @@ namespace UpToolLib.Tool
                 }
                 catch (Exception e)
                 {
-                    ExternalFunctionalityManager.instance.OKDialog($"Failed to load repo: {repArr[i]}{Environment.NewLine}{e}");
+                    ExternalFunctionalityManager.instance.OKDialog(
+                        $"Failed to load repo: {repArr[i]}{Environment.NewLine}{e}");
                 }
 #endif
                 i++;
@@ -97,7 +99,7 @@ namespace UpToolLib.Tool
             int.TryParse(el.Value, out int i) ? new Version(0, 0, 0, i) : Version.Parse(el.Value);
 
         /// <summary>
-        /// Load the repository cache
+        ///     Load the repository cache
         /// </summary>
         /// <param name="errorHandler">Function to call on an exception, will ask the user whether he wants to quit</param>
         public static void GetReposFromDisk()
@@ -139,13 +141,15 @@ namespace UpToolLib.Tool
                         XElement data = XDocument.Load(PathTool.GetInfoPath(tmp)).Element("app");
                         GlobalVariables.Apps.Add(tmp,
                             new App("(local) " + data.Element("Name").Value, data.Element("Description").Value,
-                                GlobalVariables.minimumVer, "", true, "", tmp, Color.Red, ExternalFunctionalityManager.instance.GetDefaultIcon(),
+                                GlobalVariables.minimumVer, "", true, "", tmp, Color.Red,
+                                ExternalFunctionalityManager.instance.GetDefaultIcon(),
                                 data.Element("MainFile") != null,
                                 data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
                     }
                     catch (Exception e)
                     {
-                        if (ExternalFunctionalityManager.instance.YesNoDialog($@"An error occured while loading this local repo:
+                        if (ExternalFunctionalityManager.instance.YesNoDialog(
+                            $@"An error occured while loading this local repo:
 {e.Message}
 Do you want to exit? Otherwise the folder will be deleted, possibly causeing problems later.", false))
                             Environment.Exit(0);

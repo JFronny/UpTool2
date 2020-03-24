@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UpToolLib.DataStructures;
+﻿using UpToolLib.DataStructures;
 
 namespace UpToolLib
 {
@@ -9,7 +6,9 @@ namespace UpToolLib
     {
         internal static IExternalFunctionality instance;
 
-        public static void Init(IExternalFunctionality externalFunctionality) =>
+        public static void Init(IExternalFunctionality externalFunctionality)
+        {
             instance = externalFunctionality;
+        }
     }
 }

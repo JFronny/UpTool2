@@ -4,16 +4,15 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
-using UpTool2.Tool;
-using UpToolLib.Tool;
 using CC_Functions.Misc;
+using UpTool2.Tool;
 using UpToolLib;
+using UpToolLib.Tool;
 
 namespace UpTool2
 {
@@ -31,33 +30,22 @@ namespace UpTool2
             Application.SetCompatibleTextRenderingDefault(false);
             BuildSplash();
             new Thread(() => { Splash.ShowDialog(); }).Start();
-            using Mutex mutex = new Mutex(false,
-                $"Global\\{{{((GuidAttribute) Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value}}}",
-                out bool _);
-            bool hasHandle = false;
+            try
+            {
+                MutexLock.Lock();
+            }
+            catch (MutexLockLockedException)
+            {
+                Console.WriteLine("Mutex property of other process, quitting");
+                Process[] processes = Process.GetProcessesByName("UpTool2");
+                if (processes.Length > 0)
+                    WindowHelper.BringProcessToFront(Process.GetProcessesByName("UpTool2")[0]);
+                return;
+            }
 #if !DEBUG
             try
             {
 #endif
-                try
-                {
-                    hasHandle = mutex.WaitOne(5000, false);
-                    if (hasHandle == false)
-                    {
-                        Console.WriteLine("Mutex property of other process, quitting");
-                        Process[] processes = Process.GetProcessesByName("UpTool2");
-                        if (processes.Length > 0)
-                            WindowHelper.BringProcessToFront(Process.GetProcessesByName("UpTool2")[0]);
-                        Environment.Exit(0);
-                    }
-                }
-                catch (AbandonedMutexException)
-                {
-#if DEBUG
-                    Debug.WriteLine("Mutex abandoned");
-#endif
-                    hasHandle = true;
-                }
                 ExternalFunctionalityManager.Init(new UTLibFunctions());
                 SetSplash(1, "Initializing paths");
                 if (!Directory.Exists(PathTool.dir))
@@ -67,7 +55,9 @@ namespace UpTool2
                 string metaXml = XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value;
                 Online = new Uri(metaXml).Ping();
                 if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.dll"))
-                    Splash.Invoke((Action)(() => MessageBox.Show(Splash, $"WARNING!{Environment.NewLine}Running from outside the install directory is not recommended!")));
+                    Splash.Invoke((Action) (() => MessageBox.Show(Splash,
+                            $"WARNING!{Environment.NewLine}Running from outside the install directory is not recommended!")
+                        ));
                 if (!Directory.Exists(PathTool.GetRelative("Apps")))
                     Directory.CreateDirectory(PathTool.GetRelative("Apps"));
                 if (!Online)
@@ -80,7 +70,7 @@ namespace UpTool2
             {
                 try
                 {
-                    Splash.Invoke((Action)Splash.Hide);
+                    Splash.Invoke((Action) Splash.Hide);
                 }
                 catch
                 {
@@ -90,8 +80,7 @@ namespace UpTool2
             }
             finally
             {
-                if (hasHandle)
-                    mutex.ReleaseMutex();
+                MutexLock.Unlock();
             }
 #endif
         }
@@ -116,36 +105,40 @@ namespace UpTool2
             {
                 Graphics g = e.Graphics;
                 //Draw background
-                Brush[] brushes = {Brushes.Purple, Brushes.MediumPurple, Brushes.Indigo, Brushes.Fuchsia, Brushes.OrangeRed};
+                Brush[] brushes =
+                    {Brushes.Purple, Brushes.MediumPurple, Brushes.Indigo, Brushes.Fuchsia, Brushes.OrangeRed};
                 const int barWidth = 50;
                 const int topOffset = 100;
                 for (int i = 0; i < Splash.Width + topOffset; i += barWidth)
-                {
-                    g.FillPolygon(brushes[(i / barWidth) % brushes.Length], new []
+                    g.FillPolygon(brushes[(i / barWidth) % brushes.Length], new[]
                     {
                         new PointF(i, 0),
                         new PointF(i + barWidth, 0),
                         new PointF(i, Splash.Height),
                         new PointF(i - topOffset, Splash.Height)
                     });
-                }
                 //Draw Text: UpTool2 (by JFronny)^
                 Font font = new Font(FontFamily.GenericSansSerif, 40, FontStyle.Bold);
                 const string text = "UpTool2";
                 SizeF size = g.MeasureString(text, font);
-                RectangleF rect = new RectangleF((Splash.Width / 2f) - (size.Width / 2), (Splash.Height / 2f) - (size.Height / 2), size.Width, size.Height);
+                RectangleF rect = new RectangleF((Splash.Width / 2f) - (size.Width / 2),
+                    (Splash.Height / 2f) - (size.Height / 2), size.Width, size.Height);
                 g.DrawString(text, font, Brushes.White, rect);
                 Font smallFont = new Font(FontFamily.GenericSansSerif, 10);
                 const string subtitle = "by JFronny";
                 SizeF size2 = g.MeasureString(subtitle, smallFont);
-                g.DrawString(subtitle, smallFont, Brushes.White, new RectangleF(rect.Right - size2.Width, rect.Bottom - size2.Height, size2.Width, size2.Height));
+                g.DrawString(subtitle, smallFont, Brushes.White,
+                    new RectangleF(rect.Right - size2.Width, rect.Bottom - size2.Height, size2.Width, size2.Height));
                 //Draw progress bar
-                Rectangle bar = new Rectangle((3 * Splash.Width) / 8, ((Splash.Height * 3) / 4) - 10, Splash.Width / 4, 20);
+                Rectangle bar = new Rectangle((3 * Splash.Width) / 8, ((Splash.Height * 3) / 4) - 10, Splash.Width / 4,
+                    20);
                 g.FillRectangle(Brushes.Gray, bar);
-                g.FillRectangle(Brushes.Black, new Rectangle(bar.X, bar.Y, (bar.Width * SplashProgress) / 10, bar.Height));
+                g.FillRectangle(Brushes.Black,
+                    new Rectangle(bar.X, bar.Y, (bar.Width * SplashProgress) / 10, bar.Height));
                 g.DrawRectangle(Pens.DimGray, bar);
                 //g.DrawString(SplashMessage, smallFont, Brushes.White, new PointF(bar.Left, bar.Bottom));
-                g.DrawString(SplashMessage, smallFont, Brushes.White, bar, new StringFormat {Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center});
+                g.DrawString(SplashMessage, smallFont, Brushes.White, bar,
+                    new StringFormat {Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center});
             };
             int xOff = 0;
             int yOff = 0;

@@ -11,10 +11,18 @@ namespace Installer
         [STAThread]
         private static void Main()
         {
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new InstallerForm());
+            MutexLock.Lock();
+            try
+            {
+                Application.SetHighDpiMode(HighDpiMode.SystemAware);
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new InstallerForm());
+            }
+            finally
+            {
+                MutexLock.Unlock();
+            }
         }
     }
 }

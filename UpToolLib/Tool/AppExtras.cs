@@ -48,7 +48,9 @@ namespace UpToolLib.Tool
                 File.Delete(app.infoPath);
             if (File.Exists(Path.Combine(app.appPath, "package.zip")))
                 File.Delete(Path.Combine(app.appPath, "package.zip"));
-            if (deleteAll || (Directory.Exists(app.dataPath) && Directory.GetFiles(app.dataPath).Length + Directory.GetDirectories(app.dataPath).Length == 0))
+            if (deleteAll || (Directory.Exists(app.dataPath) &&
+                              Directory.GetFiles(app.dataPath).Length + Directory.GetDirectories(app.dataPath).Length ==
+                              0))
                 Directory.Delete(app.appPath, true);
         }
 
