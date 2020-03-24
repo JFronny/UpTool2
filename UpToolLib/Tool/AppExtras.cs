@@ -54,10 +54,15 @@ namespace UpToolLib.Tool
 
         private static void CheckDirecory(string tmp, string app)
         {
-            foreach (string file in Directory.GetFiles(tmp)) File.Delete(Path.Combine(app, Path.GetFileName(file)));
+            foreach (string file in Directory.GetFiles(tmp))
+            {
+                string tmp1 = Path.Combine(app, Path.GetFileName(file));
+                if (File.Exists(tmp1))
+                    File.Delete(tmp1);
+            }
             foreach (string directory in Directory.GetDirectories(tmp))
                 CheckDirecory(directory, Path.Combine(app, Path.GetFileName(directory)));
-            if (Directory.GetFiles(app).Length + Directory.GetDirectories(app).Length == 0)
+            if (Directory.Exists(app) && Directory.GetFiles(app).Length + Directory.GetDirectories(app).Length == 0)
                 Directory.Delete(app);
         }
 
