@@ -29,7 +29,8 @@ namespace UpTool2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             BuildSplash();
-            new Thread(() => { Splash.ShowDialog(); }).Start();
+            Splash.Show();
+            //new Thread(() => { Splash.ShowDialog(); }).Start();
             try
             {
                 MutexLock.Lock();
