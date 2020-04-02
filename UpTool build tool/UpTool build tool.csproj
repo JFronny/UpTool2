@@ -14,7 +14,7 @@
     <ApplicationIcon>..\UpTool2.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CC-Functions.Misc" Version="1.1.7388.28729" />
+    <PackageReference Include="CC-Functions.Misc" Version="1.1.7396.23808" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20158.1" />
   </ItemGroup>
 </Project>
