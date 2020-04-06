@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CC-Functions.Misc" Version="1.1.7397.24614" />
+      <PackageReference Include="CC-Functions.Misc" Version="1.1.7399.26972" />
     </ItemGroup>
 
     <ItemGroup>

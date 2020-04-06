@@ -19,7 +19,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CC-Functions.Misc" Version="1.1.7397.24614" />
+    <PackageReference Include="CC-Functions.Misc" Version="1.1.7399.26972" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UpToolLib\UpToolLib.csproj" />
