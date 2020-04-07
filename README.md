@@ -15,7 +15,7 @@ Now you can add this\
 ```if exist "$(SolutionDir)Data\pkgtool.exe" ($(SolutionDir)Data\pkgtool.exe build --noLogo --binDir .) else if exist "%appdata%\UpTool2\Apps\0e35d154-d0d3-45e0-b080-62f521263a44\app\pkgtool.exe" ("%appdata%\UpTool2\Apps\0e35d154-d0d3-45e0-b080-62f521263a44\app\pkgtool.exe" build --noLogo --binDir .) else echo Cound not find Package build tools, skipping```\
 as a PostBuild event to automatically run pkgtool. Customize this if you need to.\
 For GitHub actions I wrote [this](https://github.com/JFronny/CC-Clicker/blob/master/.github/workflows/main.yml).\
-If you copy it, make sure to replace the descriptions and ID under the `Fenerate XML` step\
+If you copy it, make sure to replace the descriptions and ID under the `Generate XML` step\
 You can also add something like this to your Readme: [![UpTool2](https://img.shields.io/github/v/tag/JFronny/CC-Clicker?color=informational&label=UpTool2)](https://jfronny.github.io/home/uptool)\
 (Look at the source for the MD Code)
 ## Folder layout
