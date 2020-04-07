@@ -104,7 +104,16 @@ namespace UpToolCLI
         {
             Console.WriteLine("Fetching Repos...");
             RepoManagement.FetchRepos();
-            Console.WriteLine("Done!");
+            RepoManagement.GetReposFromDisk();
+            Console.WriteLine();
+            IEnumerable<App> tmp = GlobalVariables.Apps.Where(s =>
+                (s.Value.status & Status.Updatable) == Status.Updatable).Select(s => s.Value);
+            IEnumerable<App> apps = tmp as App[] ?? tmp.ToArray();
+            int updatableCount = apps.Count();
+            Console.WriteLine(updatableCount == 0
+                ? "All up-to-date"
+                : $@"Found {updatableCount} Updates:
+{string.Join(Environment.NewLine, apps.Select(s => $"- {s.Name} ({s.Version})"))}");
         }
 
         private static void List()
