@@ -29,8 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources =
-                new System.ComponentModel.ComponentResourceManager(typeof(UpTool2.MainForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.sidebarPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.infoPanel = new System.Windows.Forms.Panel();
             this.action_run = new System.Windows.Forms.Button();
@@ -47,21 +46,32 @@
             this.controls_settings = new System.Windows.Forms.Button();
             this.controls_reload = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.changesButton = new System.Windows.Forms.Button();
             this.searchPackageDialog = new System.Windows.Forms.OpenFileDialog();
+            this.changesPanel = new System.Windows.Forms.Panel();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.changesLabel = new System.Windows.Forms.Label();
             this.infoPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize) (this.splitContainer)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
             this.optionsPanel.SuspendLayout();
+            this.changesPanel.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // sidebarPanel
+            // 
             this.sidebarPanel.AutoScroll = true;
             this.sidebarPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sidebarPanel.Location = new System.Drawing.Point(0, 68);
             this.sidebarPanel.Name = "sidebarPanel";
-            this.sidebarPanel.Size = new System.Drawing.Size(312, 451);
+            this.sidebarPanel.Size = new System.Drawing.Size(312, 425);
             this.sidebarPanel.TabIndex = 0;
+            // 
+            // infoPanel
+            // 
             this.infoPanel.Controls.Add(this.action_run);
             this.infoPanel.Controls.Add(this.action_remove);
             this.infoPanel.Controls.Add(this.action_update);
@@ -71,11 +81,12 @@
             this.infoPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.infoPanel.Location = new System.Drawing.Point(0, 0);
             this.infoPanel.Name = "infoPanel";
-            this.infoPanel.Size = new System.Drawing.Size(616, 519);
+            this.infoPanel.Size = new System.Drawing.Size(616, 493);
             this.infoPanel.TabIndex = 1;
-            this.action_run.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // action_run
+            // 
+            this.action_run.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_run.Location = new System.Drawing.Point(491, 6);
             this.action_run.Name = "action_run";
             this.action_run.Size = new System.Drawing.Size(27, 27);
@@ -83,9 +94,10 @@
             this.action_run.Text = "↗";
             this.action_run.UseVisualStyleBackColor = true;
             this.action_run.Click += new System.EventHandler(this.Action_run_Click);
-            this.action_remove.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // action_remove
+            // 
+            this.action_remove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_remove.Enabled = false;
             this.action_remove.Location = new System.Drawing.Point(523, 6);
             this.action_remove.Name = "action_remove";
@@ -94,9 +106,10 @@
             this.action_remove.Text = "🗑";
             this.action_remove.UseVisualStyleBackColor = true;
             this.action_remove.Click += new System.EventHandler(this.Action_remove_Click);
-            this.action_update.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // action_update
+            // 
+            this.action_update.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_update.Enabled = false;
             this.action_update.Location = new System.Drawing.Point(554, 6);
             this.action_update.Name = "action_update";
@@ -105,9 +118,10 @@
             this.action_update.Text = "⭱";
             this.action_update.UseVisualStyleBackColor = true;
             this.action_update.Click += new System.EventHandler(this.Action_update_Click);
-            this.action_install.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // action_install
+            // 
+            this.action_install.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.action_install.Enabled = false;
             this.action_install.Location = new System.Drawing.Point(586, 6);
             this.action_install.Name = "action_install";
@@ -116,30 +130,50 @@
             this.action_install.Text = "⭳";
             this.action_install.UseVisualStyleBackColor = true;
             this.action_install.Click += new System.EventHandler(this.Action_install_Click);
+            // 
+            // infoPanel_Description
+            // 
+            this.infoPanel_Description.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.infoPanel_Description.Location = new System.Drawing.Point(3, 51);
             this.infoPanel_Description.Name = "infoPanel_Description";
-            this.infoPanel_Description.Size = new System.Drawing.Size(611, 458);
+            this.infoPanel_Description.Size = new System.Drawing.Size(611, 439);
             this.infoPanel_Description.TabIndex = 1;
+            // 
+            // infoPanel_Title
+            // 
             this.infoPanel_Title.AutoSize = true;
-            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F,
-                System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.infoPanel_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.infoPanel_Title.Location = new System.Drawing.Point(2, 1);
             this.infoPanel_Title.Name = "infoPanel_Title";
             this.infoPanel_Title.Size = new System.Drawing.Size(0, 31);
             this.infoPanel_Title.TabIndex = 0;
+            // 
+            // splitContainer
+            // 
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.Location = new System.Drawing.Point(0, 0);
             this.splitContainer.Name = "splitContainer";
+            // 
+            // splitContainer.Panel1
+            // 
             this.splitContainer.Panel1.Controls.Add(this.sidebarPanel);
             this.splitContainer.Panel1.Controls.Add(this.optionsPanel);
             this.splitContainer.Panel1MinSize = 160;
+            // 
+            // splitContainer.Panel2
+            // 
             this.splitContainer.Panel2.Controls.Add(this.infoPanel);
             this.splitContainer.Panel2MinSize = 160;
-            this.splitContainer.Size = new System.Drawing.Size(933, 519);
+            this.splitContainer.Size = new System.Drawing.Size(933, 493);
             this.splitContainer.SplitterDistance = 312;
             this.splitContainer.SplitterWidth = 5;
             this.splitContainer.TabIndex = 0;
             this.splitContainer.TabStop = false;
+            // 
+            // optionsPanel
+            // 
             this.optionsPanel.Controls.Add(this.controls_upload);
             this.optionsPanel.Controls.Add(this.filterBox);
             this.optionsPanel.Controls.Add(this.searchBox);
@@ -150,9 +184,10 @@
             this.optionsPanel.Name = "optionsPanel";
             this.optionsPanel.Size = new System.Drawing.Size(312, 68);
             this.optionsPanel.TabIndex = 0;
-            this.controls_upload.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // controls_upload
+            // 
+            this.controls_upload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.controls_upload.Location = new System.Drawing.Point(284, 6);
             this.controls_upload.Name = "controls_upload";
             this.controls_upload.Size = new System.Drawing.Size(27, 27);
@@ -160,10 +195,11 @@
             this.controls_upload.Text = "↑";
             this.controls_upload.UseVisualStyleBackColor = true;
             this.controls_upload.Click += new System.EventHandler(this.controls_upload_Click);
-            this.filterBox.Anchor =
-                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Top |
-                                                        System.Windows.Forms.AnchorStyles.Left) |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // filterBox
+            // 
+            this.filterBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.filterBox.FormattingEnabled = true;
             this.filterBox.Location = new System.Drawing.Point(68, 7);
@@ -171,15 +207,19 @@
             this.filterBox.Size = new System.Drawing.Size(209, 23);
             this.filterBox.TabIndex = 3;
             this.filterBox.SelectedIndexChanged += new System.EventHandler(this.UpdateSidebarV);
-            this.searchBox.Anchor =
-                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Bottom |
-                                                        System.Windows.Forms.AnchorStyles.Left) |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // searchBox
+            // 
+            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.searchBox.Location = new System.Drawing.Point(3, 38);
             this.searchBox.Name = "searchBox";
             this.searchBox.Size = new System.Drawing.Size(307, 23);
             this.searchBox.TabIndex = 2;
             this.searchBox.TextChanged += new System.EventHandler(this.UpdateSidebarV);
+            // 
+            // controls_settings
+            // 
             this.controls_settings.Location = new System.Drawing.Point(3, 6);
             this.controls_settings.Name = "controls_settings";
             this.controls_settings.Size = new System.Drawing.Size(27, 27);
@@ -187,6 +227,9 @@
             this.controls_settings.Text = "⚙";
             this.controls_settings.UseVisualStyleBackColor = true;
             this.controls_settings.Click += new System.EventHandler(this.Controls_settings_Click);
+            // 
+            // controls_reload
+            // 
             this.controls_reload.Location = new System.Drawing.Point(34, 6);
             this.controls_reload.Name = "controls_reload";
             this.controls_reload.Size = new System.Drawing.Size(27, 27);
@@ -194,17 +237,73 @@
             this.controls_reload.Text = "↻";
             this.controls_reload.UseVisualStyleBackColor = true;
             this.controls_reload.Click += new System.EventHandler(this.Controls_reload_Click);
+            // 
+            // toolTip
+            // 
             this.toolTip.AutoPopDelay = 5000;
             this.toolTip.InitialDelay = 300;
             this.toolTip.ReshowDelay = 100;
             this.toolTip.ShowAlways = true;
+            // 
+            // changesButton
+            // 
+            this.changesButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.changesButton.Location = new System.Drawing.Point(906, 0);
+            this.changesButton.Name = "changesButton";
+            this.changesButton.Size = new System.Drawing.Size(27, 26);
+            this.changesButton.TabIndex = 4;
+            this.changesButton.Text = "→";
+            this.toolTip.SetToolTip(this.changesButton, "Perform changes");
+            this.changesButton.UseVisualStyleBackColor = true;
+            this.changesButton.Click += new System.EventHandler(this.changesButton_Click);
+            // 
+            // searchPackageDialog
+            // 
             this.searchPackageDialog.Filter = "Packages (*.zip)|*.zip";
+            // 
+            // changesPanel
+            // 
+            this.changesPanel.Controls.Add(this.progressBar1);
+            this.changesPanel.Controls.Add(this.changesButton);
+            this.changesPanel.Controls.Add(this.changesLabel);
+            this.changesPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.changesPanel.Location = new System.Drawing.Point(0, 493);
+            this.changesPanel.Name = "changesPanel";
+            this.changesPanel.Size = new System.Drawing.Size(933, 26);
+            this.changesPanel.TabIndex = 1;
+            this.changesPanel.Visible = false;
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progressBar1.Location = new System.Drawing.Point(714, 0);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(186, 26);
+            this.progressBar1.Step = 1;
+            this.progressBar1.TabIndex = 5;
+            // 
+            // changesLabel
+            // 
+            this.changesLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.changesLabel.AutoSize = true;
+            this.changesLabel.Location = new System.Drawing.Point(7, 5);
+            this.changesLabel.Name = "changesLabel";
+            this.changesLabel.Size = new System.Drawing.Size(119, 15);
+            this.changesLabel.TabIndex = 0;
+            this.changesLabel.Text = "No Changes Selected";
+            this.changesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.changesLabel.Click += new System.EventHandler(this.changesLabel_Click);
+            // 
+            // MainForm
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(933, 519);
             this.Controls.Add(this.splitContainer);
+            this.Controls.Add(this.changesPanel);
             this.HelpButton = true;
-            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(631, 269);
             this.Name = "MainForm";
             this.ShowIcon = false;
@@ -214,11 +313,14 @@
             this.infoPanel.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize) (this.splitContainer)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.optionsPanel.ResumeLayout(false);
             this.optionsPanel.PerformLayout();
+            this.changesPanel.ResumeLayout(false);
+            this.changesPanel.PerformLayout();
             this.ResumeLayout(false);
+
         }
 
 #endregion
@@ -240,6 +342,10 @@
         private System.Windows.Forms.Button action_run;
         private System.Windows.Forms.Button controls_upload;
         private System.Windows.Forms.OpenFileDialog searchPackageDialog;
+        private System.Windows.Forms.Panel changesPanel;
+        private System.Windows.Forms.Label changesLabel;
+        private System.Windows.Forms.Button changesButton;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 

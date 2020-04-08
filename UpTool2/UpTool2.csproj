@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8</LangVersion>
     <Deterministic>false</Deterministic>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>

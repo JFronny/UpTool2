@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using UpTool2.Properties;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
+using UpTool2.Task;
+using System.Collections.Generic;
 
 #if DEBUG
 using System.Threading;
@@ -19,10 +20,12 @@ namespace UpTool2
     public sealed partial class MainForm : Form
     {
         private readonly HelpEventHandler _help;
+        private List<IAppTask> _tasks;
 
         public MainForm()
         {
             InitializeComponent();
+            _tasks = new List<IAppTask>();
             _help = MainForm_HelpRequested;
             HelpRequested += _help;
             filterBox.DataSource = Enum.GetValues(typeof(Status));
@@ -43,61 +46,59 @@ namespace UpTool2
 
         private void Action_install_Click(object sender, EventArgs e)
         {
-            bool trying = true;
-            while (trying)
+            App tmp = (App)action_install.Tag;
+            if (_tasks.Any(s => s is InstallTask t && t.App == tmp))
             {
-#if !DEBUG
-                try
-                {
-#endif
-                    AppInstall.Install((App) action_install.Tag, true);
-                    ReloadElements();
-                    trying = false;
-#if !DEBUG
-                }
-                catch (Exception e1)
-                {
-                    trying = MessageBox.Show(e1.ToString(), "Install failed", MessageBoxButtons.RetryCancel) ==
-                             DialogResult.Retry;
-                }
-#endif
+                _tasks = _tasks.Where(s => !(s is InstallTask t) || t.App != tmp).ToList();
+                action_install.ResetBackColor();
             }
+            else
+            {
+                _tasks.Add(new InstallTask(tmp, ReloadElements));
+                action_install.BackColor = Color.Green;
+            }
+            UpdateChangesLabel();
         }
 
         private void Action_remove_Click(object sender, EventArgs e)
         {
-            try
+            App tmp = (App)action_install.Tag;
+            if (_tasks.Any(s => s is RemoveTask t && t.App == tmp))
             {
-                AppExtras.Remove((App) action_remove.Tag, true);
-                ReloadElements();
+                _tasks = _tasks.Where(s => !(s is RemoveTask t) || t.App != tmp).ToList();
+                action_remove.ResetBackColor();
             }
-            catch (Exception e1)
+            else
             {
-                MessageBox.Show(e1.ToString(), "Removal failed");
+                _tasks.Add(new RemoveTask(tmp, ReloadElements));
+                action_remove.BackColor = Color.Green;
             }
+            UpdateChangesLabel();
         }
 
         private void controls_upload_Click(object sender, EventArgs e)
         {
-#if !DEBUG
-            try
+            if (searchPackageDialog.ShowDialog() != DialogResult.OK)
+                return;
+            if (!_tasks.Any(s => s is UploadTask t && t.ZipFile == searchPackageDialog.FileName))
+                _tasks.Add(new UploadTask(searchPackageDialog.FileName, AppNameDialog.Show(), ReloadElements));
+            UpdateChangesLabel();
+        }
+
+        private void Action_update_Click(object sender, EventArgs e)
+        {
+            App tmp = (App)action_install.Tag;
+            if (_tasks.Any(s => s is UpdateTask t && t.App == tmp))
             {
-#endif
-                if (searchPackageDialog.ShowDialog() != DialogResult.OK)
-                    return;
-                Guid id = Guid.NewGuid();
-                while (GlobalVariables.Apps.ContainsKey(id) || Directory.Exists(PathTool.GetAppPath(id)))
-                    id = Guid.NewGuid();
-                App appI = new App(AppNameDialog.Show(), "Locally installed package, removal only",
-                    GlobalVariables.MinimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
-                AppInstall.InstallZip(searchPackageDialog.FileName, appI, true);
-#if !DEBUG
+                _tasks = _tasks.Where(s => !(s is UpdateTask t) || t.App != tmp).ToList();
+                action_update.ResetBackColor();
             }
-            catch (Exception e1)
+            else
             {
-                MessageBox.Show(e1.ToString(), "Install failed");
+                _tasks.Add(new UpdateTask(tmp, ReloadElements));
+                action_update.BackColor = Color.Green;
             }
-#endif
+            UpdateChangesLabel();
         }
 
         private void ReloadElements()
@@ -139,10 +140,22 @@ namespace UpTool2
                     infoPanel_Description.Text = app.Description;
                     action_install.Tag = app;
                     action_install.Enabled = !(app.Local || Directory.Exists(app.AppPath));
+                    if (_tasks.Any(s => s is InstallTask t && t.App == app))
+                        action_install.BackColor = Color.Green;
+                    else
+                        action_install.ResetBackColor();
                     action_remove.Tag = app;
                     action_remove.Enabled = Directory.Exists(app.AppPath);
+                    if (_tasks.Any(s => s is RemoveTask t && t.App == app))
+                        action_remove.BackColor = Color.Green;
+                    else
+                        action_remove.ResetBackColor();
                     action_update.Tag = app;
                     action_update.Enabled = updateable;
+                    if (_tasks.Any(s => s is UpdateTask t && t.App == app))
+                        action_update.BackColor = Color.Green;
+                    else
+                        action_update.ResetBackColor();
                     action_run.Tag = app;
                     action_run.Enabled = (app.Status & Status.Installed) == Status.Installed && !app.Local &&
                                          app.Runnable && Directory.Exists(app.AppPath);
@@ -167,19 +180,6 @@ namespace UpTool2
             {
                 MessageBox.Show($"{e1}Failed to start!");
             }
-        }
-
-        private void Action_update_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                AppExtras.Update((App) action_install.Tag, false);
-            }
-            catch (Exception e1)
-            {
-                MessageBox.Show(e1.ToString(), "Install failed");
-            }
-            ReloadElements();
         }
 
         private void Controls_reload_Click(object sender, EventArgs e)
@@ -243,6 +243,7 @@ namespace UpTool2
             {
                 Program.Splash.Invoke((Action) Program.Splash.Hide);
                 BringToFront();
+                UpdateChangesLabel(false);
             }
         }
 
@@ -261,7 +262,7 @@ namespace UpTool2
             }
             finally
             {
-                if (stream != null) stream.Close();
+                stream?.Close();
             }
 
             int i = BitConverter.ToInt32(buffer, headerOffset);
@@ -272,7 +273,7 @@ namespace UpTool2
             return dt;
         }
 
-        private void MainForm_HelpRequested(object sender, HelpEventArgs hlpevent)
+        private void MainForm_HelpRequested(object sender, HelpEventArgs hlpEvent)
         {
             HelpRequested -= _help;
             try
@@ -285,8 +286,41 @@ Build Date: {buildTime:dd.MM.yyyy}", "UpTool2");
             finally
             {
                 HelpRequested += _help;
-                hlpevent.Handled = true;
+                hlpEvent.Handled = true;
             }
+        }
+
+        private void changesButton_Click(object sender, EventArgs e)
+        {
+            TaskPreview.Show(ref _tasks);
+            progressBar1.Maximum = _tasks.Count;
+            progressBar1.Value = 0;
+            foreach (IAppTask task in _tasks)
+            {
+                task.Run();
+                progressBar1.PerformStep();
+            }
+            _tasks.Clear();
+            UpdateChangesLabel();
+        }
+
+        private void changesLabel_Click(object sender, EventArgs e)
+        {
+            TaskPreview.Show(ref _tasks);
+            UpdateChangesLabel();
+        }
+
+        private void UpdateChangesLabel(bool showPanel = true)
+        {
+            changesPanel.Visible = showPanel;
+            changesButton.Enabled = _tasks.Count > 0;
+            progressBar1.Maximum = _tasks.Count;
+            changesLabel.Text = _tasks.Count switch
+            {
+                0 => "No Changes Selected",
+                1 => "1 Change Selected",
+                _ => $"{_tasks.Count} Changes Selected"
+            };
         }
     }
 }
