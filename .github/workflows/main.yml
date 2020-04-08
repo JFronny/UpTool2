@@ -97,7 +97,7 @@ jobs:
       run: |
         cd $Env:GITHUB_WORKSPACE\Installer
         & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.exe
-        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.dll
+        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\*.dll
         & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.runtimeconfig.json
         dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
         dotnet publish -r win-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true

@@ -6,6 +6,8 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using UpToolLib;
+using UpToolLib.Tool;
 
 namespace Installer
 {
@@ -29,6 +31,7 @@ namespace Installer
                 }
                 else
                 {
+                    ExternalFunctionalityManager.Init(new UtLibFunctionsCli());
                     WebClient client = new WebClient();
                     Console.WriteLine("Downloading metadata");
                     XElement meta = XDocument.Load("https://github.com/JFronny/UpTool2/releases/latest/download/meta.xml")
@@ -58,6 +61,9 @@ namespace Installer
                     Console.WriteLine("Creating PATH entry");
                     if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
                         Path.Append(PathTool.GetRelative("Install"));
+                    Console.WriteLine("Preparing Repos");
+                    XmlTool.FixXml();
+                    RepoManagement.FetchRepos();
                 }
             }
             finally

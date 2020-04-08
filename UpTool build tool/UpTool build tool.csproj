@@ -10,7 +10,8 @@
     <AssemblyVersion>1.0.*</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>.\pkgtool build --noLogo --noShortcuts --binDir . --mainBin ""</PostBuildEvent>
+      <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">.\pkgtool build --noLogo --noShortcuts --binDir . --mainBin ""</PostBuildEvent>
+      <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">pkgtool.exe build --noLogo --noShortcuts --binDir . --mainBin ""</PostBuildEvent>
     <ApplicationIcon>..\UpTool2.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>

@@ -21,7 +21,6 @@
         }
 
         #region Windows Form Designer generated code
-
         /// <summary>
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
@@ -58,7 +57,7 @@
                                                         System.Windows.Forms.AnchorStyles.Left) |
                                                        System.Windows.Forms.AnchorStyles.Right)));
             this.progress.Location = new System.Drawing.Point(12, 92);
-            this.progress.Maximum = 6;
+            this.progress.Maximum = 8;
             this.progress.Name = "progress";
             this.progress.Size = new System.Drawing.Size(539, 27);
             this.progress.TabIndex = 2;
@@ -96,8 +95,7 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
-
-        #endregion
+#endregion
 
         private System.Windows.Forms.Button install;
         private System.Windows.Forms.Label installLabel;

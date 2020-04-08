@@ -9,6 +9,8 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using UpToolLib;
+using UpToolLib.Tool;
 
 namespace Installer
 {
@@ -18,9 +20,10 @@ namespace Installer
 
         public InstallerForm()
         {
+            ExternalFunctionalityManager.Init(new UtLibFunctionsGui(Log));
             InitializeComponent();
             Step(0, "Initialized");
-            _log.TrimStart(Environment.NewLine.ToCharArray());
+            _log = _log.TrimStart(Environment.NewLine.ToCharArray());
         }
 
         private void install_Click(object sender, EventArgs e)
@@ -58,7 +61,10 @@ namespace Installer
                 Step(6, "Creating PATH entry");
                 if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
                     Path.Append(PathTool.GetRelative("Install"));
-                Step(7, "Done!");
+                Step(7, "Preparing Repos");
+                XmlTool.FixXml();
+                RepoManagement.FetchRepos();
+                Step(8, "Done!");
             }
             catch (Exception ex)
             {
@@ -85,8 +91,10 @@ namespace Installer
         {
             progress.Value = p;
             processLabel.Text = text;
-            _log += $"{Environment.NewLine}[{DateTime.Now.ToString(CultureInfo.InvariantCulture).Split(' ')[1]}] {text}";
+            Log(text);
         }
+
+        private void Log(string text) => _log += $"{Environment.NewLine}[{DateTime.Now.ToString(CultureInfo.InvariantCulture).Split(' ')[1]}] {text}";
 
         private void log_Click(object sender, EventArgs e) => new Thread(() => MessageBox.Show(_log)).Start();
     }
