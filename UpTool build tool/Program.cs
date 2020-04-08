@@ -19,15 +19,18 @@ namespace UpTool_build_tool
                 new Option<string>("--binDir", "Directory to package"),
                 new Option<string>("--mainBin", () => "FIND_BIN", "The applications main binary"),
                 new Option<string>("--packageFile", "Directory to package"),
-                new Option<string>("--postInstall", () => "", "Command(s) to run after installing the package (This will be pasted into the .bat AND .sh file)"),
-                new Option<string>("--postRemove", () => "", "Command(s) to run after removing the package (This will be pasted into the .bat AND .sh file)"),
+                new Option<string>("--postInstall", () => "",
+                    "Command(s) to run after installing the package (This will be pasted into the .bat AND .sh file)"),
+                new Option<string>("--postRemove", () => "",
+                    "Command(s) to run after removing the package (This will be pasted into the .bat AND .sh file)"),
                 new Option<bool>("--noLogo", "Disables the logo"),
                 new Option<bool>("--noShortcuts",
                     "When this is enabled the scripts will not generate a start-menu item"),
                 new Option<bool>("--noWine",
                     "This indicates that your program supports multiple platforms natively and doesn't require WINE")
             };
-            build.Handler = CommandHandler.Create((Action<string, string, string, string, string, bool, bool, bool>)Build);
+            build.Handler =
+                CommandHandler.Create((Action<string, string, string, string, string, bool, bool, bool>) Build);
             rootCommand.AddCommand(build);
             return rootCommand.InvokeAsync(args).Result;
         }
@@ -71,11 +74,11 @@ namespace UpTool_build_tool
                     }
                 }
                 string programName = Path.GetFileNameWithoutExtension(mainBin);
-                (string installBat, string removeBat) = BatchScripts.Create(!noShortcuts, mainBin, programName, postInstall, postRemove);
+                (string installBat, string removeBat) =
+                    BatchScripts.Create(!noShortcuts, mainBin, programName, postInstall, postRemove);
                 archive.AddFile("Install.bat", installBat);
                 archive.AddFile("Remove.bat", removeBat);
                 ShScripts.Create(archive.AddFile, !noShortcuts, mainBin, programName, postInstall, postRemove, !noWine);
-                
             }
             watch.Stop();
             Console.WriteLine($"Completed package creation in {watch.Elapsed}");

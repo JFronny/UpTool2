@@ -26,7 +26,7 @@ namespace UpToolCLI
             client.DownloadProgressChanged += (sender, e) =>
             {
                 Console.Write(
-                    $"{new string('=', e.ProgressPercentage / 10)}[{e.ProgressPercentage}]{new string('-', 10 - (e.ProgressPercentage / 10))}");
+                    $"{new string('=', e.ProgressPercentage / 10)}[{e.ProgressPercentage}]{new string('-', 10 - e.ProgressPercentage / 10)}");
                 Console.CursorLeft = 0;
             };
             client.DownloadDataAsync(link);

@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using CC_Functions.Misc;
 using UpToolLib.DataStructures;
 
 namespace UpToolLib.Tool
@@ -69,7 +68,12 @@ namespace UpToolLib.Tool
                             {
                                 // ignored
                             }
-                        tmpAppsList.Last().Add(new XElement("Platform", app.Element("Platform") == null || !new[]{GlobalVariables.Posix, GlobalVariables.Windows}.Contains(app.Element("Platform").Value) ? GlobalVariables.CurrentPlatform : app.Element("Platform").Value));
+                        tmpAppsList.Last().Add(new XElement("Platform",
+                            app.Element("Platform") == null ||
+                            !new[] {GlobalVariables.Posix, GlobalVariables.Windows}.Contains(app.Element("Platform")
+                                .Value)
+                                ? GlobalVariables.CurrentPlatform
+                                : app.Element("Platform").Value));
                         XElement app1 = app;
                         if (tmpAppsList.Count(a => a.Element("ID").Value == app1.Element("ID").Value) > 1)
                             tmpAppsList.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse()

@@ -5,7 +5,8 @@ namespace UpTool_build_tool
 {
     internal static class ShScripts
     {
-        public static void Create(Action<string, string> fileSave, bool shortcuts, string? mainBin, string programName, string? postInstall, string? postRemove, bool wine)
+        public static void Create(Action<string, string> fileSave, bool shortcuts, string? mainBin, string programName,
+            string? postInstall, string? postRemove, bool wine)
         {
             Regex rgx = new Regex("[^a-z0-9]");
             Regex upRgx = new Regex("[^a-zA-Z0-9 -]");

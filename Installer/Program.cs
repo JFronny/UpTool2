@@ -6,7 +6,6 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml.Linq;
 using UpToolLib;
 using UpToolLib.Tool;
 
@@ -43,7 +42,8 @@ namespace Installer
                     Console.WriteLine("Verifying integrity");
                     using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
                     {
-                        string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
+                        string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty)
+                            .ToUpper();
                         if (pkgHash != UpdateCheck.AppHash)
                             throw new Exception($@"The hash is not equal to the one stored in the repo:
 Package: {pkgHash}
@@ -65,7 +65,8 @@ Online: {UpdateCheck.AppHash}");
                     }
                     Console.WriteLine("Creating shortcut");
                     Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
-                        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
+                        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs),
+                            "UpTool2.lnk"));
                     Console.WriteLine("Creating PATH entry");
                     if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
                         Path.Append(PathTool.GetRelative("Install"));

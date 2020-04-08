@@ -7,7 +7,6 @@ namespace UpTool2
     public partial class SettingsForms : Form
     {
         private readonly XDocument _doc;
-        private readonly XElement _meta;
         private readonly XElement _repos;
 
         public SettingsForms()
@@ -15,8 +14,7 @@ namespace UpTool2
             InitializeComponent();
             Program.FixXml();
             _doc = XDocument.Load(PathTool.InfoXml);
-            _meta = _doc.Element("meta");
-            _repos = _meta.Element("Repos");
+            _repos = _doc.Element("meta").Element("Repos");
             foreach (XElement repo in _repos.Elements("Repo"))
                 sourceGrid.Rows.Add(repo.Element("Name").Value, repo.Element("Link").Value);
         }

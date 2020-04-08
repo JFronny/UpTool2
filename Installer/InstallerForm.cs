@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -17,6 +18,8 @@ namespace Installer
     public partial class InstallerForm : Form
     {
         private string _log = "";
+        private const string AppName = "UpTool2";
+        private readonly RegistryKey _rkApp;
 
         public InstallerForm()
         {
@@ -24,6 +27,9 @@ namespace Installer
             InitializeComponent();
             Step(0, "Initialized");
             _log = _log.TrimStart(Environment.NewLine.ToCharArray());
+            _rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+            startupBox.Checked = _rkApp.GetValue(AppName) != null;
+            pathBox.Checked = Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install")));
         }
 
         private void install_Click(object sender, EventArgs e)
@@ -44,7 +50,9 @@ namespace Installer
                     string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
                     if (pkgHash != meta.Element("Hash").Value.ToUpper())
                         throw new Exception(
-                            $"The hash is not equal to the one stored in the repo:\r\nPackage: {pkgHash}\r\nOnline: {meta.Element("Hash").Value.ToUpper()}");
+                            $@"The hash is not equal to the one stored in the repo:
+Package: {pkgHash}
+Online: {meta.Element("Hash").Value.ToUpper()}");
                 }
                 Step(4, "Extracting");
                 if (Directory.Exists(PathTool.GetRelative("Install")))
@@ -57,13 +65,21 @@ namespace Installer
                 }
                 Step(5, "Creating shortcut");
                 Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
-                    System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
-                Step(6, "Creating PATH entry");
-                if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
-                    Path.Append(PathTool.GetRelative("Install"));
-                Step(7, "Preparing Repos");
+                    System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs),
+                        "UpTool2.lnk"));
+                Step(6, "Preparing Repos");
                 XmlTool.FixXml();
                 RepoManagement.FetchRepos();
+                if (pathBox.Checked)
+                {
+                    Step(7, startupBox.Checked ? "Creating PATH & Autostart entry" : "Creating PATH entry");
+                    if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
+                        Path.Append(PathTool.GetRelative("Install"));
+                    if (startupBox.Checked)
+                        _rkApp.SetValue(AppName, "uptool upgrade-self");
+                    else if (_rkApp.GetValue(AppName) != null)
+                        _rkApp.DeleteValue(AppName, false);
+                }
                 Step(8, "Done!");
             }
             catch (Exception ex)
@@ -94,8 +110,16 @@ namespace Installer
             Log(text);
         }
 
-        private void Log(string text) => _log += $"{Environment.NewLine}[{DateTime.Now.ToString(CultureInfo.InvariantCulture).Split(' ')[1]}] {text}";
+        private void Log(string text) => _log +=
+            $"{Environment.NewLine}[{DateTime.Now.ToString(CultureInfo.InvariantCulture).Split(' ')[1]}] {text}";
 
         private void log_Click(object sender, EventArgs e) => new Thread(() => MessageBox.Show(_log)).Start();
+
+        private void pathBox_CheckedChanged(object sender, EventArgs e)
+        {
+            startupBox.Enabled = pathBox.Checked;
+            if (!pathBox.Checked)
+                startupBox.Checked = false;
+        }
     }
 }

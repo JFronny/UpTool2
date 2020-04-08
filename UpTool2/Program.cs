@@ -5,11 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using System.Xml.Linq;
-using CC_Functions.Misc;
 using UpTool2.Tool;
 using UpToolLib;
 using UpToolLib.Tool;
@@ -118,7 +115,7 @@ namespace UpTool2
                 const int barWidth = 50;
                 const int topOffset = 100;
                 for (int i = 0; i < Splash.Width + topOffset; i += barWidth)
-                    g.FillPolygon(brushes[(i / barWidth) % brushes.Length], new[]
+                    g.FillPolygon(brushes[i / barWidth % brushes.Length], new[]
                     {
                         new PointF(i, 0),
                         new PointF(i + barWidth, 0),
@@ -129,8 +126,8 @@ namespace UpTool2
                 Font font = new Font(FontFamily.GenericSansSerif, 40, FontStyle.Bold);
                 const string text = "UpTool2";
                 SizeF size = g.MeasureString(text, font);
-                RectangleF rect = new RectangleF((Splash.Width / 2f) - (size.Width / 2),
-                    (Splash.Height / 2f) - (size.Height / 2), size.Width, size.Height);
+                RectangleF rect = new RectangleF(Splash.Width / 2f - size.Width / 2,
+                    Splash.Height / 2f - size.Height / 2, size.Width, size.Height);
                 g.DrawString(text, font, Brushes.White, rect);
                 Font smallFont = new Font(FontFamily.GenericSansSerif, 10);
                 const string subtitle = "by JFronny";
@@ -138,11 +135,11 @@ namespace UpTool2
                 g.DrawString(subtitle, smallFont, Brushes.White,
                     new RectangleF(rect.Right - size2.Width, rect.Bottom - size2.Height, size2.Width, size2.Height));
                 //Draw progress bar
-                Rectangle bar = new Rectangle((3 * Splash.Width) / 8, ((Splash.Height * 3) / 4) - 10, Splash.Width / 4,
+                Rectangle bar = new Rectangle(3 * Splash.Width / 8, Splash.Height * 3 / 4 - 10, Splash.Width / 4,
                     20);
                 g.FillRectangle(Brushes.Gray, bar);
                 g.FillRectangle(Brushes.Black,
-                    new Rectangle(bar.X, bar.Y, (bar.Width * _splashProgress) / 10, bar.Height));
+                    new Rectangle(bar.X, bar.Y, bar.Width * _splashProgress / 10, bar.Height));
                 g.DrawRectangle(Pens.DimGray, bar);
                 //g.DrawString(SplashMessage, smallFont, Brushes.White, new PointF(bar.Left, bar.Bottom));
                 g.DrawString(_splashMessage, smallFont, Brushes.White, bar,

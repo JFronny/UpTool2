@@ -9,17 +9,17 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Xml.Linq;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
-using Process = System.CommandLine.Invocation.Process;
+using Process = System.Diagnostics.Process;
 
 namespace UpToolCLI
 {
     public static class Program
     {
         private static readonly UtLibFunctions Functions = new UtLibFunctions();
+
         public static int Main(string[] args)
         {
             MutexLock.Lock();
@@ -122,37 +122,42 @@ namespace UpToolCLI
 #if DEBUG
             Console.WriteLine("Not enabled in debug builds");
 #else
-            Console.WriteLine("Downloading latest");
-            (bool success, byte[] dl) = Functions.Download(UpdateCheck.Installer);
-            if (!success)
-                throw new Exception("Failed to update");
-            Console.WriteLine("Verifying");
-            using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+            if (!force && Assembly.GetExecutingAssembly().GetName().Version >= UpdateCheck.OnlineVersion)
+                Console.WriteLine("Already up-to-date");
+            else
             {
-                string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
-                if (pkgHash != UpdateCheck.InstallerHash)
-                    throw new Exception($@"The hash is not equal to the one stored in the repo:
+                Console.WriteLine("Downloading latest");
+                (bool success, byte[] dl) = Functions.Download(UpdateCheck.Installer);
+                if (!success)
+                    throw new Exception("Failed to update");
+                Console.WriteLine("Verifying");
+                using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+                {
+                    string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
+                    if (pkgHash != UpdateCheck.InstallerHash)
+                        throw new Exception($@"The hash is not equal to the one stored in the repo:
 Package: {pkgHash}
 Online: {UpdateCheck.InstallerHash}");
+                }
+                Console.WriteLine("Installing");
+                if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))
+                    Directory.Delete(PathTool.GetRelative("Install", "tmp"), true);
+                Directory.CreateDirectory(PathTool.GetRelative("Install", "tmp"));
+                using (MemoryStream ms = new MemoryStream(dl))
+                {
+                    using ZipArchive ar = new ZipArchive(ms);
+                    ar.ExtractToDirectory(PathTool.GetRelative("Install", "tmp"), true);
+                }
+                string file = PathTool.GetRelative("Install", "tmp", "Installer.exe");
+                Console.WriteLine($"Starting {file}");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = file,
+                    Arguments = "-i",
+                    WorkingDirectory = PathTool.GetRelative("Install"),
+                    UseShellExecute = false
+                });
             }
-            Console.WriteLine("Installing");
-            if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))
-                Directory.Delete(PathTool.GetRelative("Install", "tmp"), true);
-            Directory.CreateDirectory(PathTool.GetRelative("Install", "tmp"));
-            using (MemoryStream ms = new MemoryStream(dl))
-            {
-                using ZipArchive ar = new ZipArchive(ms);
-                ar.ExtractToDirectory(PathTool.GetRelative("Install", "tmp"), true);
-            }
-            string file = PathTool.GetRelative("Install", "tmp", "Installer.exe");
-            Console.WriteLine($"Starting {file}");
-            System.Diagnostics.Process.Start(new ProcessStartInfo
-            {
-                FileName = file,
-                Arguments = "-i",
-                WorkingDirectory = PathTool.GetRelative("Install"),
-                UseShellExecute = false
-            });
 #endif
         }
 
@@ -316,7 +321,8 @@ Online: {UpdateCheck.InstallerHash}");
                 {
                     Console.WriteLine("Name:");
                     string name = Console.ReadLine();
-                    AppInstall.InstallZip(identifier, new App(name, "Locally installed package, removal only", GlobalVariables.MinimumVer, "", true, "",
+                    AppInstall.InstallZip(identifier, new App(name, "Locally installed package, removal only",
+                        GlobalVariables.MinimumVer, "", true, "",
                         Guid.NewGuid(), Color.Red, "", false, ""), force);
                     Console.WriteLine($"Successfully installed \"{name}\"");
                 }
@@ -352,7 +358,7 @@ Online: {UpdateCheck.InstallerHash}");
                 if (tmp.Runnable)
                 {
                     Console.WriteLine($"Starting {tmp.Name}");
-                    System.Diagnostics.Process tmp1 = AppExtras.RunApp(tmp);
+                    Process tmp1 = AppExtras.RunApp(tmp);
                     if (waitForExit)
                         tmp1.WaitForExit();
                 }

@@ -11,7 +11,7 @@ namespace Installer
 {
     internal class UtLibFunctionsGui : IExternalFunctionality
     {
-        private Action<string> _log;
+        private readonly Action<string> _log;
         public UtLibFunctionsGui(Action<string> log) => _log = log;
 
         public Tuple<bool, byte[]> Download(Uri link)

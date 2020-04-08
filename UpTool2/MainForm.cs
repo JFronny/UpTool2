@@ -27,9 +27,7 @@ namespace UpTool2
             HelpRequested += _help;
             filterBox.DataSource = Enum.GetValues(typeof(Status));
             if (Program.Online)
-            {
                 RepoManagement.FetchRepos();
-            }
             else
             {
                 MessageBox.Show("Starting in offline mode!");
@@ -240,9 +238,7 @@ namespace UpTool2
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (Program.Splash.IsDisposed)
-            {
                 Close();
-            }
             else
             {
                 Program.Splash.Invoke((Action) Program.Splash.Hide);

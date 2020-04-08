@@ -5,7 +5,8 @@ namespace UpTool_build_tool
 {
     internal static class BatchScripts
     {
-        public static Tuple<string, string> Create(bool shortcuts, string? mainBin, string programName, string? postInstall, string? postRemove)
+        public static Tuple<string, string> Create(bool shortcuts, string? mainBin, string programName,
+            string? postInstall, string? postRemove)
         {
             string installBat = "@echo off\r\necho INSTALL";
             string removeBat = "@echo off\r\necho REMOVE";
