@@ -28,8 +28,9 @@ namespace Installer
             Step(0, "Initialized");
             _log = _log.TrimStart(Environment.NewLine.ToCharArray());
             _rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-            startupBox.Checked = _rkApp.GetValue(AppName) != null;
             pathBox.Checked = Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install")));
+            startupBox.Checked = pathBox.Checked && _rkApp.GetValue(AppName) != null;
+            updateAppsBox.Checked = pathBox.Checked && startupBox.Checked && (string)_rkApp.GetValue(AppName) == "uptool dist-upgrade";
         }
 
         private void install_Click(object sender, EventArgs e)
@@ -76,7 +77,9 @@ Online: {meta.Element("Hash").Value.ToUpper()}");
                     if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
                         Path.Append(PathTool.GetRelative("Install"));
                     if (startupBox.Checked)
-                        _rkApp.SetValue(AppName, "uptool upgrade-self");
+                    {
+                        _rkApp.SetValue(AppName, updateAppsBox.Checked ? "uptool dist-upgrade" : "uptool upgrade-self");
+                    }
                     else if (_rkApp.GetValue(AppName) != null)
                         _rkApp.DeleteValue(AppName, false);
                 }
@@ -119,7 +122,18 @@ Online: {meta.Element("Hash").Value.ToUpper()}");
         {
             startupBox.Enabled = pathBox.Checked;
             if (!pathBox.Checked)
+            {
                 startupBox.Checked = false;
+                updateAppsBox.Checked = false;
+                updateAppsBox.Enabled = false;
+            }
+        }
+
+        private void startupBox_CheckedChanged(object sender, EventArgs e)
+        {
+            updateAppsBox.Enabled = startupBox.Checked;
+            if (!startupBox.Checked)
+                updateAppsBox.Checked = false;
         }
     }
 }

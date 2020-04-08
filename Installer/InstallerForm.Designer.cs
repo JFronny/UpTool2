@@ -35,6 +35,7 @@
             this.log = new System.Windows.Forms.Button();
             this.startupBox = new System.Windows.Forms.CheckBox();
             this.pathBox = new System.Windows.Forms.CheckBox();
+            this.updateAppsBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // install
@@ -74,9 +75,9 @@
             this.processLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.processLabel.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.processLabel.Location = new System.Drawing.Point(258, 94);
+            this.processLabel.Location = new System.Drawing.Point(386, 91);
             this.processLabel.Name = "processLabel";
-            this.processLabel.Size = new System.Drawing.Size(293, 19);
+            this.processLabel.Size = new System.Drawing.Size(165, 22);
             this.processLabel.TabIndex = 3;
             this.processLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
@@ -102,6 +103,7 @@
             this.startupBox.Size = new System.Drawing.Size(122, 19);
             this.startupBox.TabIndex = 5;
             this.startupBox.Text = "Update on Startup";
+            this.startupBox.CheckedChanged += new System.EventHandler(this.startupBox_CheckedChanged);
             // 
             // pathBox
             // 
@@ -114,11 +116,23 @@
             this.pathBox.Text = "Register in PATH";
             this.pathBox.CheckedChanged += new System.EventHandler(this.pathBox_CheckedChanged);
             // 
+            // updateAppsBox
+            // 
+            this.updateAppsBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.updateAppsBox.AutoSize = true;
+            this.updateAppsBox.Enabled = false;
+            this.updateAppsBox.Location = new System.Drawing.Point(258, 91);
+            this.updateAppsBox.Name = "updateAppsBox";
+            this.updateAppsBox.Size = new System.Drawing.Size(94, 19);
+            this.updateAppsBox.TabIndex = 5;
+            this.updateAppsBox.Text = "Update Apps";
+            // 
             // InstallerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(563, 156);
+            this.Controls.Add(this.updateAppsBox);
             this.Controls.Add(this.log);
             this.Controls.Add(this.processLabel);
             this.Controls.Add(this.progress);
@@ -144,6 +158,7 @@
         private System.Windows.Forms.Button log;
         private System.Windows.Forms.CheckBox pathBox;
         private System.Windows.Forms.CheckBox startupBox;
+        private System.Windows.Forms.CheckBox updateAppsBox;
     }
 }
 
