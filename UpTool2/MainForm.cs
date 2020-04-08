@@ -39,8 +39,8 @@ namespace UpTool2
             }
             Program.SetSplash(8, "Reloading data");
             ReloadElements();
-            if (!Directory.Exists(PathTool.appsPath))
-                Directory.CreateDirectory(PathTool.appsPath);
+            if (!Directory.Exists(PathTool.AppsPath))
+                Directory.CreateDirectory(PathTool.AppsPath);
         }
 
         private void Action_install_Click(object sender, EventArgs e)
@@ -91,7 +91,7 @@ namespace UpTool2
                 while (GlobalVariables.Apps.ContainsKey(id) || Directory.Exists(PathTool.GetAppPath(id)))
                     id = Guid.NewGuid();
                 App appI = new App(AppNameDialog.Show(), "Locally installed package, removal only",
-                    GlobalVariables.minimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
+                    GlobalVariables.MinimumVer, "", true, "", id, Color.Red, Resources.C_64.ToBitmap(), false, "");
                 AppInstall.InstallZip(searchPackageDialog.FileName, appI, true);
 #if !DEBUG
             }
@@ -109,8 +109,8 @@ namespace UpTool2
             ClearSelection();
             infoPanel_Title.Invalidate();
             infoPanel_Description.Invalidate();
-            int F = sidebarPanel.Controls.Count;
-            for (int i = 0; i < F; i++) sidebarPanel.Controls[0].Dispose();
+            int f = sidebarPanel.Controls.Count;
+            for (int i = 0; i < f; i++) sidebarPanel.Controls[0].Dispose();
             GlobalVariables.Apps.Clear();
             //add
             toolTip.SetToolTip(controls_settings, "Settings");
@@ -133,21 +133,21 @@ namespace UpTool2
                     BackgroundImage = (Bitmap) app.Icon,
                     BackgroundImageLayout = ImageLayout.Stretch
                 };
-                bool updateable = !app.Local && (app.status & Status.Updatable) == Status.Updatable;
+                bool updateable = !app.Local && (app.Status & Status.Updatable) == Status.Updatable;
                 sidebarIcon.Click += (sender, e) =>
                 {
                     infoPanel_Title.Text = app.Name;
                     infoPanel_Title.ForeColor = app.Local ? Color.Red : Color.Black;
                     infoPanel_Description.Text = app.Description;
                     action_install.Tag = app;
-                    action_install.Enabled = !(app.Local || Directory.Exists(app.appPath));
+                    action_install.Enabled = !(app.Local || Directory.Exists(app.AppPath));
                     action_remove.Tag = app;
-                    action_remove.Enabled = Directory.Exists(app.appPath);
+                    action_remove.Enabled = Directory.Exists(app.AppPath);
                     action_update.Tag = app;
                     action_update.Enabled = updateable;
                     action_run.Tag = app;
-                    action_run.Enabled = (app.status & Status.Installed) == Status.Installed && !app.Local &&
-                                         app.Runnable && Directory.Exists(app.appPath);
+                    action_run.Enabled = (app.Status & Status.Installed) == Status.Installed && !app.Local &&
+                                         app.Runnable && Directory.Exists(app.AppPath);
                 };
                 if (updateable)
                     availableUpdates++;
@@ -229,7 +229,7 @@ namespace UpTool2
                 Panel sidebarIcon = (Panel) sidebarPanel.Controls[i];
                 App app = (App) sidebarIcon.Tag;
                 sidebarIcon.Visible = apps.Contains(app) &&
-                                      ((int) app.status & (int) (Program.Online ? status : Status.Installed)) != 0;
+                                      ((int) app.Status & (int) (Program.Online ? status : Status.Installed)) != 0;
             }
             ClearSelection();
 #if DEBUG

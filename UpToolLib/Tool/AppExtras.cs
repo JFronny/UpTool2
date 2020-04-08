@@ -14,8 +14,8 @@ namespace UpToolLib.Tool
             Process.Start(
                 new ProcessStartInfo
                 {
-                    FileName = Path.Combine(app.dataPath, app.MainFile),
-                    WorkingDirectory = app.dataPath
+                    FileName = Path.Combine(app.DataPath, app.MainFile),
+                    WorkingDirectory = app.DataPath
                 });
 
         public static void Update(App app, bool overwrite)
@@ -26,32 +26,61 @@ namespace UpToolLib.Tool
 
         public static void Remove(App app, bool deleteAll)
         {
-            string tmp = PathTool.tempPath;
+            string tmp = PathTool.TempPath;
             if (Directory.Exists(tmp))
                 Directory.Delete(tmp, true);
             Directory.CreateDirectory(tmp);
-            if (File.Exists(Path.Combine(app.appPath, "package.zip")))
+            if (File.Exists(Path.Combine(app.AppPath, "package.zip")))
             {
-                ZipFile.ExtractToDirectory(Path.Combine(app.appPath, "package.zip"), tmp);
-                Process.Start(new ProcessStartInfo
+                ZipFile.ExtractToDirectory(Path.Combine(app.AppPath, "package.zip"), tmp);
+                /*Process.Start(new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
                     Arguments = $"/C \"{Path.Combine(tmp, "Remove.bat")}\"",
-                    WorkingDirectory = Path.Combine(app.appPath, "app"),
+                    WorkingDirectory = Path.Combine(app.AppPath, "app"),
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden
-                }).WaitForExit();
-                if (!deleteAll) CheckDirecory(Path.Combine(tmp, "Data"), app.dataPath);
+                }).WaitForExit();*/
+                int key = new[]
+                        {
+                            PlatformID.Xbox, PlatformID.Win32S, PlatformID.Win32Windows, PlatformID.Win32NT,
+                            PlatformID.WinCE
+                        }
+                        .Contains(Environment.OSVersion.Platform) ? 0 :
+                    File.Exists(Path.Combine(tmp, "Remove.sh")) ? 1 : 2;
+                ProcessStartInfo prc = new ProcessStartInfo
+                {
+                    FileName = key switch
+                    {
+                        0 => "cmd.exe",
+                        1 => "bash",
+                        2 => "wine",
+                        _ => throw new Exception()
+                    },
+                    WorkingDirectory = Path.Combine(app.AppPath, "app"),
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+                foreach (string s in key switch
+                {
+                    0 => new[] {"/C", $"{Path.Combine(tmp, "Remove.bat")}"},
+                    1 => new[] {Path.Combine(tmp, "Remove.sh")},
+                    2 => new[] {"cmd", "/C", $"{Path.Combine(tmp, "Remove.bat")}"},
+                    _ => throw new Exception()
+                })
+                    prc.ArgumentList.Add(s);
+                Process.Start(prc)?.WaitForExit();
+                if (!deleteAll) CheckDirecory(Path.Combine(tmp, "Data"), app.DataPath);
                 Directory.Delete(tmp, true);
             }
-            if (File.Exists(app.infoPath))
-                File.Delete(app.infoPath);
-            if (File.Exists(Path.Combine(app.appPath, "package.zip")))
-                File.Delete(Path.Combine(app.appPath, "package.zip"));
-            if (deleteAll || (Directory.Exists(app.dataPath) &&
-                              Directory.GetFiles(app.dataPath).Length + Directory.GetDirectories(app.dataPath).Length ==
+            if (File.Exists(app.InfoPath))
+                File.Delete(app.InfoPath);
+            if (File.Exists(Path.Combine(app.AppPath, "package.zip")))
+                File.Delete(Path.Combine(app.AppPath, "package.zip"));
+            if (deleteAll || (Directory.Exists(app.DataPath) &&
+                              Directory.GetFiles(app.DataPath).Length + Directory.GetDirectories(app.DataPath).Length ==
                               0))
-                Directory.Delete(app.appPath, true);
+                Directory.Delete(app.AppPath, true);
         }
 
         private static void CheckDirecory(string tmp, string app)

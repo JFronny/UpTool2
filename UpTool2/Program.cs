@@ -19,8 +19,8 @@ namespace UpTool2
     internal static class Program
     {
         public static Form Splash;
-        private static int SplashProgress;
-        private static string SplashMessage;
+        private static int _splashProgress;
+        private static string _splashMessage;
         public static bool Online;
 
         [STAThread]
@@ -47,10 +47,10 @@ namespace UpTool2
             try
             {
 #endif
-                ExternalFunctionalityManager.Init(new UTLibFunctions());
+                ExternalFunctionalityManager.Init(new UtLibFunctions());
                 SetSplash(1, "Initializing paths");
-                if (!Directory.Exists(PathTool.dir))
-                    Directory.CreateDirectory(PathTool.dir);
+                if (!Directory.Exists(PathTool.Dir))
+                    Directory.CreateDirectory(PathTool.Dir);
                 FixXml();
                 SetSplash(2, "Performing checks");
                 string metaXml = XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value;
@@ -135,10 +135,10 @@ namespace UpTool2
                     20);
                 g.FillRectangle(Brushes.Gray, bar);
                 g.FillRectangle(Brushes.Black,
-                    new Rectangle(bar.X, bar.Y, (bar.Width * SplashProgress) / 10, bar.Height));
+                    new Rectangle(bar.X, bar.Y, (bar.Width * _splashProgress) / 10, bar.Height));
                 g.DrawRectangle(Pens.DimGray, bar);
                 //g.DrawString(SplashMessage, smallFont, Brushes.White, new PointF(bar.Left, bar.Bottom));
-                g.DrawString(SplashMessage, smallFont, Brushes.White, bar,
+                g.DrawString(_splashMessage, smallFont, Brushes.White, bar,
                     new StringFormat {Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center});
             };
             int xOff = 0;
@@ -163,9 +163,9 @@ namespace UpTool2
 
         public static void SetSplash(int progress, string status) => Splash.Invoke(new Action(() =>
         {
-            SplashProgress = progress;
+            _splashProgress = progress;
             Console.WriteLine(status);
-            SplashMessage = status;
+            _splashMessage = status;
             Splash.Invoke((Action) Splash.Invalidate);
         }));
 

@@ -1,7 +1,7 @@
 ﻿# CLI
 Updating the cache: uptool update
 
-Installing a package: uptool install \<package>
+Installing a package (set \<package> to a file for local): uptool install \<package>
 
 Upgrading a package: uptool upgrade \<package>
 

@@ -8,6 +8,8 @@ namespace UpToolLib.Tool
     {
         public static void FixXml()
         {
+            if (!Directory.Exists(PathTool.AppsPath))
+                Directory.CreateDirectory(PathTool.AppsPath);
             if (!File.Exists(PathTool.InfoXml) || XDocument.Load(PathTool.InfoXml).Element("meta") == null)
                 new XElement("meta").Save(PathTool.InfoXml);
             XDocument x = XDocument.Load(PathTool.InfoXml);

@@ -5,7 +5,7 @@ namespace UpToolLib.DataStructures
     [Flags]
     public enum Status
     {
-        Not_Installed = 1,
+        NotInstalled = 1,
         Updatable = 2,
         Installed = 4,
         Local = 8,

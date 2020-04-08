@@ -14,24 +14,26 @@ namespace UpTool_build_tool
         public static int Main(string[] args)
         {
             RootCommand rootCommand = new RootCommand();
-            Command build = new Command("build", "Builds a generic package with or without shortcuts from a directory");
-            build.AddOption(new Option<string>("--binDir", "Directory to package"));
-            build.AddOption(new Option<string>("--mainBin", "The applications main binary"));
-            build.AddOption(new Option<string>("--packageFile", "Directory to package"));
-            build.AddOption(new Option<string>("--postInstall", () => "",
-                "Command(s) to run after installing the package"));
-            build.AddOption(
-                new Option<string>("--postRemove", () => "", "Command(s) to run after removing the package"));
-            build.AddOption(new Option<bool>("--noLogo", "Disables the logo"));
-            build.AddOption(new Option<bool>("--noShortcuts",
-                "When this is enabled the scripts will not generate a start-menu item"));
-            build.Handler = CommandHandler.Create<string, string, string, string, string, bool, bool>(Build);
+            Command build = new Command("build", "Builds a generic package with or without shortcuts from a directory")
+            {
+                new Option<string>("--binDir", "Directory to package"),
+                new Option<string>("--mainBin", () => "FIND_BIN", "The applications main binary"),
+                new Option<string>("--packageFile", "Directory to package"),
+                new Option<string>("--postInstall", () => "", "Command(s) to run after installing the package (This will be pasted into the .bat AND .sh file)"),
+                new Option<string>("--postRemove", () => "", "Command(s) to run after removing the package (This will be pasted into the .bat AND .sh file)"),
+                new Option<bool>("--noLogo", "Disables the logo"),
+                new Option<bool>("--noShortcuts",
+                    "When this is enabled the scripts will not generate a start-menu item"),
+                new Option<bool>("--noWine",
+                    "This indicates that your program supports multiple platforms natively and doesn't require WINE")
+            };
+            build.Handler = CommandHandler.Create((Action<string, string, string, string, string, bool, bool, bool>)Build);
             rootCommand.AddCommand(build);
             return rootCommand.InvokeAsync(args).Result;
         }
 
         private static void Build(string binDir, string mainBin, string packageFile, string postInstall,
-            string postRemove, bool noLogo, bool noShortcuts)
+            string postRemove, bool noLogo, bool noShortcuts, bool noWine)
         {
             Stopwatch watch = Stopwatch.StartNew();
             if (!noLogo)
@@ -55,9 +57,7 @@ namespace UpTool_build_tool
             {
                 archive.AddDirectory(binDir, "Data", new[] {".xml", ".pdb"}, new[] {packageFile});
                 Console.WriteLine("Creating batch scripts...");
-                string installBat = "@echo off\r\necho INSTALL";
-                string removeBat = "@echo off\r\necho REMOVE";
-                if (string.IsNullOrWhiteSpace(mainBin))
+                if (mainBin == "FIND_BIN")
                 {
                     string[] tmp = Directory.GetFiles(binDir, "*.exe");
                     if (tmp.Length > 0)
@@ -71,35 +71,22 @@ namespace UpTool_build_tool
                     }
                 }
                 string programName = Path.GetFileNameWithoutExtension(mainBin);
-                if (!noShortcuts)
-                {
-                    installBat += "\r\n";
-                    installBat +=
-                        $@"powershell ""$s=(New-Object -COM WScript.Shell).CreateShortcut('%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk');$s.TargetPath='%cd%\{mainBin}';$s.Save()""";
-                    removeBat += "\r\n";
-                    removeBat += $@"del ""%appdata%\Microsoft\Windows\Start Menu\Programs\{programName}.lnk""";
-                }
-                if (!string.IsNullOrWhiteSpace(mainBin))
-                {
-                    removeBat += "\r\n";
-                    removeBat += $@"taskkill /f /im ""{Path.GetFileName(mainBin)}""";
-                }
-                installBat += $"\r\n{postInstall}";
-                removeBat += $"\r\n{postRemove}";
-                using (Stream s = archive.CreateEntry("Install.bat").Open())
-                {
-                    using StreamWriter writer = new StreamWriter(s);
-                    writer.Write(installBat);
-                }
-                using (Stream s = archive.CreateEntry("Remove.bat").Open())
-                {
-                    using StreamWriter writer = new StreamWriter(s);
-                    writer.Write(removeBat);
-                }
+                (string installBat, string removeBat) = BatchScripts.Create(!noShortcuts, mainBin, programName, postInstall, postRemove);
+                archive.AddFile("Install.bat", installBat);
+                archive.AddFile("Remove.bat", removeBat);
+                ShScripts.Create(archive.AddFile, !noShortcuts, mainBin, programName, postInstall, postRemove, !noWine);
+                
             }
             watch.Stop();
             Console.WriteLine($"Completed package creation in {watch.Elapsed}");
             Console.WriteLine($"Output file: {Path.GetFullPath(packageFile)}");
+        }
+
+        private static void AddFile(this ZipArchive archive, string fileName, string content)
+        {
+            using Stream s = archive.CreateEntry(fileName).Open();
+            using StreamWriter writer = new StreamWriter(s);
+            writer.Write(content);
         }
     }
 }

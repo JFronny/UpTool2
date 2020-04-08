@@ -54,10 +54,10 @@ namespace Installer
                     }
                     Console.WriteLine("Creating shortcut");
                     Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
-                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
+                        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
                     Console.WriteLine("Creating PATH entry");
-                    if (!PATH.Content.Contains(PATH.GetName(PathTool.GetRelative("Install"))))
-                        PATH.Append(PathTool.GetRelative("Install"));
+                    if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
+                        Path.Append(PathTool.GetRelative("Install"));
                 }
             }
             finally

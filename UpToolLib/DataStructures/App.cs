@@ -38,13 +38,13 @@ namespace UpToolLib.DataStructures
             MainFile = mainFile ?? throw new ArgumentNullException(nameof(mainFile));
         }
 
-        public Status status
+        public Status Status
         {
             get
             {
-                if (!System.IO.File.Exists(infoPath))
-                    return Status.Not_Installed;
-                if (Version.TryParse(XDocument.Load(infoPath).Element("app").Element("Version").Value,
+                if (!System.IO.File.Exists(InfoPath))
+                    return Status.NotInstalled;
+                if (Version.TryParse(XDocument.Load(InfoPath).Element("app").Element("Version").Value,
                     out Version ver) && ver >= Version)
                     return Local ? Status.Installed | Status.Local : Status.Installed;
                 return Status.Installed | Status.Updatable;
@@ -68,15 +68,15 @@ ID: {Id}
 Color: {Color.ToKnownColor()}
 Runnable: {Runnable}
 MainFile: {MainFile}
-Status: {status}
+Status: {Status}
 Object Hash Code: {GetHashCode()}";
 
         public static bool operator ==(App left, App right) => left.Equals(right);
 
         public static bool operator !=(App left, App right) => !(left == right);
 
-        public string appPath => PathTool.GetAppPath(Id);
-        public string dataPath => PathTool.GetDataPath(Id);
-        public string infoPath => PathTool.GetInfoPath(Id);
+        public string AppPath => PathTool.GetAppPath(Id);
+        public string DataPath => PathTool.GetDataPath(Id);
+        public string InfoPath => PathTool.GetInfoPath(Id);
     }
 }

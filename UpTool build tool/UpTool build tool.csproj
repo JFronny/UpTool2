@@ -7,10 +7,10 @@
     <Deterministic>false</Deterministic>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyVersion>1.0.*</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>.\pkgtool.exe build --noLogo --noShortcuts --binDir .</PostBuildEvent>
+    <PostBuildEvent>.\pkgtool build --noLogo --noShortcuts --binDir . --mainBin ""</PostBuildEvent>
     <ApplicationIcon>..\UpTool2.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>

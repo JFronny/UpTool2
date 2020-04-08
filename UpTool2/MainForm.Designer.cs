@@ -221,7 +221,7 @@
             this.ResumeLayout(false);
         }
 
-        #endregion
+#endregion
 
         private System.Windows.Forms.FlowLayoutPanel sidebarPanel;
         private System.Windows.Forms.Panel infoPanel;

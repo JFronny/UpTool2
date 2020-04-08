@@ -4,11 +4,11 @@ namespace UpToolLib
 {
     public static class ExternalFunctionalityManager
     {
-        internal static IExternalFunctionality instance;
+        internal static IExternalFunctionality Instance;
 
         public static void Init(IExternalFunctionality externalFunctionality)
         {
-            instance = externalFunctionality;
+            Instance = externalFunctionality;
         }
     }
 }

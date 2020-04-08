@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Installer
 {
-    public static class PATH
+    public static class Path
     {
         public static string[] Content
         {
@@ -15,6 +15,6 @@ namespace Installer
         public static void Append(string path, bool escape = true) =>
             Content = Content.Append(escape ? GetName(path) : path).ToArray();
 
-        public static string GetName(string path) => Path.GetFullPath(path);
+        public static string GetName(string path) => System.IO.Path.GetFullPath(path);
     }
 }

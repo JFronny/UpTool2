@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
@@ -23,8 +24,8 @@ namespace UpToolLib.Tool
             try
             {
 #endif
-                app = appI.appPath;
-                tmp = PathTool.tempPath;
+                app = appI.AppPath;
+                tmp = PathTool.TempPath;
                 if (Directory.Exists(tmp))
                     Directory.Delete(tmp, true);
                 Directory.CreateDirectory(tmp);
@@ -39,7 +40,7 @@ namespace UpToolLib.Tool
                     if (!Directory.Exists(app))
                         Directory.CreateDirectory(app);
                 }
-                (bool dlSuccess, byte[] dlData) = ExternalFunctionalityManager.instance.Download(new Uri(appI.File));
+                (bool dlSuccess, byte[] dlData) = ExternalFunctionalityManager.Instance.Download(new Uri(appI.File));
                 if (!dlSuccess)
                     throw new Exception("Download failed");
                 using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
@@ -77,9 +78,9 @@ Online: {appI.Hash.ToUpper()}");
             string tmp = "";
             try
             {
-                app = meta.appPath;
+                app = meta.AppPath;
                 Directory.CreateDirectory(app);
-                tmp = PathTool.tempPath;
+                tmp = PathTool.TempPath;
                 if (Directory.Exists(tmp))
                     Directory.Delete(tmp, true);
                 Directory.CreateDirectory(tmp);
@@ -102,18 +103,16 @@ Online: {appI.Hash.ToUpper()}");
         //Use
         //PowerShell -Command "Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('Hello World')"
         //for message boxes
-        private static void CompleteInstall(App app, bool force) => CompleteInstall(app.appPath, app.Name,
+        private static void CompleteInstall(App app, bool force) => CompleteInstall(app.AppPath, app.Name,
             app.Description, app.Version, app.MainFile, force);
 
         private static void CompleteInstall(string appPath, string name, string description, Version version,
             string mainFile, bool force)
         {
-            string tmp = PathTool.tempPath;
+            string tmp = PathTool.TempPath;
             ZipFile.ExtractToDirectory(Path.Combine(appPath, "package.zip"), tmp);
             if (force)
-            {
                 Directory.Move(Path.Combine(tmp, "Data"), Path.Combine(appPath, "app"));
-            }
             else
             {
                 CopyAll(Path.Combine(tmp, "Data"), Path.Combine(appPath, "app"));
@@ -124,14 +123,62 @@ Online: {appI.Hash.ToUpper()}");
             if (mainFile != null)
                 el.Add(new XElement(new XElement("MainFile", mainFile)));
             el.Save(Path.Combine(appPath, "info.xml"));
-            Process.Start(new ProcessStartInfo
+            /*if (new[] { PlatformID.Xbox, PlatformID.Win32S, PlatformID.Win32Windows, PlatformID.Win32NT, PlatformID.WinCE }.Contains(Environment.OSVersion.Platform))
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    ArgumentList = {"/C", $"{Path.Combine(tmp, "Install.bat")}"},
+                    WorkingDirectory = Path.Combine(appPath, "app"),
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                }).WaitForExit();
+            else if (File.Exists(Path.Combine(tmp, "Install.sh")))
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "bash",
+                    ArgumentList = {Path.Combine(tmp, "Install.sh")},
+                    WorkingDirectory = Path.Combine(appPath, "app"),
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                }).WaitForExit();
+            else
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "wine",
+                    ArgumentList = {"cmd", "/C", $"{Path.Combine(tmp, "Install.bat")}"},
+                    WorkingDirectory = Path.Combine(appPath, "app"),
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                }).WaitForExit();*/
+            int key = new[]
+                    {
+                        PlatformID.Xbox, PlatformID.Win32S, PlatformID.Win32Windows, PlatformID.Win32NT,
+                        PlatformID.WinCE
+                    }
+                    .Contains(Environment.OSVersion.Platform) ? 0 :
+                File.Exists(Path.Combine(tmp, "Install.sh")) ? 1 : 2;
+            ProcessStartInfo prc = new ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = $"/C \"{Path.Combine(tmp, "Install.bat")}\"",
+                FileName = key switch
+                {
+                    0 => "cmd.exe",
+                    1 => "bash",
+                    2 => "wine",
+                    _ => throw new Exception()
+                },
                 WorkingDirectory = Path.Combine(appPath, "app"),
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
-            }).WaitForExit();
+            };
+            foreach (string s in key switch
+            {
+                0 => new[] {"/C", $"{Path.Combine(tmp, "Install.bat")}"},
+                1 => new[] {Path.Combine(tmp, "Install.sh")},
+                2 => new[] {"cmd", "/C", $"{Path.Combine(tmp, "Install.bat")}"},
+                _ => throw new Exception()
+            })
+                prc.ArgumentList.Add(s);
+            Process.Start(prc)?.WaitForExit();
         }
 
         private static void CopyAll(string source, string target)

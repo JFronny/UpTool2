@@ -11,7 +11,7 @@ using UpToolLib.DataStructures;
 
 namespace UpTool2
 {
-    internal class UTLibFunctions : IExternalFunctionality
+    internal class UtLibFunctions : IExternalFunctionality
     {
         public Tuple<bool, byte[]> Download(Uri link)
         {
@@ -47,7 +47,7 @@ namespace UpTool2
         public bool YesNoDialog(string text, bool _) =>
             MessageBox.Show(text, "", MessageBoxButtons.YesNo) == DialogResult.Yes;
 
-        public void OKDialog(string text) => MessageBox.Show(text);
+        public void OkDialog(string text) => MessageBox.Show(text);
         public object GetDefaultIcon() => Resources.C_64.ToBitmap();
 
         public object ImageFromB64(string b64) =>

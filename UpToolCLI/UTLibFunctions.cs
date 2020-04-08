@@ -8,7 +8,7 @@ using UpToolLib.DataStructures;
 
 namespace UpToolCLI
 {
-    public class UTLibFunctions : IExternalFunctionality
+    public class UtLibFunctions : IExternalFunctionality
     {
         public Tuple<bool, byte[]> Download(Uri link)
         {
@@ -82,7 +82,7 @@ namespace UpToolCLI
             return current;
         }
 
-        public void OKDialog(string text)
+        public void OkDialog(string text)
         {
             Console.WriteLine(text);
             Console.BackgroundColor = ConsoleColor.White;

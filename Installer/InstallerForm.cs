@@ -14,13 +14,13 @@ namespace Installer
 {
     public partial class InstallerForm : Form
     {
-        private string Log = "";
+        private string _log = "";
 
         public InstallerForm()
         {
             InitializeComponent();
             Step(0, "Initialized");
-            Log.TrimStart(Environment.NewLine.ToCharArray());
+            _log.TrimStart(Environment.NewLine.ToCharArray());
         }
 
         private void install_Click(object sender, EventArgs e)
@@ -54,10 +54,10 @@ namespace Installer
                 }
                 Step(5, "Creating shortcut");
                 Shortcut.Make(PathTool.GetRelative("Install", "UpTool2.exe"),
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
+                    System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "UpTool2.lnk"));
                 Step(6, "Creating PATH entry");
-                if (!PATH.Content.Contains(PATH.GetName(PathTool.GetRelative("Install"))))
-                    PATH.Append(PathTool.GetRelative("Install"));
+                if (!Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install"))))
+                    Path.Append(PathTool.GetRelative("Install"));
                 Step(7, "Done!");
             }
             catch (Exception ex)
@@ -85,9 +85,9 @@ namespace Installer
         {
             progress.Value = p;
             processLabel.Text = text;
-            Log += $"{Environment.NewLine}[{DateTime.Now.ToString(CultureInfo.InvariantCulture).Split(' ')[1]}] {text}";
+            _log += $"{Environment.NewLine}[{DateTime.Now.ToString(CultureInfo.InvariantCulture).Split(' ')[1]}] {text}";
         }
 
-        private void log_Click(object sender, EventArgs e) => new Thread(() => MessageBox.Show(Log)).Start();
+        private void log_Click(object sender, EventArgs e) => new Thread(() => MessageBox.Show(_log)).Start();
     }
 }

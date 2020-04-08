@@ -25,11 +25,11 @@ namespace UpToolLib.Tool
                 try
                 {
 #endif
-                    ExternalFunctionalityManager.instance.Log($"[{i + 1}] Loading {repArr[i]}");
+                    ExternalFunctionalityManager.Instance.Log($"[{i + 1}] Loading {repArr[i]}");
                     XDocument repo = XDocument.Load(new Uri(repArr[i]).Unshorten().AbsoluteUri);
                     repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value)
                         .Where(s => !repArr.Contains(s)));
-                    XElement[] tmp_apparray = repo.Element("repo").Elements("app").Where(app =>
+                    XElement[] tmpApparray = repo.Element("repo").Elements("app").Where(app =>
                             !tmpAppsList.Any(a => a.Element("ID").Value == app.Element("ID").Value) ||
                             !tmpAppsList
                                 .Where(a => a.Element("ID").Value == app.Element("ID").Value).Any(a =>
@@ -37,13 +37,12 @@ namespace UpToolLib.Tool
                         .Concat(repo.Element("repo").Elements("applink")
                             .Select(s =>
                             {
-                                ExternalFunctionalityManager.instance.Log($"- Loading {s.Value}");
+                                ExternalFunctionalityManager.Instance.Log($"- Loading {s.Value}");
                                 return XDocument.Load(new Uri(s.Value).Unshorten().AbsoluteUri).Element("app");
                             }))
                         .ToArray();
-                    for (int i1 = 0; i1 < tmp_apparray.Length; i1++)
+                    foreach (XElement app in tmpApparray)
                     {
-                        XElement app = tmp_apparray[i1];
                         //"Sanity check"
                         Version.Parse(app.Element("Version").Value);
                         Guid.Parse(app.Element("ID").Value);
@@ -63,14 +62,16 @@ namespace UpToolLib.Tool
                             {
                                 tmpAppsList.Last()
                                     .Add(new XElement("Icon",
-                                        ExternalFunctionalityManager.instance.FetchImageB64(
+                                        ExternalFunctionalityManager.Instance.FetchImageB64(
                                             new Uri(app.Element("Icon").Value).Unshorten())));
                             }
                             catch
                             {
+                                // ignored
                             }
 
-                        if (tmpAppsList.Count(a => a.Element("ID").Value == app.Element("ID").Value) > 1)
+                        XElement app1 = app;
+                        if (tmpAppsList.Count(a => a.Element("ID").Value == app1.Element("ID").Value) > 1)
                             tmpAppsList.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse()
                                 .Skip(1)
                                 .ToList().ForEach(a => tmpAppsList.Remove(a));
@@ -79,7 +80,7 @@ namespace UpToolLib.Tool
                 }
                 catch (Exception e)
                 {
-                    ExternalFunctionalityManager.instance.OKDialog(
+                    ExternalFunctionalityManager.Instance.OkDialog(
                         $"Failed to load repo: {repArr[i]}{Environment.NewLine}{e}");
                 }
 #endif
@@ -112,7 +113,7 @@ namespace UpToolLib.Tool
                 string locInPath = PathTool.GetInfoPath(id);
                 XElement locIn = File.Exists(locInPath) ? XDocument.Load(locInPath).Element("app") : app;
                 if (int.TryParse(app.Element("Version").Value, out _))
-                    app.Element("Version").Value = GlobalVariables.minimumVer.ToString();
+                    app.Element("Version").Value = GlobalVariables.MinimumVer.ToString();
                 GlobalVariables.Apps.Add(id, new App(
                     locIn.Element("Name").Value,
                     locIn.Element("Description").Value,
@@ -123,15 +124,15 @@ namespace UpToolLib.Tool
                     id,
                     Color.White,
                     app.Element("Icon") == null
-                        ? ExternalFunctionalityManager.instance.GetDefaultIcon()
-                        : ExternalFunctionalityManager.instance.ImageFromB64(app.Element("Icon").Value),
+                        ? ExternalFunctionalityManager.Instance.GetDefaultIcon()
+                        : ExternalFunctionalityManager.Instance.ImageFromB64(app.Element("Icon").Value),
                     locIn.Element("MainFile") != null || app.Element("MainFile") != null,
                     locIn.Element("MainFile") == null
                         ? app.Element("MainFile") == null ? "" : app.Element("MainFile").Value
                         : locIn.Element("MainFile").Value
                 ));
             });
-            Directory.GetDirectories(PathTool.appsPath)
+            Directory.GetDirectories(PathTool.AppsPath)
                 .Where(s => Guid.TryParse(Path.GetFileName(s), out Guid guid) &&
                             !GlobalVariables.Apps.ContainsKey(guid)).ToList().ForEach(s =>
                 {
@@ -141,14 +142,14 @@ namespace UpToolLib.Tool
                         XElement data = XDocument.Load(PathTool.GetInfoPath(tmp)).Element("app");
                         GlobalVariables.Apps.Add(tmp,
                             new App("(local) " + data.Element("Name").Value, data.Element("Description").Value,
-                                GlobalVariables.minimumVer, "", true, "", tmp, Color.Red,
-                                ExternalFunctionalityManager.instance.GetDefaultIcon(),
+                                GlobalVariables.MinimumVer, "", true, "", tmp, Color.Red,
+                                ExternalFunctionalityManager.Instance.GetDefaultIcon(),
                                 data.Element("MainFile") != null,
                                 data.Element("MainFile") == null ? "" : data.Element("MainFile").Value));
                     }
                     catch (Exception e)
                     {
-                        if (ExternalFunctionalityManager.instance.YesNoDialog(
+                        if (ExternalFunctionalityManager.Instance.YesNoDialog(
                             $@"An error occured while loading this local repo:
 {e.Message}
 Do you want to exit? Otherwise the folder will be deleted, possibly causeing problems later.", false))
