@@ -24,6 +24,11 @@ jobs:
         $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool build tool\\bin\\Release\\netcoreapp3.1\\pkgtool.dll").GetName().version.ToString())
         echo "::set-output name=vers::$asmver"
         echo "::set-output name=pkgvers::$pkgtoolver"
+        cd $Env:GITHUB_WORKSPACE\Installer
+        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.exe
+        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\*.dll
+        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.runtimeconfig.json
+        cd $Env:GITHUB_WORKSPACE
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1.0.1
@@ -54,6 +59,16 @@ jobs:
         asset_path: ./Tools.zip
         asset_name: Tools.zip
         asset_content_type: application/zip
+    - name: Upload generic Installer
+      id: upload_generic_installer
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Installer-generic.zip
+        asset_name: Installer-generic.zip
+        asset_content_type: application/zip
     - name: Create XML
       run: |
         [System.XML.XMLDocument]$xml=New-Object System.XML.XMLDocument
@@ -73,6 +88,8 @@ jobs:
         $app.appendChild($xml.CreateElement("Version")).InnerText = "${{ steps.base_init.outputs.vers }}"
         $app.appendChild($xml.CreateElement("File")).InnerText = "${{ steps.upload_release_asset.outputs.browser_download_url }}"
         $app.appendChild($xml.CreateElement("Hash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Release.zip).Hash
+        $app.appendChild($xml.CreateElement("Installer")).InnerText = "${{ steps.upload_generic_installer.outputs.browser_download_url }}"
+        $app.appendChild($xml.CreateElement("InstallerHash")).InnerText = $(Get-FileHash $Env:GITHUB_WORKSPACE\Installer-generic.zip).Hash
         echo NULL > meta.xml
         $xml.save($(gi .\meta.xml).Fullname)
     - name: Upload Meta XML
@@ -96,9 +113,6 @@ jobs:
     - name: Build non-generic installers
       run: |
         cd $Env:GITHUB_WORKSPACE\Installer
-        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.exe
-        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\*.dll
-        & "C:\Program Files\7-Zip\7z" a ..\Installer-generic.zip .\bin\Release\netcoreapp3.1\Installer.runtimeconfig.json
         dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
         dotnet publish -r win-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
         cp .\bin\Release\netcoreapp3.1\win-x64\publish\Installer.exe ..\Installer-x64.exe
@@ -122,12 +136,3 @@ jobs:
         asset_path: ./Installer-x64.exe
         asset_name: Installer-x64.exe
         asset_content_type: application/vnd.microsoft.portable-executable
-    - name: Upload generic Installer
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Installer-generic.zip
-        asset_name: Installer-generic.zip
-        asset_content_type: application/zip
