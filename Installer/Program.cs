@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using UpToolLib;
@@ -19,11 +20,11 @@ namespace Installer
         [STAThread]
         private static void Main(string[] args)
         {
-            MutexLock.Lock();
             try
             {
                 if (!args.Any(s => new[] {"install", "i"}.Contains(s.TrimStart('-', '/').ToLower())))
                 {
+                    MutexLock.Lock();
                     Application.SetHighDpiMode(HighDpiMode.SystemAware);
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
@@ -31,6 +32,8 @@ namespace Installer
                 }
                 else
                 {
+                    Thread.Sleep(2000);
+                    MutexLock.Lock();
                     ExternalFunctionalityManager.Init(new UtLibFunctionsCli());
                     WebClient client = new WebClient();
                     Console.WriteLine("Downloading metadata");
