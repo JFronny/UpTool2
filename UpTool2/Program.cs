@@ -192,7 +192,7 @@ namespace UpTool2
                 return true;
             byte[] dl;
             SetSplash(4, "Downloading latest");
-            using (DownloadDialog dlg = new DownloadDialog(meta.Element("File").Value))
+            using (DownloadDialog dlg = new DownloadDialog(meta.Element("Installer").Value))
             {
                 if (dlg.ShowDialog() != DialogResult.OK)
                     throw new Exception("Failed to update");
@@ -202,9 +202,9 @@ namespace UpTool2
             using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
             {
                 string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
-                if (pkgHash != meta.Element("Hash").Value.ToUpper())
+                if (pkgHash != meta.Element("InstallerHash").Value.ToUpper())
                     throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkgHash +
-                                        "\r\nOnline: " + meta.Element("Hash").Value.ToUpper());
+                                        "\r\nOnline: " + meta.Element("InstallerHash").Value.ToUpper());
             }
             SetSplash(9, "Installing");
             if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))
@@ -218,8 +218,8 @@ namespace UpTool2
             Splash.Hide();
             Process.Start(new ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = @"/C timeout /t 2 & xcopy /s /e /y tmp\* .",
+                FileName = PathTool.GetRelative("Install", "tmp", "Installer.exe"),
+                Arguments = "-i",
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = PathTool.GetRelative("Install")

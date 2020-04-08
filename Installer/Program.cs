@@ -47,8 +47,15 @@ namespace Installer
                                 $"The hash is not equal to the one stored in the repo:\r\nPackage: {pkgHash}\r\nOnline: {meta.Element("Hash").Value.ToUpper()}");
                     }
                     Console.WriteLine("Extracting");
+                    //if (Directory.Exists(PathTool.GetRelative("Install")))
+                    //    Directory.Delete(PathTool.GetRelative("Install"), true);
                     if (Directory.Exists(PathTool.GetRelative("Install")))
-                        Directory.Delete(PathTool.GetRelative("Install"), true);
+                    {
+                        foreach (string file in Directory.GetFiles(PathTool.GetRelative("Install"))) File.Delete(file);
+                        foreach (string dir in Directory.GetDirectories(PathTool.GetRelative("Install")))
+                            if (System.IO.Path.GetFileName(dir) != "tmp")
+                                Directory.Delete(dir, true);
+                    }
                     Directory.CreateDirectory(PathTool.GetRelative("Install"));
                     using (MemoryStream ms = new MemoryStream(dl))
                     {

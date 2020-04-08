@@ -22,3 +22,6 @@ Search for a package: uptool search \<text>
 Show package info: uptool show \<package>
 
 Start an app: uptool start \<package>
+
+
+Upgrading UpToolCLI: uptool upgrade-self

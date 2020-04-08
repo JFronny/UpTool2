@@ -2,24 +2,31 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
+using Process = System.CommandLine.Invocation.Process;
 
 namespace UpToolCLI
 {
     public static class Program
     {
+        private static readonly UtLibFunctions Functions = new UtLibFunctions();
         public static int Main(string[] args)
         {
             MutexLock.Lock();
             try
             {
                 XmlTool.FixXml();
-                ExternalFunctionalityManager.Init(new UtLibFunctions());
+                ExternalFunctionalityManager.Init(Functions);
                 RootCommand rootCommand = new RootCommand();
                 rootCommand.AddCommand(new Command("update", "Updates the cache")
                 {
@@ -41,6 +48,11 @@ namespace UpToolCLI
                 };
                 upgrade.Handler = CommandHandler.Create<string, bool>(Upgrade);
                 rootCommand.AddCommand(upgrade);
+
+                rootCommand.AddCommand(new Command("upgrade-self", "Upgrades UpToolCLI")
+                {
+                    Handler = CommandHandler.Create(UpgradeSelf)
+                });
 
                 Command reinstall = new Command("reinstall", "Reinstall a package")
                 {
@@ -103,6 +115,45 @@ namespace UpToolCLI
             }
         }
 
+        private static void UpgradeSelf()
+        {
+#if DEBUG
+            Console.WriteLine("Not enabled in debug builds");
+#else
+            XElement meta = XDocument.Load(XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value).Element("meta");
+            Console.WriteLine("Downloading latest");
+            (bool success, byte[] dl) = Functions.Download(new Uri(meta.Element("Installer").Value));
+            if (!success)
+                throw new Exception("Failed to update");
+            Console.WriteLine("Verifying");
+            using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
+            {
+                string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
+                if (pkgHash != meta.Element("InstallerHash").Value.ToUpper())
+                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkgHash +
+                                        "\r\nOnline: " + meta.Element("InstallerHash").Value.ToUpper());
+            }
+            Console.WriteLine("Installing");
+            if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))
+                Directory.Delete(PathTool.GetRelative("Install", "tmp"), true);
+            Directory.CreateDirectory(PathTool.GetRelative("Install", "tmp"));
+            using (MemoryStream ms = new MemoryStream(dl))
+            {
+                using ZipArchive ar = new ZipArchive(ms);
+                ar.ExtractToDirectory(PathTool.GetRelative("Install", "tmp"), true);
+            }
+            string file = PathTool.GetRelative("Install", "tmp", "Installer.exe");
+            Console.WriteLine($"Starting {file}");
+            System.Diagnostics.Process.Start(new ProcessStartInfo
+            {
+                FileName = file,
+                Arguments = "-i",
+                WorkingDirectory = PathTool.GetRelative("Install"),
+                UseShellExecute = false
+            });
+#endif
+        }
+
         private static void Update()
         {
             Console.WriteLine("Fetching Repos...");
@@ -117,6 +168,13 @@ namespace UpToolCLI
                 ? "All up-to-date"
                 : $@"Found {updatableCount} Updates:
 {string.Join(Environment.NewLine, apps.Select(s => $"- {s.Name} ({s.Version})"))}");
+#if !DEBUG
+            XElement meta = XDocument.Load(XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value).Element("meta");
+            Version vLocal = Assembly.GetExecutingAssembly().GetName().Version;
+            Version vOnline = Version.Parse(meta.Element("Version").Value);
+            if (vLocal < vOnline)
+                Console.WriteLine($"uptool is outdated ({vLocal} vs {vOnline}), update using \"uptool upgrade-self\"");
+#endif
         }
 
         private static void List()
@@ -143,6 +201,13 @@ namespace UpToolCLI
                 Console.WriteLine($"Updating {app.Value.Name}");
                 AppExtras.Update(app.Value, false);
             }
+#if !DEBUG
+            if (Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(XDocument.Load(XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value).Element("meta").Element("Version").Value))
+            {
+                Console.WriteLine("Updating self");
+                UpgradeSelf();
+            }
+#endif
             Console.WriteLine("Done!");
         }
 
