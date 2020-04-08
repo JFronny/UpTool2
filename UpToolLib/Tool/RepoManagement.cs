@@ -26,7 +26,7 @@ namespace UpToolLib.Tool
                 {
 #endif
                     ExternalFunctionalityManager.Instance.Log($"[{i + 1}] Loading {repArr[i]}");
-                    XDocument repo = XDocument.Load(new Uri(repArr[i]).Unshorten().AbsoluteUri);
+                    XDocument repo = XDocument.Load(new Uri(repArr[i]).TryUnshorten().AbsoluteUri);
                     repArr.AddRange(repo.Element("repo").Elements("repolink").Select(s => s.Value)
                         .Where(s => !repArr.Contains(s)));
                     XElement[] tmpApparray = repo.Element("repo").Elements("app").Where(app =>
@@ -38,7 +38,7 @@ namespace UpToolLib.Tool
                             .Select(s =>
                             {
                                 ExternalFunctionalityManager.Instance.Log($"- Loading {s.Value}");
-                                return XDocument.Load(new Uri(s.Value).Unshorten().AbsoluteUri).Element("app");
+                                return XDocument.Load(new Uri(s.Value).TryUnshorten().AbsoluteUri).Element("app");
                             }))
                         .ToArray();
                     foreach (XElement app in tmpApparray)
@@ -63,13 +63,13 @@ namespace UpToolLib.Tool
                                 tmpAppsList.Last()
                                     .Add(new XElement("Icon",
                                         ExternalFunctionalityManager.Instance.FetchImageB64(
-                                            new Uri(app.Element("Icon").Value).Unshorten())));
+                                            new Uri(app.Element("Icon").Value).TryUnshorten())));
                             }
                             catch
                             {
                                 // ignored
                             }
-
+                        tmpAppsList.Last().Add(new XElement("Platform", app.Element("Platform") == null || !new[]{GlobalVariables.Posix, GlobalVariables.Windows}.Contains(app.Element("Platform").Value) ? GlobalVariables.CurrentPlatform : app.Element("Platform").Value));
                         XElement app1 = app;
                         if (tmpAppsList.Count(a => a.Element("ID").Value == app1.Element("ID").Value) > 1)
                             tmpAppsList.Where(a => a.Element("ID").Value == app.Element("ID").Value).Reverse()
@@ -109,6 +109,7 @@ namespace UpToolLib.Tool
             string xml = PathTool.InfoXml;
             XDocument.Load(xml).Element("meta").Element("LocalRepo").Elements().ToList().ForEach(app =>
             {
+                if (app.Element("Platform").Value != GlobalVariables.CurrentPlatform) return;
                 Guid id = Guid.Parse(app.Element("ID").Value);
                 string locInPath = PathTool.GetInfoPath(id);
                 XElement locIn = File.Exists(locInPath) ? XDocument.Load(locInPath).Element("app") : app;

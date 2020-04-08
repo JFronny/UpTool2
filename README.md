@@ -22,7 +22,7 @@ You can also add something like this to your Readme: [![UpTool2](https://img.shi
 - %APPDATA%\UpTool2
   - Apps
     - __APPGUID
-      - `info.xml` Local copy of some app information, like [this](https://github.com/JFronny/UpTool2#app-layout) but missing ID, File, Hash and Icon
+      - `info.xml` Local copy of some app information, like [this](https://github.com/JFronny/UpTool2#app-layout) but missing ID, File, Hash, Platform and Icon
       - [`package.zip`](https://github.com/JFronny/UpTool2#package-layout) The package that was downloaded on install
       - `app` The app install path
         - `__APPFILES` Copy of the app files from above, may contain user-configs
@@ -53,6 +53,7 @@ You can also add something like this to your Readme: [![UpTool2](https://img.shi
   - `Hash` The files SHA256 Hash
   - `Icon` The apps icon, (optional)
   - `MainFile` Main binary, used for starting, (optional)
+  - `Platform` The platform this works on (optional, defaults to current)
 ## Package layout
   - `Install.bat` The script for installing the app
   - `Remove.bat` The script for removing the app

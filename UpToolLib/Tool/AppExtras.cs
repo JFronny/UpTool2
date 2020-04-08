@@ -41,12 +41,7 @@ namespace UpToolLib.Tool
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden
                 }).WaitForExit();*/
-                int key = new[]
-                        {
-                            PlatformID.Xbox, PlatformID.Win32S, PlatformID.Win32Windows, PlatformID.Win32NT,
-                            PlatformID.WinCE
-                        }
-                        .Contains(Environment.OSVersion.Platform) ? 0 :
+                int key = PlatformCheck.IsWindows ? 0 :
                     File.Exists(Path.Combine(tmp, "Remove.sh")) ? 1 : 2;
                 ProcessStartInfo prc = new ProcessStartInfo
                 {
