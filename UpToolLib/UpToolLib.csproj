@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
+        <Deterministic>false</Deterministic>
+        <AssemblyVersion>1.0.*</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>

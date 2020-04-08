@@ -142,7 +142,7 @@ namespace UpToolLib.Tool
                     {
                         XElement data = XDocument.Load(PathTool.GetInfoPath(tmp)).Element("app");
                         GlobalVariables.Apps.Add(tmp,
-                            new App("(local) " + data.Element("Name").Value, data.Element("Description").Value,
+                            new App($"(local) {data.Element("Name").Value}", data.Element("Description").Value,
                                 GlobalVariables.MinimumVer, "", true, "", tmp, Color.Red,
                                 ExternalFunctionalityManager.Instance.GetDefaultIcon(),
                                 data.Element("MainFile") != null,

@@ -37,21 +37,19 @@ namespace Installer
                     ExternalFunctionalityManager.Init(new UtLibFunctionsCli());
                     WebClient client = new WebClient();
                     Console.WriteLine("Downloading metadata");
-                    XElement meta = XDocument.Load("https://github.com/JFronny/UpTool2/releases/latest/download/meta.xml")
-                        .Element("meta");
+                    UpdateCheck.Reload("https://github.com/JFronny/UpTool2/releases/latest/download/meta.xml");
                     Console.WriteLine("Downloading binary");
-                    byte[] dl = client.DownloadData(meta.Element("File").Value);
+                    byte[] dl = client.DownloadData(UpdateCheck.App);
                     Console.WriteLine("Verifying integrity");
                     using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
                     {
                         string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
-                        if (pkgHash != meta.Element("Hash").Value.ToUpper())
-                            throw new Exception(
-                                $"The hash is not equal to the one stored in the repo:\r\nPackage: {pkgHash}\r\nOnline: {meta.Element("Hash").Value.ToUpper()}");
+                        if (pkgHash != UpdateCheck.AppHash)
+                            throw new Exception($@"The hash is not equal to the one stored in the repo:
+Package: {pkgHash}
+Online: {UpdateCheck.AppHash}");
                     }
                     Console.WriteLine("Extracting");
-                    //if (Directory.Exists(PathTool.GetRelative("Install")))
-                    //    Directory.Delete(PathTool.GetRelative("Install"), true);
                     if (Directory.Exists(PathTool.GetRelative("Install")))
                     {
                         foreach (string file in Directory.GetFiles(PathTool.GetRelative("Install"))) File.Delete(file);

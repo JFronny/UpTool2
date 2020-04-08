@@ -59,7 +59,7 @@ namespace UpToolLib.DataStructures
 
         public override string ToString() => $@"Name: {Name}
 Description:
-{string.Join(NewLine, Description.Split('\n').Select(s => { if (s.EndsWith("\r")) s.Remove(s.Length - 1, 1); return ">   " + s; }))}
+{string.Join(NewLine, Description.Split('\n').Select(s => { if (s.EndsWith("\r")) s.Remove(s.Length - 1, 1); return $">   {s}"; }))}
 Version: {Version}
 File: {File}
 Local: {Local}

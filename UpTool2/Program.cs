@@ -53,8 +53,15 @@ namespace UpTool2
                     Directory.CreateDirectory(PathTool.Dir);
                 FixXml();
                 SetSplash(2, "Performing checks");
-                string metaXml = XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value;
-                Online = new Uri(metaXml).Ping();
+                try
+                {
+                    UpToolLib.UpdateCheck.Reload();
+                    Online = true;
+                }
+                catch
+                {
+                    Online = false;
+                }
                 if (Application.ExecutablePath != PathTool.GetRelative("Install", "UpTool2.dll"))
                     Splash.Invoke((Action) (() => MessageBox.Show(Splash,
                             $"WARNING!{Environment.NewLine}Running from outside the install directory is not recommended!")
@@ -63,7 +70,7 @@ namespace UpTool2
                     Directory.CreateDirectory(PathTool.GetRelative("Apps"));
                 if (!Online)
                     SetSplash(7, "Opening");
-                if (!Online || UpdateCheck(metaXml))
+                if (!Online || UpdateCheck())
                     Application.Run(new MainForm());
 #if !DEBUG
             }
@@ -184,15 +191,14 @@ namespace UpTool2
             }
         }
 
-        private static bool UpdateCheck(string metaXml)
+        private static bool UpdateCheck()
         {
             SetSplash(3, "Comparing online version");
-            XElement meta = XDocument.Load(metaXml).Element("meta");
-            if (Assembly.GetExecutingAssembly().GetName().Version >= Version.Parse(meta.Element("Version").Value))
+            if (Assembly.GetExecutingAssembly().GetName().Version >= UpToolLib.UpdateCheck.OnlineVersion)
                 return true;
             byte[] dl;
             SetSplash(4, "Downloading latest");
-            using (DownloadDialog dlg = new DownloadDialog(meta.Element("Installer").Value))
+            using (DownloadDialog dlg = new DownloadDialog(UpToolLib.UpdateCheck.Installer.AbsoluteUri))
             {
                 if (dlg.ShowDialog() != DialogResult.OK)
                     throw new Exception("Failed to update");
@@ -202,9 +208,9 @@ namespace UpTool2
             using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
             {
                 string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
-                if (pkgHash != meta.Element("InstallerHash").Value.ToUpper())
-                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkgHash +
-                                        "\r\nOnline: " + meta.Element("InstallerHash").Value.ToUpper());
+                if (pkgHash != UpToolLib.UpdateCheck.InstallerHash)
+                    throw new Exception(
+                        $"The hash is not equal to the one stored in the repo:\r\nPackage: {pkgHash}\r\nOnline: {UpToolLib.UpdateCheck.InstallerHash}");
             }
             SetSplash(9, "Installing");
             if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))

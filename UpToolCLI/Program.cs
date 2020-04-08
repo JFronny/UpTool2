@@ -49,10 +49,12 @@ namespace UpToolCLI
                 upgrade.Handler = CommandHandler.Create<string, bool>(Upgrade);
                 rootCommand.AddCommand(upgrade);
 
-                rootCommand.AddCommand(new Command("upgrade-self", "Upgrades UpToolCLI")
+                Command command = new Command("upgrade-self", "Upgrades UpToolCLI")
                 {
-                    Handler = CommandHandler.Create(UpgradeSelf)
-                });
+                    new Option<bool>(new[] {"--force", "-f"}, "Overwrites older files")
+                };
+                command.Handler = CommandHandler.Create<bool>(UpgradeSelf);
+                rootCommand.AddCommand(command);
 
                 Command reinstall = new Command("reinstall", "Reinstall a package")
                 {
@@ -115,23 +117,23 @@ namespace UpToolCLI
             }
         }
 
-        private static void UpgradeSelf()
+        private static void UpgradeSelf(bool force)
         {
 #if DEBUG
             Console.WriteLine("Not enabled in debug builds");
 #else
-            XElement meta = XDocument.Load(XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value).Element("meta");
             Console.WriteLine("Downloading latest");
-            (bool success, byte[] dl) = Functions.Download(new Uri(meta.Element("Installer").Value));
+            (bool success, byte[] dl) = Functions.Download(UpdateCheck.Installer);
             if (!success)
                 throw new Exception("Failed to update");
             Console.WriteLine("Verifying");
             using (SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider())
             {
                 string pkgHash = BitConverter.ToString(sha256.ComputeHash(dl)).Replace("-", string.Empty).ToUpper();
-                if (pkgHash != meta.Element("InstallerHash").Value.ToUpper())
-                    throw new Exception("The hash is not equal to the one stored in the repo:\r\nPackage: " + pkgHash +
-                                        "\r\nOnline: " + meta.Element("InstallerHash").Value.ToUpper());
+                if (pkgHash != UpdateCheck.InstallerHash)
+                    throw new Exception($@"The hash is not equal to the one stored in the repo:
+Package: {pkgHash}
+Online: {UpdateCheck.InstallerHash}");
             }
             Console.WriteLine("Installing");
             if (Directory.Exists(PathTool.GetRelative("Install", "tmp")))
@@ -169,9 +171,8 @@ namespace UpToolCLI
                 : $@"Found {updatableCount} Updates:
 {string.Join(Environment.NewLine, apps.Select(s => $"- {s.Name} ({s.Version})"))}");
 #if !DEBUG
-            XElement meta = XDocument.Load(XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value).Element("meta");
             Version vLocal = Assembly.GetExecutingAssembly().GetName().Version;
-            Version vOnline = Version.Parse(meta.Element("Version").Value);
+            Version vOnline = UpdateCheck.OnlineVersion;
             if (vLocal < vOnline)
                 Console.WriteLine($"uptool is outdated ({vLocal} vs {vOnline}), update using \"uptool upgrade-self\"");
 #endif
@@ -202,10 +203,10 @@ namespace UpToolCLI
                 AppExtras.Update(app.Value, false);
             }
 #if !DEBUG
-            if (Assembly.GetExecutingAssembly().GetName().Version < Version.Parse(XDocument.Load(XDocument.Load(PathTool.InfoXml).Element("meta").Element("UpdateSource").Value).Element("meta").Element("Version").Value))
+            if (Assembly.GetExecutingAssembly().GetName().Version < UpdateCheck.OnlineVersion)
             {
                 Console.WriteLine("Updating self");
-                UpgradeSelf();
+                UpgradeSelf(false);
             }
 #endif
             Console.WriteLine("Done!");
