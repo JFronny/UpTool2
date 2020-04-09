@@ -1,0 +1,2 @@
+Use "Installer --help" for info
+(on non-windows platforms, use the dotnet CLI to run Installer.dll)

@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Threading;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using UpToolLib.DataStructures;
 
 namespace Installer
 {
-    public class UtLibFunctionsCli : IExternalFunctionality
+    public class UtLibFunctions : IExternalFunctionality
     {
         public Tuple<bool, byte[]> Download(Uri link)
         {
@@ -39,24 +38,10 @@ namespace Installer
         public string FetchImageB64(Uri link)
         {
             using WebClient client = new WebClient();
-            Image src = Image.FromStream(
-                client.OpenRead(link));
-            Bitmap dest = new Bitmap(70, 70);
-            dest.SetResolution(src.HorizontalResolution, src.VerticalResolution);
-            using (Graphics g = Graphics.FromImage(dest))
-            {
-                g.CompositingMode = CompositingMode.SourceCopy;
-                g.CompositingQuality = CompositingQuality.HighQuality;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.SmoothingMode = SmoothingMode.HighQuality;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                using ImageAttributes wrapMode = new ImageAttributes();
-                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                g.DrawImage(src, new Rectangle(0, 0, 70, 70), 0, 0, src.Width, src.Height,
-                    GraphicsUnit.Pixel, wrapMode);
-            }
+            using Image image = Image.Load(client.OpenRead(link));
+            image.Mutate(x => x.Resize(70, 70));
             using MemoryStream ms = new MemoryStream();
-            dest.Save(ms, ImageFormat.Png);
+            image.SaveAsPng(ms);
             return Convert.ToBase64String(ms.ToArray());
         }
 
@@ -108,8 +93,7 @@ namespace Installer
 
         public object GetDefaultIcon() => 0;
 
-        public object ImageFromB64(string b64) =>
-            (Bitmap) new ImageConverter().ConvertFrom(Convert.FromBase64String(b64));
+        public object ImageFromB64(string b64) => 0;
 
         public void Log(string text) => Console.WriteLine(text);
     }

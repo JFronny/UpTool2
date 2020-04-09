@@ -111,6 +111,11 @@ namespace UpToolCLI
                 rootCommand.AddCommand(start);
                 return rootCommand.InvokeAsync(args).Result;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"FAILED: {e}");
+                return 1;
+            }
             finally
             {
                 MutexLock.Unlock();
@@ -153,7 +158,7 @@ Online: {UpdateCheck.InstallerHash}");
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = file,
-                    Arguments = "-i",
+                    Arguments = "i",
                     WorkingDirectory = PathTool.GetRelative("Install"),
                     UseShellExecute = false
                 });

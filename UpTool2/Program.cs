@@ -222,7 +222,7 @@ namespace UpTool2
             Process.Start(new ProcessStartInfo
             {
                 FileName = PathTool.GetRelative("Install", "tmp", "Installer.exe"),
-                Arguments = "-i",
+                Arguments = "i -p",
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = PathTool.GetRelative("Install")
