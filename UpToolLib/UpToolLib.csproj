@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CC-Functions.Misc" Version="1.1.7399.26972" />
+      <PackageReference Include="CC-Functions.Misc" Version="1.1.7409.23118" />
     </ItemGroup>
 
 </Project>
