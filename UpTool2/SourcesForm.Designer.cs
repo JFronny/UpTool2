@@ -21,20 +21,16 @@
         }
 
         #region Windows Form Designer generated code
-
         /// <summary>
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForms));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpTool2.SettingsForms));
             this.sourceGrid = new System.Windows.Forms.DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.sourceGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize) (this.sourceGrid)).BeginInit();
             this.SuspendLayout();
-            // 
-            // sourceGrid
-            // 
             this.sourceGrid.BackgroundColor = System.Drawing.Color.White;
             this.sourceGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.sourceGrid.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -44,28 +40,24 @@
             this.sourceGrid.Name = "sourceGrid";
             this.sourceGrid.Size = new System.Drawing.Size(933, 519);
             this.sourceGrid.TabIndex = 0;
-            // 
-            // SettingsForms
-            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(933, 519);
             this.Controls.Add(this.sourceGrid);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.Name = "SettingsForms";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "Sources";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsForms_FormClosing);
-            ((System.ComponentModel.ISupportInitialize)(this.sourceGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize) (this.sourceGrid)).EndInit();
             this.ResumeLayout(false);
-
         }
 
-        #endregion
-
         private System.Windows.Forms.DataGridView sourceGrid;
+#endregion
+
         private System.Windows.Forms.DataGridViewTextBoxColumn sbName;
         private System.Windows.Forms.DataGridViewTextBoxColumn sbLink;
     }

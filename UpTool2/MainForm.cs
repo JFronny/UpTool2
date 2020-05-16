@@ -210,7 +210,9 @@ namespace UpTool2
                 File.WriteAllText(tmpFile,
                     string.Join("\r\n\r\n",
                         GlobalVariables.Apps.Values.Select(app => app.ToString()).Concat(new[]
-                            {"Assembly version: " + Assembly.GetExecutingAssembly().GetName().Version}).ToArray()));
+                            {
+                                $"Assembly version: {Assembly.GetExecutingAssembly().GetName().Version}"
+                            }).ToArray()));
                 new Thread(() =>
                 {
                     Process.Start("notepad", tmpFile).WaitForExit();

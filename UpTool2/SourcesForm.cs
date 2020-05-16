@@ -15,6 +15,9 @@ namespace UpTool2
             Program.FixXml();
             _doc = XDocument.Load(PathTool.InfoXml);
             _repos = _doc.Element("meta").Element("Repos");
+            sourceGrid.Columns.Clear();
+            sourceGrid.Columns.Add("name", "Name");
+            sourceGrid.Columns.Add("link", "Link");
             foreach (XElement repo in _repos.Elements("Repo"))
                 sourceGrid.Rows.Add(repo.Element("Name").Value, repo.Element("Link").Value);
         }
