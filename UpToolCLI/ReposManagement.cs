@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Linq;
@@ -23,7 +22,7 @@ namespace UpToolCLI
                 {
                     Required = true
                 },
-                new Option<string>(new[]{"--link", "-l"}, "A link to the repositories XML")
+                new Option<string>(new[] {"--link", "-l"}, "A link to the repositories XML")
                 {
                     Required = true
                 }

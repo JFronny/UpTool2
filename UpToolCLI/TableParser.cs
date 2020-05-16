@@ -10,16 +10,19 @@ namespace UpToolCLI
 {
     public static class TableParser
     {
-        public static string ToStringTable<T>(this IEnumerable<T> values, string[] columnHeaders, params Func<T, object>[] valueSelectors) => ToStringTable(values.ToArray(), columnHeaders, valueSelectors);
+        public static string ToStringTable<T>(this IEnumerable<T> values, string[] columnHeaders,
+            params Func<T, object>[] valueSelectors) => ToStringTable(values.ToArray(), columnHeaders, valueSelectors);
 
-        public static string ToStringTable<T>(this T[] values, string[] columnHeaders, params Func<T, object>[] valueSelectors)
+        public static string ToStringTable<T>(this T[] values, string[] columnHeaders,
+            params Func<T, object>[] valueSelectors)
         {
             Debug.Assert(columnHeaders.Length == valueSelectors.Length);
 
             string[,] arrValues = new string[values.Length + 1, valueSelectors.Length];
 
             // Fill headers
-            for (int colIndex = 0; colIndex < arrValues.GetLength(1); colIndex++) arrValues[0, colIndex] = columnHeaders[colIndex];
+            for (int colIndex = 0; colIndex < arrValues.GetLength(1); colIndex++)
+                arrValues[0, colIndex] = columnHeaders[colIndex];
 
             // Fill table rows
             for (int rowIndex = 1; rowIndex < arrValues.GetLength(0); rowIndex++)
@@ -80,7 +83,8 @@ namespace UpToolCLI
             return maxColumnsWidth;
         }
 
-        public static string ToStringTable<T>(this IEnumerable<T> values, params Expression<Func<T, object>>[] valueSelectors)
+        public static string ToStringTable<T>(this IEnumerable<T> values,
+            params Expression<Func<T, object>>[] valueSelectors)
         {
             string[] headers = valueSelectors.Select(func => GetProperty(func).Name).ToArray();
             Func<T, object>[] selectors = valueSelectors.Select(exp => exp.Compile()).ToArray();

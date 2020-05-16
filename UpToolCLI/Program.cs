@@ -7,7 +7,7 @@ namespace UpToolCLI
 {
     public static class Program
     {
-        private static readonly UtLibFunctions Functions = new UtLibFunctions();
+        public static readonly UtLibFunctions Functions = new UtLibFunctions();
 
         public static int Main(string[] args)
         {
@@ -17,12 +17,12 @@ namespace UpToolCLI
                 XmlTool.FixXml();
                 ExternalFunctionalityManager.Init(Functions);
                 RootCommand rootCommand = new RootCommand();
-                
+
                 PackageManagement.RegisterCommands(rootCommand);
                 CacheManagement.RegisterCommands(rootCommand);
                 ReposManagement.RegisterCommands(rootCommand);
                 Other.RegisterCommands(rootCommand);
-                
+
                 return rootCommand.InvokeAsync(args).Result;
             }
             catch (Exception e)

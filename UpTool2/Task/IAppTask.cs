@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UpTool2.Task
+﻿namespace UpTool2.Task
 {
-    interface IAppTask
+    internal interface IAppTask
     {
         public void Run();
     }

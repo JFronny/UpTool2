@@ -1,7 +1,13 @@
 ﻿using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
 using Process = System.Diagnostics.Process;
@@ -31,7 +37,7 @@ namespace UpToolCLI
             rootCommand.AddCommand(start);
         }
 
-        private static void UpgradeSelf(bool force)
+        public static void UpgradeSelf(bool force)
         {
 #if DEBUG
             Console.WriteLine("Not enabled in debug builds");
@@ -41,7 +47,7 @@ namespace UpToolCLI
             else
             {
                 Console.WriteLine("Downloading latest");
-                (bool success, byte[] dl) = Functions.Download(UpdateCheck.Installer);
+                (bool success, byte[] dl) = Program.Functions.Download(UpdateCheck.Installer);
                 if (!success)
                     throw new Exception("Failed to update");
                 Console.WriteLine("Verifying");

@@ -5,15 +5,17 @@ using UpToolLib.Tool;
 
 namespace UpTool2.Task
 {
-    class InstallTask : IKnownAppTask
+    internal class InstallTask : IKnownAppTask
     {
-        public override App App { get; }
         private readonly Action? _postInstall;
+
         public InstallTask(App app, Action? postInstall = null)
         {
             App = app;
             _postInstall = postInstall;
         }
+
+        public override App App { get; }
 
         public override void Run()
         {

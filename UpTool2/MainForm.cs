@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using UpTool2.Task;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
-using UpTool2.Task;
-using System.Collections.Generic;
 
 #if DEBUG
 using System.Threading;
@@ -46,7 +46,7 @@ namespace UpTool2
 
         private void Action_install_Click(object sender, EventArgs e)
         {
-            App tmp = (App)action_install.Tag;
+            App tmp = (App) action_install.Tag;
             if (_tasks.Any(s => s is InstallTask t && t.App == tmp))
             {
                 _tasks = _tasks.Where(s => !(s is InstallTask t) || t.App != tmp).ToList();
@@ -62,7 +62,7 @@ namespace UpTool2
 
         private void Action_remove_Click(object sender, EventArgs e)
         {
-            App tmp = (App)action_install.Tag;
+            App tmp = (App) action_install.Tag;
             if (_tasks.Any(s => s is RemoveTask t && t.App == tmp))
             {
                 _tasks = _tasks.Where(s => !(s is RemoveTask t) || t.App != tmp).ToList();
@@ -87,7 +87,7 @@ namespace UpTool2
 
         private void Action_update_Click(object sender, EventArgs e)
         {
-            App tmp = (App)action_install.Tag;
+            App tmp = (App) action_install.Tag;
             if (_tasks.Any(s => s is UpdateTask t && t.App == tmp))
             {
                 _tasks = _tasks.Where(s => !(s is UpdateTask t) || t.App != tmp).ToList();

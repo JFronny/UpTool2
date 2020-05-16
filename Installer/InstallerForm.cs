@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -10,6 +9,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using Microsoft.Win32;
 using UpToolLib;
 using UpToolLib.Tool;
 
@@ -17,9 +17,9 @@ namespace Installer
 {
     public partial class InstallerForm : Form
     {
-        private string _log = "";
         private const string AppName = "UpTool2";
         private readonly RegistryKey _rkApp;
+        private string _log = "";
 
         public InstallerForm()
         {
@@ -28,9 +28,11 @@ namespace Installer
             Step(0, "Initialized");
             _log = _log.TrimStart(Environment.NewLine.ToCharArray());
             _rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-            pathBox.Checked = !File.Exists(PathTool.InfoXml) || Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install")));
+            pathBox.Checked = !File.Exists(PathTool.InfoXml) ||
+                              Path.Content.Contains(Path.GetName(PathTool.GetRelative("Install")));
             startupBox.Checked = pathBox.Checked && _rkApp.GetValue(AppName) != null;
-            updateAppsBox.Checked = pathBox.Checked && startupBox.Checked && (string)_rkApp.GetValue(AppName) == "uptool dist-upgrade";
+            updateAppsBox.Checked = pathBox.Checked && startupBox.Checked &&
+                                    (string) _rkApp.GetValue(AppName) == "uptool dist-upgrade";
         }
 
         private void install_Click(object sender, EventArgs e)

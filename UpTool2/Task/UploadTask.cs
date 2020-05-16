@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
 using UpTool2.Properties;
 using UpToolLib;
@@ -11,11 +9,12 @@ using UpToolLib.Tool;
 
 namespace UpTool2.Task
 {
-    class UploadTask : IAppTask
+    internal class UploadTask : IAppTask
     {
-        public readonly string ZipFile;
         private readonly string _name;
         private readonly Action? _postInstall;
+        public readonly string ZipFile;
+
         public UploadTask(string zipFile, string name, Action? postInstall = null)
         {
             ZipFile = zipFile;

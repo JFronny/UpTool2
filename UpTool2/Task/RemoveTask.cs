@@ -1,21 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
 
 namespace UpTool2.Task
 {
-    class RemoveTask : IKnownAppTask
+    internal class RemoveTask : IKnownAppTask
     {
-        public override App App { get; }
         private readonly Action? _postInstall;
+
         public RemoveTask(App app, Action? postInstall = null)
         {
             App = app;
             _postInstall = postInstall;
         }
+
+        public override App App { get; }
 
         public override void Run()
         {

@@ -5,6 +5,7 @@ using System.CommandLine.Invocation;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
@@ -197,7 +198,7 @@ namespace UpToolCLI
             if (Assembly.GetExecutingAssembly().GetName().Version < UpdateCheck.OnlineVersion)
             {
                 Console.WriteLine("Updating self");
-                UpgradeSelf(false);
+                Other.UpgradeSelf(false);
             }
 #endif
             Console.WriteLine("Done!");

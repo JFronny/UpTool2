@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Linq;
+using System.Reflection;
 using UpToolLib;
 using UpToolLib.DataStructures;
 using UpToolLib.Tool;
@@ -37,7 +38,7 @@ namespace UpToolCLI
             };
             show.Handler = CommandHandler.Create<string>(Show);
             rootCommand.AddCommand(show);
-                
+
             rootCommand.AddCommand(new Command("update", "Updates the cache")
             {
                 Handler = CommandHandler.Create(Update)
@@ -47,13 +48,15 @@ namespace UpToolCLI
         private static void List()
         {
             RepoManagement.GetReposFromDisk();
-            Console.WriteLine(GlobalVariables.Apps.Where(s => (s.Value.Status & Status.Installed) == Status.Installed).ToStringTable(new[]
-                {
-                    "Name", "State", "Guid"
-                },
-                u => u.Value.Name,
-                u => u.Value.Local ? "Local" : (u.Value.Status & Status.Updatable) == Status.Updatable ? "Updatable" : "None",
-                u => u.Key));
+            Console.WriteLine(GlobalVariables.Apps.Where(s => (s.Value.Status & Status.Installed) == Status.Installed)
+                .ToStringTable(new[]
+                    {
+                        "Name", "State", "Guid"
+                    },
+                    u => u.Value.Name,
+                    u => u.Value.Local ? "Local" :
+                        (u.Value.Status & Status.Updatable) == Status.Updatable ? "Updatable" : "None",
+                    u => u.Key));
         }
 
         private static void Search(string identifier)
