@@ -176,7 +176,7 @@ namespace UpToolCLI
                 App tmp = apps.First();
                 if ((tmp.Status & Status.Installed) == Status.Installed)
                 {
-                    Console.WriteLine($"Purgeing {tmp.Name}");
+                    Console.WriteLine($"Purging {tmp.Name}");
                     AppExtras.Remove(tmp, true);
                 }
                 else
