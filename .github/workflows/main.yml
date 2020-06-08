@@ -18,8 +18,14 @@ jobs:
         cd $Env:GITHUB_WORKSPACE
         dotnet build --verbosity:m -p:Configuration=Release
         cp ".\UpTool build tool\bin\Release\netcoreapp3.1\package.zip" $Env:GITHUB_WORKSPACE\Tools.zip
-        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\*
-        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpToolCLI\bin\Release\netcoreapp3.1\*
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\UpTool2.exe
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\*.dll
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\UpTool2.runtimeconfig.json
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpTool2\bin\Release\netcoreapp3.1\runtimes
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpToolCLI\bin\Release\netcoreapp3.1\uptool.exe
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpToolCLI\bin\Release\netcoreapp3.1\*.dll
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpToolCLI\bin\Release\netcoreapp3.1\uptool.runtimeconfig.json
+        & "C:\Program Files\7-Zip\7z" a .\Release.zip .\UpToolCLI\bin\Release\netcoreapp3.1\runtimes
         $asmver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool2\\bin\\Release\\netcoreapp3.1\\UpTool2.dll").GetName().version.ToString())
         $pkgtoolver = $([Reflection.Assembly]::Loadfile($(pwd).Path + "\\UpTool build tool\\bin\\Release\\netcoreapp3.1\\pkgtool.dll").GetName().version.ToString())
         echo "::set-output name=vers::$asmver"
