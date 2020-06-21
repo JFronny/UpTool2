@@ -1,4 +1,6 @@
 # UpTool2
+# IMPORTANT
+Now hosted on [GitLab](https://gitlab.com/JFronny/UpTool2)
 Downloading software from online repos since 2019\
 [![CodeFactor](https://www.codefactor.io/repository/github/jfronny/uptool2/badge)](https://www.codefactor.io/repository/github/jfronny/uptool2)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/JFronny/UpTool2)](https://github.com/JFronny/UpTool2/releases/latest)
